@@ -1,6 +1,6 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { inBounds, indexOf, shipCells } from './board.ts';
+import { cellsOf, inBounds, indexOf } from './board.ts';
 import { callCells, isAfloat, legalCalls, newGame, reduce, replay, resolveCells, targetSeats, undoLastCall } from './game.ts';
 import { CLASSIC_SHIPYARD } from './presets.ts';
 import { nextInt, seedRng, type RngState } from './rng.ts';
@@ -183,7 +183,7 @@ describe('engine properties', () => {
               if (sunkNow?.kind === 'shipSunk' && after.rules.announceShipOnHit) {
                 const placed = after.fleets[i]?.find((p) => p.ship === id);
                 if (!placed) throw new Error('missing ship');
-                const footprint = shipCells(placed.origin, placed.axis, len);
+                const footprint = cellsOf(after.rules, placed);
                 expect(sunkNow.cells).toEqual(footprint);
                 expect(footprint.every((c) => after.boards[i]?.cells[indexOf(after.rules, c)] === CELL_HIT)).toBe(true);
               }
@@ -203,7 +203,7 @@ describe('engine properties', () => {
           const json = JSON.stringify(view);
           if (after.phase !== 'over') {
             expect(json).not.toContain('"origin"');
-            expect(json).not.toContain('"axis"');
+            expect(json).not.toContain('"orientation"');
           }
           after.boards.forEach((board, i) => {
             board.occupant.forEach((o, j) => {

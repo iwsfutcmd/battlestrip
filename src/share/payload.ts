@@ -1,3 +1,4 @@
+import { placedCells, WARDROBE } from '../engine/index.ts';
 import type { LabelSystemId } from '../i18n/labels.ts';
 import type { Direction, WritingMode } from '../i18n/direction.ts';
 import { CROCKFORD, fromCrockford, toCrockford } from './codes.ts';
@@ -8,13 +9,21 @@ import { CROCKFORD, fromCrockford, toCrockford } from './codes.ts';
  * static host never sees a fleet. Pure: no DOM.
  */
 export interface FleetImageShip {
+  /** Index into WARDROBE (on the wire); number, kind and cells follow from it. */
+  readonly item: number;
   readonly number: number;
   readonly kind: string;
-  /** Which copy of a repeated kind ("cruiser 2"), or null when the kind is unique. */
-  readonly copy: number | null;
-  readonly length: number;
   readonly origin: { readonly row: number; readonly col: number };
-  readonly axis: 'alongRow' | 'alongCol';
+  readonly orientation: number;
+  /** The board squares it covers. */
+  readonly cells: readonly { readonly row: number; readonly col: number }[];
+}
+
+/** A fleet-image piece from its wardrobe index, placement and orientation. */
+export function wardrobePiece(item: number, origin: { row: number; col: number }, orientation: number): FleetImageShip | null {
+  const def = WARDROBE[item];
+  if (!def) return null;
+  return { item, number: def.number, kind: def.kind, origin, orientation, cells: placedCells(def, origin, orientation) };
 }
 
 export interface FleetImage {
@@ -35,8 +44,8 @@ export interface FleetImage {
   readonly ships: readonly FleetImageShip[];
 }
 
-/** 2: clothing kinds replaced ship kinds. */
-export const PAYLOAD_VERSION = 2;
+/** 2: clothing kinds replaced ship kinds. 3: wardrobe pieces with shapes and orientations. */
+export const PAYLOAD_VERSION = 3;
 /** Keeps the worst-case URL under ~400 characters (24 emoji ZWJ sequences would be ~600 bytes). */
 export const MAX_NAME_BYTES = 160;
 
@@ -45,7 +54,6 @@ export const LABEL_SYSTEM_IDS: readonly LabelSystemId[] = [
   'latin', 'arabicAbjad', 'arabicAlphabetical', 'persian', 'persianAbjad', 'hebrew', 'greek', 'morskoyBoy',
   'respublika', 'heavenlyStems', 'earthlyBranches', 'hangul', 'iroha', 'numeric',
 ];
-export const SHIP_KINDS: readonly string[] = ['pants', 'shirt', 'underwear', 'socks', 'shoes', 'coat', 'sweater', 'scarf', 'sock', 'glove', 'hat'];
 const WRITING_MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';
@@ -111,10 +119,7 @@ export function encodeFleetImage(image: FleetImage): string {
   const name = enc.encode(fitName(image.name));
   bytes.push(name.byteLength, ...name);
   bytes.push(image.ships.length);
-  for (const s of image.ships) {
-    const kind = SHIP_KINDS.indexOf(s.kind);
-    bytes.push(s.number, ((kind < 0 ? 15 : kind) << 4) | ((s.copy ?? 0) & 15), s.length, s.origin.row, s.origin.col | (s.axis === 'alongCol' ? 128 : 0));
-  }
+  for (const s of image.ships) bytes.push(s.item, s.orientation & 7, s.origin.row, s.origin.col);
   return base64url(Uint8Array.from(bytes));
 }
 
@@ -149,14 +154,13 @@ export function decodeFleetImage(payload: string): { ok: true; value: FleetImage
     const count = next();
     const ships: FleetImageShip[] = [];
     for (let k = 0; k < count; k++) {
-      const number = next();
-      const kc = next();
-      const length = next();
+      const item = next();
+      const orientation = next();
       const row = next();
-      const colAxis = next();
-      const kind = SHIP_KINDS[kc >> 4];
-      if (!kind) return { ok: false, error: 'payload.corrupt' };
-      ships.push({ number, kind, copy: kc & 15 ? kc & 15 : null, length, origin: { row, col: colAxis & 127 }, axis: colAxis & 128 ? 'alongCol' : 'alongRow' });
+      const col = next();
+      const piece = wardrobePiece(item, { row, col }, orientation & 7);
+      if (!piece) return { ok: false, error: 'payload.corrupt' };
+      ships.push(piece);
     }
     if (!labels || labels2 === undefined || !writingMode || rows < 1 || cols < 1 || !/^[a-z]+$/u.test(numbering)) {
       return { ok: false, error: 'payload.corrupt' };

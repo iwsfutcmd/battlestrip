@@ -1,6 +1,6 @@
-import { indexOf, inBounds, placementsFor, shipCells } from './board.ts';
+import { indexOf, inBounds, placementsFor, type Placement } from './board.ts';
 import { nextInt, type RngState } from './rng.ts';
-import type { Axis, Coord, PlacedShip, Rules, ShipId } from './types.ts';
+import type { PlacedShip, Rules, ShipId } from './types.ts';
 
 /** Whole-layout attempts before giving up with `noLegalLayout`. */
 export const MAX_LAYOUT_ATTEMPTS = 1_000_000;
@@ -32,26 +32,25 @@ export function randomLayout(
     return ship;
   });
   const order = ships.map((_, i) => i).sort((a, b) => (ships[b]?.length ?? 0) - (ships[a]?.length ?? 0));
-  const options: Record<number, { origin: Coord; axis: Axis }[]> = {};
-  for (const s of ships) options[s.length] ??= placementsFor(rules, s.length);
+  const options = ships.map((s) => placementsFor(rules, s));
 
   const size = rules.rows * rules.cols;
   const taken = new Array<number>(size).fill(0);
   const blocked = new Array<number>(size).fill(0);
-  const chosen = new Array<{ origin: Coord; axis: Axis } | undefined>(ships.length);
+  const chosen = new Array<Placement | undefined>(ships.length);
   let state = rng;
 
   for (let attempt = 1; attempt <= MAX_LAYOUT_ATTEMPTS; attempt++) {
     let ok = true;
     for (const k of order) {
       const ship = ships[k];
-      const opts = ship ? options[ship.length] : undefined;
+      const opts = options[k];
       if (!ship || !opts || opts.length === 0) return [null, state];
       const [pick, next] = nextInt(state, opts.length);
       state = next;
       const placement = opts[pick];
       if (!placement) return [null, state];
-      const cells = shipCells(placement.origin, placement.axis, ship.length);
+      const cells = placement.cells;
       for (const c of cells) {
         const i = indexOf(rules, c);
         if (taken[i] === attempt || blocked[i] === attempt) {
@@ -78,7 +77,7 @@ export function randomLayout(
         ships.map((s, k) => {
           const p = chosen[k];
           if (!p) throw new Error('unreachable');
-          return { ship: s.id, origin: p.origin, axis: p.axis };
+          return { ship: s.id, origin: p.origin, orientation: p.orientation };
         }),
         state,
       ];

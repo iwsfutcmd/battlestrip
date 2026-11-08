@@ -1,4 +1,4 @@
-import { shipCells } from './board.ts';
+import { cellsOf } from './board.ts';
 import { isAfloat } from './game.ts';
 import {
   CELL_HIT,
@@ -90,7 +90,7 @@ export function viewFor(s: GameState, viewer: PlayerId | 'spectator'): PlayerVie
         length,
         hits: rules.announceShipOnHit ? hits : null,
         sunk,
-        cells: sunk && placed && rules.announceShipOnHit ? shipCells(placed.origin, placed.axis, length) : null,
+        cells: sunk && placed && rules.announceShipOnHit ? cellsOf(rules, placed) : null,
       };
     });
     return { id: seat.id, kind: seat.kind, afloat: isAfloat(s, i), sunkOnTurn: s.status[i]?.sunkOnTurn ?? null, ships };

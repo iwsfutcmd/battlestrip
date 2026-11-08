@@ -1,14 +1,12 @@
 import { useId } from 'preact/hooks';
-import { presetRules, type ShipId } from '../../engine/index.ts';
 import { writingModesFor, type CatalogId } from '../../i18n/index.ts';
 import { fits, LABEL_SYSTEMS, systemForRows, defaultLabelSystem, type LabelSystemId } from '../../i18n/labels.ts';
 import { cleanName, sameName } from '../../i18n/text.ts';
-import { ClothingIcon } from '../common/clothing.tsx';
 import { Glyph } from '../common/identity.tsx';
+import { OutfitPicker } from './OutfitPicker.tsx';
 import { LanguagePicker } from '../common/LanguagePicker.tsx';
 import { activateLocale, useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
-import { shipName } from '../table/format.ts';
 import {
   addSeat,
   clearSave,
@@ -20,7 +18,6 @@ import {
   readSave,
   removeSeat,
   resume,
-  rulesForLobby,
   updateLobby,
   updateSeat,
   type SeatConfig,
@@ -33,7 +30,6 @@ const savedGame = signal(readSave());
 export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
   const t = useTranslator();
   const c = lobby.value;
-  const rules = rulesForLobby(c);
   const names = c.seats.map((s, i) => s.name.trim() || t.format('lobby.defaultName', { n: i + 1 }));
   const duplicate = names.some((n, i) => names.some((m, j) => j > i && sameName(n, m, t.locale)));
   const emptyFleet = c.seats.some((s) => (s.kind === 'human' || s.policy === 'fixed') && s.fleet.length === 0);
@@ -91,7 +87,7 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
         </h2>
         <ol class="seat-list">
           {c.seats.map((seat, i) => (
-            <SeatEditor key={seat.key} seat={seat} index={i} count={c.seats.length} shipyard={rules.shipyard} />
+            <SeatEditor key={seat.key} seat={seat} index={i} count={c.seats.length} />
           ))}
         </ol>
         <div class="actions">
@@ -114,16 +110,6 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
           <Msg id="lobby.settings" />
         </h2>
         <div class="settings-grid">
-          <Field labelId="lobby.preset">
-            {(id) => (
-              <select id={id} value={c.preset} onChange={(e) => updateLobby({ preset: e.currentTarget.value === 'morskoyBoy' ? 'morskoyBoy' : 'classic' })}>
-                <option value="classic">{t.format('preset.classic')}</option>
-                <option value="morskoyBoy" lang="ru">
-                  {t.format('preset.morskoyBoy')}
-                </option>
-              </select>
-            )}
-          </Field>
           <Field labelId="lobby.placement">
             {(id) => (
               <select id={id} value={c.placement} onChange={(e) => updateLobby({ placement: e.currentTarget.value === 'phones' ? 'phones' : 'random' })}>
@@ -254,16 +240,13 @@ function NumberInput({ id, value, min, max, step = 1, onChange }: { readonly id:
   );
 }
 
-function SeatEditor({ seat, index, count, shipyard }: { readonly seat: SeatConfig; readonly index: number; readonly count: number; readonly shipyard: ReturnType<typeof presetRules>['shipyard'] }) {
+function SeatEditor({ seat, index, count }: { readonly seat: SeatConfig; readonly index: number; readonly count: number }) {
   const t = useTranslator();
   const nameId = useId();
   const kindId = useId();
   const botId = useId();
   const policyId = useId();
   const displayName = seat.name.trim() || t.format('lobby.defaultName', { n: index + 1 });
-  const toggle = (id: ShipId): void => {
-    updateSeat(seat.key, { fleet: seat.fleet.includes(id) ? seat.fleet.filter((x) => x !== id) : shipyard.filter((s) => s.id === id || seat.fleet.includes(s.id)).map((s) => s.id) });
-  };
   const showFleet = seat.kind === 'human' || seat.policy === 'fixed';
   return (
     <li class="seat">
@@ -323,29 +306,7 @@ function SeatEditor({ seat, index, count, shipyard }: { readonly seat: SeatConfi
           </select>
         </div>
       )}
-      {showFleet && (
-        <fieldset class="fleet-picker">
-          <legend>
-            <Msg id="lobby.fleet" />
-          </legend>
-          {shipyard.map((s) => {
-            const on = seat.fleet.includes(s.id);
-            const name = shipName(t, s.kind, shipyard.filter((x) => x.kind === s.kind).length > 1 ? shipyard.filter((x) => x.kind === s.kind).indexOf(s) + 1 : null);
-            return (
-              <button key={s.id} type="button" class={`ship-toggle ${on ? 'is-on' : ''}`} aria-pressed={on ? 'true' : 'false'} onClick={() => toggle(s.id)}>
-                <span class="ship-toggle-number">{new Intl.NumberFormat(t.locale).format(s.number)}</span>
-                <ClothingIcon kind={s.kind} />
-                <span class="ship-toggle-name">{name}</span>
-                <span class="ship-pic-hull" aria-hidden="true">
-                  {Array.from({ length: s.length }, (_, k) => (
-                    <span key={k} class="ship-seg" />
-                  ))}
-                </span>
-              </button>
-            );
-          })}
-        </fieldset>
-      )}
+      {showFleet && <OutfitPicker value={seat.fleet} onChange={(fleet) => updateSeat(seat.key, { fleet })} />}
     </li>
   );
 }

@@ -99,14 +99,27 @@
   vertical-align: -0.15em;
 }
 
-.ship-outline {
+.piece-cell {
+  --piece-edge: max(2px, calc(var(--cell) * 0.08));
+
   pointer-events: none;
   display: grid;
   place-items: center;
-  margin: 0.2em;
-  border: 0.18em solid;
-  border-radius: 0.45em;
-  background: rgb(86 180 233 / 16%);
+  border-style: solid;
+  border-width: 0;
+  background: rgb(86 180 233 / 22%);
+}
+
+.piece-cell.is-selected {
+  border-style: dashed;
+  background: rgb(240 228 66 / 22%);
+}
+
+.shape-icon {
+  flex: none;
+  vertical-align: middle;
+  fill: currentcolor;
+  opacity: 0.85;
 }
 
 .ship-number {

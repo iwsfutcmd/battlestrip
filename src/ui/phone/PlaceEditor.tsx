@@ -1,5 +1,5 @@
 import { useState } from 'preact/hooks';
-import { occupancy, presetRules, seedRng, type Axis, type Coord, type PlacedShip, type Rules } from '../../engine/index.ts';
+import { cellsOf, occupancy, orient, shapeOf, seedRng, wardrobeRules, type Coord, type PlacedShip, type Rules } from '../../engine/index.ts';
 import { randomLayout } from '../../engine/placement.ts';
 import { fleetCheck } from '../../share/codes.ts';
 import { encodeFleetCode, groupCode } from '../../share/fleet-code.ts';
@@ -11,22 +11,27 @@ import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
 import { Qr } from '../common/Qr.tsx';
 import { labelsFor, shipName } from '../table/format.ts';
-import { Grid, shipArea } from '../table/Grid.tsx';
-import { copyNumber } from '../../engine/index.ts';
+import { Grid } from '../table/Grid.tsx';
+import { PieceOutline, ShapeIcon } from '../table/Piece.tsx';
 import { formatNumber } from '../../i18n/labels.ts';
+import { wardrobePiece } from '../../share/payload.ts';
 
-type Layout = Partial<Record<number, { readonly origin: Coord; readonly axis: Axis }>>;
+type Layout = Partial<Record<number, { readonly origin: Coord; readonly orientation: number }>>;
 
 export function rulesOf(inv: PlacementInvite): Rules {
-  return presetRules(inv.preset, { rows: inv.rows, cols: inv.cols, allowTouching: inv.allowTouching });
+  return wardrobeRules({ rows: inv.rows, cols: inv.cols, allowTouching: inv.allowTouching });
 }
 
 function placedShips(rules: Rules, layout: Layout): PlacedShip[] {
   return Object.entries(layout).flatMap(([k, p]) => {
     const def = rules.shipyard[Number(k)];
-    return def && p ? [{ ship: def.id, origin: p.origin, axis: p.axis }] : [];
+    return def && p ? [{ ship: def.id, origin: p.origin, orientation: p.orientation }] : [];
   });
 }
+
+/** Orientation after a quarter turn clockwise, or after a mirror (keeps the other part). */
+const turned = (o: number): number => (o & 4) | ((o + 1) & 3);
+const flipped = (o: number): number => o ^ 4;
 
 function randomSeed(): number {
   const buf = new Uint32Array(1);
@@ -41,7 +46,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
   const [seat, setSeat] = useState<number | null>(null);
   const [layout, setLayout] = useState<Layout>({});
   const [selected, setSelected] = useState<number | null>(null);
-  const [axis, setAxis] = useState<Axis>('alongRow');
+  const [orientation, setOrientation] = useState(0);
   const [error, setError] = useState(false);
   const [done, setDone] = useState(false);
   const [focus, setFocus] = useState<Coord>({ row: 0, col: 0 });
@@ -85,39 +90,55 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
     return ok;
   };
 
-  const tap = (c: Coord): void => {
-    setFocus(c);
-    // Tapping a placed ship selects it.
-    for (const k of fleet) {
+  /** Where to put a piece so that its first filled cell lands on `c`. */
+  const originFor = (k: number, o: number, c: Coord): Coord => {
+    const def = rules.shipyard[k];
+    const first = def ? orient(shapeOf(def), o)[0] : undefined;
+    return { row: c.row - (first?.[0] ?? 0), col: c.col - (first?.[1] ?? 0) };
+  };
+
+  const pieceAt = (c: Coord): number | undefined =>
+    fleet.find((k) => {
       const p = layout[k];
       const def = rules.shipyard[k];
-      if (!p || !def) continue;
-      const along = p.axis === 'alongRow' ? c.row === p.origin.row && c.col >= p.origin.col && c.col < p.origin.col + def.length : c.col === p.origin.col && c.row >= p.origin.row && c.row < p.origin.row + def.length;
-      if (along && selected !== k) {
-        setSelected(k);
-        setAxis(p.axis);
-        return;
-      }
+      return p && def && cellsOf(rules, { ship: def.id, origin: p.origin, orientation: p.orientation }).some((x) => x.row === c.row && x.col === c.col);
+    });
+
+  const tap = (c: Coord): void => {
+    setFocus(c);
+    // Tapping a placed piece selects it.
+    const there = pieceAt(c);
+    if (there !== undefined && there !== selected) {
+      setSelected(there);
+      setOrientation(layout[there]?.orientation ?? 0);
+      return;
     }
     if (selected === null) return;
-    if (tryPlace({ ...layout, [selected]: { origin: c, axis } })) {
+    if (tryPlace({ ...layout, [selected]: { origin: originFor(selected, orientation, c), orientation } })) {
       const nextShip = fleet.find((k) => k !== selected && layout[k] === undefined);
-      if (nextShip !== undefined) setSelected(nextShip);
+      if (nextShip !== undefined) {
+        setSelected(nextShip);
+        setOrientation(0);
+      }
     }
   };
 
-  const rotate = (): void => {
-    const nextAxis: Axis = axis === 'alongRow' ? 'alongCol' : 'alongRow';
-    setAxis(nextAxis);
+  /** Turn or flip the selected piece in place (about its first filled cell). */
+  const reorient = (next: number): void => {
+    setOrientation(next);
     const p = selected === null ? undefined : layout[selected];
-    if (selected !== null && p) tryPlace({ ...layout, [selected]: { origin: p.origin, axis: nextAxis } });
+    if (selected === null || !p) return;
+    const def = rules.shipyard[selected];
+    const anchor = def ? orient(shapeOf(def), p.orientation)[0] : undefined;
+    const at = { row: p.origin.row + (anchor?.[0] ?? 0), col: p.origin.col + (anchor?.[1] ?? 0) };
+    tryPlace({ ...layout, [selected]: { origin: originFor(selected, next, at), orientation: next } });
   };
 
   const random = (): void => {
     const [placed] = randomLayout(rules, fleet.map((k) => rules.shipyard[k]?.id).filter((x) => x !== undefined), seedRng(randomSeed()));
     if (!placed) return;
     const next: Layout = {};
-    for (const p of placed) next[rules.shipyard.findIndex((s) => s.id === p.ship)] = { origin: p.origin, axis: p.axis };
+    for (const p of placed) next[rules.shipyard.findIndex((s) => s.id === p.ship)] = { origin: p.origin, orientation: p.orientation };
     setError(false);
     setLayout(next);
   };
@@ -125,9 +146,9 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
   if (done && complete) {
     const ships = fleet.flatMap((k) => {
       const p = layout[k];
-      return p ? [{ ship: k, origin: p.origin, axis: p.axis }] : [];
+      return p ? [{ ship: k, origin: p.origin, orientation: p.orientation }] : [];
     });
-    const code = encodeFleetCode({ gameCode: invite.gameCode, rules }, { seat, ships });
+    const code = encodeFleetCode({ gameCode: invite.gameCode, rules, fleets: invite.seats.map((x) => x.fleet) }, { seat, ships });
     const placed = placedShips(rules, layout);
     const image: FleetImage = {
       gameCode: invite.gameCode,
@@ -141,9 +162,9 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
       writingMode: invite.writingMode,
       name: me?.name ?? '',
       identity: seat,
-      ships: ships.map((s) => {
-        const def = rules.shipyard[s.ship];
-        return { number: def?.number ?? 0, kind: def?.kind ?? '', copy: copyNumber(rules.shipyard, def?.id ?? ('' as never)), length: def?.length ?? 1, origin: s.origin, axis: s.axis };
+      ships: ships.flatMap((s) => {
+        const piece = wardrobePiece(s.ship, s.origin, s.orientation);
+        return piece ? [piece] : [];
       }),
     };
     return (
@@ -197,9 +218,13 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
           const def = rules.shipyard[k];
           if (!p || !def) return null;
           return (
-            <div key={k} class={`ship-outline ${selected === k ? 'is-selected' : ''}`} style={{ ...shipArea(p.origin, p.axis, def.length), borderColor: identityColour(seat) }}>
-              <span class="ship-number">{formatNumber(labels.digitsLocale, def.number)}</span>
-            </div>
+            <PieceOutline
+              key={k}
+              piece={{ number: def.number, kind: def.kind, cells: cellsOf(rules, { ship: def.id, origin: p.origin, orientation: p.orientation }) }}
+              colour={identityColour(seat)}
+              digitsLocale={labels.digitsLocale}
+              selected={selected === k}
+            />
           );
         })}
       />
@@ -214,15 +239,16 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
           if (!def) return null;
           return (
             <li key={k}>
-              <button type="button" class={`ship-toggle ${selected === k ? 'is-on' : ''} ${layout[k] ? 'is-placed' : ''}`} aria-pressed={selected === k ? 'true' : 'false'} onClick={() => setSelected(k)}>
+              <button type="button" class={`ship-toggle ${selected === k ? 'is-on' : ''} ${layout[k] ? 'is-placed' : ''}`} aria-pressed={selected === k ? 'true' : 'false'}
+                onClick={() => {
+                  setSelected(k);
+                  setOrientation(layout[k]?.orientation ?? 0);
+                }}
+              >
                 <span class="ship-toggle-number">{formatNumber(t.locale, def.number)}</span>
                 <ClothingIcon kind={def.kind} />
-                <span>{shipName(t, def.kind, copyNumber(rules.shipyard, def.id))}</span>
-                <span class="ship-pic-hull" aria-hidden="true">
-                  {Array.from({ length: def.length }, (_, i) => (
-                    <span key={i} class="ship-seg" />
-                  ))}
-                </span>
+                <span>{shipName(t, def.kind, null)}</span>
+                <ShapeIcon shape={orient(shapeOf(def), selected === k ? orientation : 0)} />
                 {layout[k] && <span aria-hidden="true">✓</span>}
               </button>
             </li>
@@ -230,8 +256,11 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
         })}
       </ul>
       <div class="actions">
-        <button type="button" onClick={rotate}>
+        <button type="button" onClick={() => reorient(turned(orientation))}>
           <Msg id="place.rotate" />
+        </button>
+        <button type="button" onClick={() => reorient(flipped(orientation))}>
+          <Msg id="place.flip" />
         </button>
         <button type="button" onClick={random}>
           <Msg id="place.random" />

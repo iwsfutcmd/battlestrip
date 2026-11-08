@@ -4,18 +4,53 @@
  * catalog, and the icon is hidden from assistive technology).
  */
 const ICONS: Readonly<Record<string, string>> = {
+  tShirt: '👕',
+  shirt: '👔',
+  tankTop: '🎽',
+  sweater: '🧶',
+  hoodie: '🧥',
+  cropTop: '👚',
+  blouse: '👚',
+  vest: '🦺',
   pants: '👖',
-  shirt: '👕',
+  jeans: '👖',
+  shorts: '🩳',
+  skirt: '👗',
+  leggings: '👖',
+  dress: '👗',
+  swimsuit: '🩱',
+  robe: '👘',
+  jumpsuit: '🥼',
   underwear: '🩲',
+  boxers: '🩳',
+  bra: '👙',
+  undershirt: '🎽',
+  tights: '🧦',
   socks: '🧦',
   shoes: '👟',
+  boots: '🥾',
+  sandals: '🩴',
+  slippers: '🩴',
+  heels: '👠',
   coat: '🧥',
-  sweater: '👚',
+  jacket: '🧥',
+  blazer: '🧥',
+  raincoat: '☔',
+  hat: '🎩',
+  cap: '🧢',
+  beanie: '🧶',
   scarf: '🧣',
+  gloves: '🧤',
+  tie: '👔',
+  watch: '⌚',
+  sunglasses: '🕶️',
+  ring: '💍',
   sock: '🧦',
   glove: '🧤',
-  hat: '🧢',
 };
+
+/** Kinds that have an icon (tested against the wardrobe). */
+export const ICON_KINDS: readonly string[] = Object.keys(ICONS);
 
 export function ClothingIcon({ kind }: { readonly kind: string }) {
   const icon = ICONS[kind];

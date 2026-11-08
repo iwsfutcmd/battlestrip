@@ -93,13 +93,18 @@
   font-size: 1.2rem;
 }
 
-.ship-outline.is-selected {
-  border-style: dashed;
-  background: rgb(240 228 66 / 18%);
+.ship-toggle {
+  display: inline-flex;
+  gap: 0.4em;
+  align-items: center;
+}
+
+.ship-toggle.is-on {
+  border-color: var(--bs-focus);
 }
 
 .ship-toggle.is-placed {
-  opacity: 1;
+  border-color: var(--bs-accent);
 }
 
 .fleet-code {

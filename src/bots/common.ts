@@ -1,4 +1,4 @@
-import { nextInt, seedRng, shipCells, VIEW_UNSHOT, type Coord, type PlayerView } from '../engine/index.ts';
+import { nextInt, seedRng, placedCells, VIEW_UNSHOT, type Coord, type PlayerView } from '../engine/index.ts';
 
 /** The viewer's seat index in the view, or -1 for a spectator. */
 export function viewerSeat(view: PlayerView): number {
@@ -32,7 +32,7 @@ export function ownUnhitSquares(view: PlayerView, me: number): Uint8Array {
   for (const placed of view.ownFleet) {
     const ship = view.rules.shipyard.find((s) => s.id === placed.ship);
     if (!ship) continue;
-    for (const c of shipCells(placed.origin, placed.axis, ship.length)) {
+    for (const c of placedCells(ship, placed.origin, placed.orientation)) {
       const i = c.row * cols + c.col;
       if (board[i] === VIEW_UNSHOT) out[i] = 1;
     }

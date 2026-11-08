@@ -1,4 +1,4 @@
-import { bombCells, coordOf, inBounds, indexOf, occupancy, shipCells } from './board.ts';
+import { bombCells, cellsOf, coordOf, inBounds, indexOf, occupancy } from './board.ts';
 import { MAX_SIDE, MIN_SIDE } from './presets.ts';
 import { randomLayout } from './placement.ts';
 import { err, ok, type Result } from './result.ts';
@@ -235,7 +235,7 @@ export function resolveCells(s: GameState, caller: number, cells: readonly Coord
       const placed = s.fleets[t]?.find((p) => p.ship === ship.id);
       events.push(
         rules.announceShipOnHit && placed
-          ? { kind: 'shipSunk', turn, board: seat.id, ship: ship.id, cells: shipCells(placed.origin, placed.axis, ship.length) }
+          ? { kind: 'shipSunk', turn, board: seat.id, ship: ship.id, cells: cellsOf(rules, placed) }
           : { kind: 'shipSunk', turn, board: seat.id, ship: ship.id },
       );
     });

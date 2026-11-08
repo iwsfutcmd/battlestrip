@@ -36,10 +36,11 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   await numbers.nth(3).fill('0');
   await numbers.nth(3).blur();
   if (o.seed !== undefined) await page.locator('.settings-grid input[type=text]').fill(String(o.seed));
-  // Settings selects, in order: shipyard, placement, row labels, second labels, writing mode.
-  if (o.placement) await page.locator('.settings-grid select').nth(1).selectOption(o.placement);
-  if (o.labels) await page.locator('.settings-grid select').nth(2).selectOption(o.labels);
-  if (o.writingMode) await page.locator('.settings-grid select').nth(4).selectOption(o.writingMode);
+  // Settings selects, found by an option only they have (row labels before second labels).
+  const select = (value: string) => page.locator(`.settings-grid select:has(option[value="${value}"])`).first();
+  if (o.placement) await select('phones').selectOption(o.placement);
+  if (o.labels) await select('arabicAbjad').selectOption(o.labels);
+  if (o.writingMode) await select('vertical-rl').selectOption(o.writingMode);
   await page.locator('button.primary.big').click();
   await expect(page.locator('.handout')).toBeVisible();
 }

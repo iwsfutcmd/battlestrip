@@ -1,16 +1,20 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { fleetCheck, gameCode } from './codes.ts';
-import { LABEL_SYSTEM_IDS, SHIP_KINDS, base64url, decodeFleetImage, encodeFleetImage, fitName, fromBase64url, type FleetImage } from './payload.ts';
+import { WARDROBE, placementsFor } from '../engine/index.ts';
+import { LABEL_SYSTEM_IDS, base64url, decodeFleetImage, encodeFleetImage, fitName, fromBase64url, wardrobePiece, type FleetImage, type FleetImageShip } from './payload.ts';
 
-const shipArb = fc.record({
-  number: fc.integer({ min: 1, max: 31 }),
-  kind: fc.constantFrom(...SHIP_KINDS),
-  copy: fc.option(fc.integer({ min: 1, max: 15 }), { nil: null }),
-  length: fc.integer({ min: 1, max: 20 }),
-  origin: fc.record({ row: fc.integer({ min: 0, max: 19 }), col: fc.integer({ min: 0, max: 19 }) }),
-  axis: fc.constantFrom('alongRow' as const, 'alongCol' as const),
-});
+const shipArb: fc.Arbitrary<FleetImageShip> = fc
+  .record({ item: fc.integer({ min: 0, max: WARDROBE.length - 1 }), pick: fc.nat() })
+  .map(({ item, pick }) => {
+    const def = WARDROBE[item];
+    if (!def) throw new Error('no piece');
+    const list = placementsFor({ rows: 20, cols: 20 }, def);
+    const p = list[pick % list.length];
+    const piece = p && wardrobePiece(item, p.origin, p.orientation);
+    if (!piece) throw new Error('no placement');
+    return piece;
+  });
 
 const imageArb: fc.Arbitrary<FleetImage> = fc.record({
   gameCode: fc.integer({ min: 0, max: 0xfffff }).map((n) => gameCode(n)),
@@ -65,14 +69,11 @@ describe('fleet-image payload', () => {
         writingMode: 'vertical-rl',
         name,
         identity: 7,
-        ships: Array.from({ length: 10 }, (_, i) => ({
-          number: i + 1,
-          kind: 'glove',
-          copy: 4,
-          length: 4,
-          origin: { row: 19, col: 19 },
-          axis: 'alongCol' as const,
-        })),
+        ships: Array.from({ length: 10 }, (_, i) => {
+          const piece = wardrobePiece(WARDROBE.length - 1 - i, { row: 15, col: 15 }, 7);
+          if (!piece) throw new Error('no piece');
+          return piece;
+        }),
       };
       const url = `https://battlestrip.example.org/fleet/#${encodeFleetImage(image)}`;
       expect(Array.from(url).length, name).toBeLessThan(400);
@@ -96,8 +97,8 @@ describe('fleet-image payload', () => {
   });
 
   it('fleet checks change with the layout version', () => {
-    const a = fleetCheck('AB12', 0, 0, [{ ship: 'cruiser', origin: { row: 1, col: 1 }, axis: 'alongRow' }]);
-    const b = fleetCheck('AB12', 0, 1, [{ ship: 'cruiser', origin: { row: 1, col: 1 }, axis: 'alongRow' }]);
+    const a = fleetCheck('AB12', 0, 0, [{ ship: 'cruiser', origin: { row: 1, col: 1 }, orientation: 0 }]);
+    const b = fleetCheck('AB12', 0, 1, [{ ship: 'cruiser', origin: { row: 1, col: 1 }, orientation: 0 }]);
     expect(a).not.toBe(b);
     expect(a).toMatch(/^[0-9A-HJKMNP-TV-Z]{3}$/u);
   });

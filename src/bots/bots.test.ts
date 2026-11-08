@@ -5,7 +5,7 @@ import {
   legalCalls,
   newGame,
   reduce,
-  shipCells,
+  placedCells,
   viewFor,
   type Coord,
   type GameState,
@@ -85,7 +85,7 @@ describe('RandomBot', () => {
       { me: [ship('carrier', 'C2', 'alongRow')], you: [ship('destroyer', 'J9', 'alongRow')] },
       'me',
     );
-    const own = new Set(shipCells(at('C2'), 'alongRow', 5).map(key));
+    const own = new Set(placedCells({ length: 5 }, at('C2'), 0).map(key));
     const view = viewFor(s, pid('me'));
     const legal = legalCalls(s, pid('me'));
     for (let seed = 0; seed < 300; seed++) expect(own.has(key(chooseCall('random', view, legal, seed)))).toBe(false);
@@ -139,7 +139,7 @@ describe('DensityBot', () => {
       { me: [ship('carrier', 'E3', 'alongRow')], you: [ship('carrier', 'A1', 'alongCol')] },
       'me',
     );
-    const own = new Set(shipCells(at('E3'), 'alongRow', 5).map(key));
+    const own = new Set(placedCells({ length: 5 }, at('E3'), 0).map(key));
     const c = chooseCall('density', viewFor(s0, pid('me')), legalCalls(s0, pid('me')), 3);
     expect(own.has(key(c))).toBe(false);
   });

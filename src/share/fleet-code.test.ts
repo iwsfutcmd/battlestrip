@@ -1,33 +1,48 @@
 import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
-import { placementsFor, presetRules } from '../engine/index.ts';
+import { outfit, placementsFor, presetRules, wardrobeRules } from '../engine/index.ts';
 import { CROCKFORD, gameCode } from './codes.ts';
 import { codeLength, decodeFleetCode, encodeFleetCode, groupCode, normalizeCode, type FleetCodeContext, type FleetCodeContent } from './fleet-code.ts';
 
 const contentArb = (ctx: FleetCodeContext): fc.Arbitrary<FleetCodeContent> =>
-  fc.record({
-    seat: fc.integer({ min: 0, max: 7 }),
-    picks: fc.subarray(ctx.rules.shipyard.map((_, i) => i), { minLength: 1 }),
-    seed: fc.array(fc.nat(), { minLength: ctx.rules.shipyard.length, maxLength: ctx.rules.shipyard.length }),
-  }).map(({ seat, picks, seed }) => ({
-    seat,
-    ships: picks.map((k) => {
-      const list = placementsFor(ctx.rules, ctx.rules.shipyard[k]?.length ?? 1);
-      const p = list[(seed[k] ?? 0) % list.length];
-      if (!p) throw new Error('no placements');
-      return { ship: k, origin: p.origin, axis: p.axis };
-    }),
-  }));
+  fc
+    .record({
+      seat: fc.integer({ min: 0, max: ctx.fleets.length - 1 }),
+      seed: fc.array(fc.nat(), { minLength: ctx.rules.shipyard.length, maxLength: ctx.rules.shipyard.length }),
+    })
+    .map(({ seat, seed }) => ({
+      seat,
+      ships: [...(ctx.fleets[seat] ?? [])]
+        .sort((a, b) => a - b)
+        .map((k) => {
+          const def = ctx.rules.shipyard[k];
+          if (!def) throw new Error('no such piece');
+          const list = placementsFor(ctx.rules, def);
+          const p = list[(seed[k] ?? 0) % list.length];
+          if (!p) throw new Error('no placements');
+          return { ship: k, origin: p.origin, orientation: p.orientation };
+        }),
+    }));
 
+const idx = (rules: { shipyard: readonly { id: string }[] }, ids: readonly string[]): number[] =>
+  ids.map((id) => rules.shipyard.findIndex((s) => s.id === id));
+
+const wardrobe = wardrobeRules();
 const contexts: FleetCodeContext[] = [
-  { gameCode: gameCode(1), rules: presetRules('classic') },
-  { gameCode: gameCode(99), rules: presetRules('morskoyBoy') },
-  { gameCode: gameCode(7), rules: presetRules('classic', { rows: 20, cols: 20 }) },
+  { gameCode: gameCode(1), rules: presetRules('classic'), fleets: [[0, 1, 2, 3, 4], [2], [0, 4]] },
+  { gameCode: gameCode(99), rules: presetRules('morskoyBoy'), fleets: [[0, 1, 2, 3, 4, 5, 6, 7, 8, 9], [9]] },
+  {
+    gameCode: gameCode(7),
+    rules: wardrobe,
+    fleets: [idx(wardrobe, outfit('everyday')), idx(wardrobe, outfit('dressedUp')), idx(wardrobe, ['ring']), idx(wardrobe, outfit('bundledUp'))],
+  },
+  { gameCode: gameCode(8), rules: wardrobeRules({ rows: 20, cols: 20 }), fleets: [idx(wardrobe, outfit('bundledUp'))] },
 ];
 
 describe('fleet codes', () => {
-  it('are about 13 characters for the classic fleet', () => {
+  it('are about 13 characters for a classic-sized outfit, and stay readable for big ones', () => {
     expect(codeLength(contexts[0] as FleetCodeContext) + 1).toBeLessThanOrEqual(13);
+    expect(codeLength(contexts[2] as FleetCodeContext) + 1).toBeLessThanOrEqual(24);
   });
 
   it.each(contexts.map((c, i) => [i, c] as const))('round-trip (context %i)', (_i, ctx) => {
@@ -73,6 +88,7 @@ describe('fleet codes', () => {
     fc.assert(
       fc.property(contentArb(a), (content) => {
         const r = decodeFleetCode(b, encodeFleetCode(a, content));
+        // (Codes for another game decode to a wrong game check almost always.)
         if (!r.ok) rejected++;
       }),
       { numRuns: 300 },
@@ -82,7 +98,7 @@ describe('fleet codes', () => {
 
   it('reads what people type', () => {
     const ctx = contexts[0] as FleetCodeContext;
-    const content: FleetCodeContent = { seat: 2, ships: [{ ship: 2, origin: { row: 3, col: 3 }, axis: 'alongRow' }] };
+    const content: FleetCodeContent = { seat: 1, ships: [{ ship: 2, origin: { row: 3, col: 3 }, orientation: 0 }] };
     const code = encodeFleetCode(ctx, content);
     const sloppy = groupCode(code)
       .toLocaleLowerCase('und')

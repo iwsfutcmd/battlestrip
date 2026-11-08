@@ -1,6 +1,6 @@
 import { presetRules } from './presets.ts';
 import { reduce } from './game.ts';
-import type { Action, Axis, Coord, GameEvent, GameState, PlacedShip, PlayerId, Rules, Seat, ShipId, ShipKindId, ShipyardShip } from './types.ts';
+import type { Action, Coord, GameEvent, GameState, PlacedShip, PlayerId, Rules, Seat, ShipId, ShipKindId, ShipyardShip } from './types.ts';
 import { newGame } from './game.ts';
 
 /** "D4" → row 3, col 3 (Latin rows, 1-based columns), for readable tests. */
@@ -36,8 +36,11 @@ export const navalRules = (overrides: Partial<Rules> = {}): Rules => presetRules
 
 export const ALL_CLASSIC = NAVAL_SHIPYARD.map((s) => s.id);
 
-export function ship(id: string, origin: string, axis: Axis): PlacedShip {
-  return { ship: sid(id), origin: at(origin), axis };
+/** A line's two orientations, in the spec's words: along a row (0) or along a column (1). */
+export type Axis = 'alongRow' | 'alongCol';
+
+export function ship(id: string, origin: string, axis: Axis | number): PlacedShip {
+  return { ship: sid(id), origin: at(origin), orientation: axis === 'alongRow' ? 0 : axis === 'alongCol' ? 1 : axis };
 }
 
 export function must<T>(r: { ok: true; value: T } | { ok: false; error: unknown }): T {

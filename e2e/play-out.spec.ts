@@ -1,5 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
-import { legalCalls, newGame, presetRules, reduce, type Seat, type PlayerId } from '../src/engine/index.ts';
+import { legalCalls, newGame, outfit, reduce, wardrobeRules, type Seat, type PlayerId } from '../src/engine/index.ts';
 import { deal, handOut } from './table.ts';
 import { visibleText } from './helpers.ts';
 
@@ -14,8 +14,9 @@ const toCoord = (sq: string) => ({ row: sq.charCodeAt(0) - 65, col: Number(sq.sl
  * later sunk. Only the seed and the fleets matter to the engine, not the seat ids.
  */
 function findSeed(): number {
-  const rules = presetRules('classic', { playOut: true });
-  const fleet = rules.shipyard.map((s) => s.id);
+  // The same rules and outfits the lobby deals by default.
+  const rules = wardrobeRules({ playOut: true });
+  const fleet = outfit('everyday');
   for (let seed = 1; seed < 2000; seed++) {
     const seats: Seat[] = ['a', 'b', 'c'].map((id) => ({ id: id as PlayerId, kind: 'human', fleet }));
     const g0 = newGame(rules, seats, seed);

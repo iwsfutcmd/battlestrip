@@ -5,7 +5,6 @@ describe('placement invite', () => {
   it('round-trips', () => {
     const inv: PlacementInvite = {
       gameCode: 'K7Q2',
-      preset: 'morskoyBoy',
       rows: 12,
       cols: 10,
       allowTouching: false,
@@ -15,9 +14,9 @@ describe('placement invite', () => {
       dir: 'ltr',
       writingMode: 'horizontal-tb',
       seats: [
-        { name: 'Лена', human: true, fleet: [0, 1, 2, 9] },
+        { name: 'Лена', human: true, fleet: [0, 1, 2, 41] },
         { name: '👩🏽‍🚀 Ada', human: true, fleet: [3] },
-        { name: 'Robo', human: false, fleet: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9] },
+        { name: 'Robo', human: false, fleet: [28, 3, 8, 35, 36, 34, 24] },
       ],
     };
     expect(decodeInvite(encodeInvite(inv))).toEqual(inv);

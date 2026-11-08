@@ -15,3 +15,12 @@ describe('names', () => {
     expect(sameName('Bo', 'Bob', 'en')).toBe(false);
   });
 });
+
+describe('searchKey', () => {
+  it('ignores case and accents', async () => {
+    const { searchKey } = await import('./text.ts');
+    expect(searchKey('Ngũgĩ', 'en').includes(searchKey('ngugi', 'en'))).toBe(true);
+    expect(searchKey('İstanbul', 'tr')).toBe(searchKey('istanbul', 'tr'));
+    expect(searchKey('T-Shirt', 'de')).toContain('shirt');
+  });
+});

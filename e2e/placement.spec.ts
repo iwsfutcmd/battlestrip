@@ -33,20 +33,22 @@ test('M5: players place their own ships on their phones and bring back fleet cod
   await expect(page.locator('.placement-seats li.is-ready')).toHaveCount(1);
   await expect(tv.locator('.badge-ready')).toHaveCount(2); // Amani and the bot
 
-  // Bo: places ships one by one by tapping, one per row.
+  // Bo: places the everyday outfit piece by piece by tapping (T-shirt, jeans, underwear, socks, shoes),
+  // each piece's first square on a spot where its shape fits without overlapping.
   const b = await phoneCtx.newPage();
   await b.goto(invite ?? '');
   await b.locator('.place-seats button', { hasText: 'Bo' }).click();
-  for (let row = 0; row < 5; row++) {
-    await b.locator('.place-ships button').nth(row).click();
-    await b.locator(`[data-cell="${row * 2}-0"]`).click();
+  for (const [i, cell] of ['0-0', '0-4', '3-0', '3-4', '6-0'].entries()) {
+    await b.locator('.place-ships button').nth(i).click();
+    await b.locator(`[data-cell="${cell}"]`).click();
   }
+  await expect(b.locator('.fleet-board .ship-number')).toHaveCount(5);
   await b.getByRole('button', { name: visibleText('en', 'place.done') }).click();
   const codeB = (await b.locator('[data-testid=fleet-code]').textContent()) ?? '';
   // Bo's phone image: the same fleet check the laptop will compute.
   await b.getByRole('link', { name: visibleText('en', 'place.showFleet') }).click();
   await b.getByRole('checkbox').check();
-  await expect(b.locator('.fleet-board .ship-outline')).toHaveCount(5);
+  await expect(b.locator('.fleet-board .ship-number')).toHaveCount(5);
   const phoneCheck = await b.locator('[data-testid=fleet-check]').textContent();
 
   await page.locator('.code-input').fill(codeB);

@@ -1,10 +1,9 @@
 import type { WritingMode } from '../../i18n/direction.ts';
 import type { Direction } from '../../i18n/direction.ts';
-import { formatNumber } from '../../i18n/labels.ts';
-import type { FleetImageShip } from '../../share/payload.ts';
 import { identityColour } from '../common/identity.tsx';
 import type { BoardLabels } from './format.ts';
-import { Grid, shipArea } from './Grid.tsx';
+import { Grid } from './Grid.tsx';
+import { PieceOutline, type BoardPiece } from './Piece.tsx';
 
 export interface FleetBoardProps {
   readonly rows: number;
@@ -12,14 +11,14 @@ export interface FleetBoardProps {
   readonly labels: BoardLabels;
   readonly dir: Direction;
   readonly writingMode: WritingMode;
-  readonly ships: readonly FleetImageShip[];
+  readonly ships: readonly BoardPiece[];
   readonly identity: number;
   /** Squares already hit, if known (peek during play, game over). */
   readonly hits?: ReadonlySet<string>;
   readonly className?: string;
 }
 
-/** A board with ship outlines and each ship's number inside its outline. */
+/** A board with each piece outlined (any shape) and its number inside the outline. */
 export function FleetBoard({ rows, cols, labels, dir, writingMode, ships, identity, hits, className }: FleetBoardProps) {
   return (
     <Grid
@@ -32,13 +31,7 @@ export function FleetBoard({ rows, cols, labels, dir, writingMode, ships, identi
       ariaHidden
       cell={(c) => ({ className: hits?.has(`${c.row},${c.col}`) ? 'is-hit' : '' })}
       overlays={ships.map((s) => (
-        <div
-          key={s.number}
-          class="ship-outline"
-          style={{ ...shipArea(s.origin, s.axis, s.length), borderColor: identityColour(identity) }}
-        >
-          <span class="ship-number">{formatNumber(labels.digitsLocale, s.number)}</span>
-        </div>
+        <PieceOutline key={s.number} piece={s} colour={identityColour(identity)} digitsLocale={labels.digitsLocale} />
       ))}
     />
   );

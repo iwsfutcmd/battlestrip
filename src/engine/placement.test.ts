@@ -35,7 +35,7 @@ function exactOccupancy(rules: Rules): number[] {
       });
       return;
     }
-    for (const p of placementsFor(rules, ship.length)) recurse(k + 1, [...chosen, { ship: ship.id, ...p }]);
+    for (const p of placementsFor(rules, ship)) recurse(k + 1, [...chosen, { ship: ship.id, origin: p.origin, orientation: p.orientation }]);
   };
   recurse(0, []);
   return counts.map((c) => c / layouts);
@@ -74,13 +74,14 @@ describe('random placement', () => {
     const n = 20_000;
     const counts = new Array<number>(25).fill(0);
     let rng: RngState = seedRng(1);
+    const optsByLength: Record<number, ReturnType<typeof placementsFor>> = {};
     const draw = (len: number): PlacedShip => {
-      const opts = placementsFor(rules, len);
+      const opts = (optsByLength[len] ??= placementsFor(rules, { length: len }));
       const [k, next] = [Math.floor((rng.a / 2 ** 32) * opts.length), seedRng(rng.b ^ rng.c)];
       rng = next;
       const p = opts[k] ?? opts[0];
       if (!p) throw new Error('no placements');
-      return { ship: 's0' as ShipId, ...p };
+      return { ship: 's0' as ShipId, origin: p.origin, orientation: p.orientation };
     };
     for (let i = 0; i < n; i++) {
       const chosen: PlacedShip[] = [];

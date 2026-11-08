@@ -1,8 +1,8 @@
-import { copyNumber, fleetOf, type GameState, type PlayerId } from '../engine/index.ts';
+import { fleetOf, WARDROBE, type GameState, type PlayerId } from '../engine/index.ts';
 import type { Direction, WritingMode } from '../i18n/direction.ts';
 import type { LabelSystemId } from '../i18n/labels.ts';
 import { fleetCheck, gameCode } from './codes.ts';
-import type { FleetImage } from './payload.ts';
+import { wardrobePiece, type FleetImage } from './payload.ts';
 
 export interface ImageSettings {
   readonly labels: LabelSystemId;
@@ -30,16 +30,9 @@ export function fleetImageFor(s: GameState, player: PlayerId, name: string, sett
     ...settings,
     name,
     identity: seat,
-    ships: fleetOf(s, player).map((p) => {
-      const def = s.rules.shipyard.find((x) => x.id === p.ship);
-      return {
-        number: def?.number ?? 0,
-        kind: def?.kind ?? '',
-        copy: copyNumber(s.rules.shipyard, p.ship),
-        length: def?.length ?? 1,
-        origin: p.origin,
-        axis: p.axis,
-      };
+    ships: fleetOf(s, player).flatMap((p) => {
+      const piece = wardrobePiece(WARDROBE.findIndex((w) => w.id === p.ship), p.origin, p.orientation);
+      return piece ? [piece] : [];
     }),
   };
 }

@@ -144,11 +144,3 @@ export function Grid({ rows, cols, labels, dir, writingMode, cell, overlays, int
     </div>
   );
 }
-
-/** Grid placement for a ship outline: logical lines, so it transposes with the board. */
-export function shipArea(origin: Coord, axis: 'alongRow' | 'alongCol', length: number): CSSProperties {
-  return {
-    gridRow: `${origin.row + 2} / span ${axis === 'alongCol' ? length : 1}`,
-    gridColumn: `${origin.col + 2} / span ${axis === 'alongRow' ? length : 1}`,
-  };
-}

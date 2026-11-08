@@ -2,6 +2,7 @@ import { firstStrongDirection } from '../../i18n/isolate.ts';
 import type { FleetImage } from '../../share/payload.ts';
 import { identityColour, identityShape } from '../common/identity.tsx';
 import { colText, row2Text, rowText, type BoardLabels } from '../table/format.ts';
+import { labelCell } from '../table/Piece.tsx';
 
 const CELL = 56;
 
@@ -89,22 +90,43 @@ export async function fleetPng(image: FleetImage, labels: BoardLabels, legend: r
     }
   }
 
-  // Ships: outline and number.
+  // Pieces: fill each cell, stroke only the edges that face away from the piece, number in the middle cell.
+  const stroke = colour === '#000000' ? '#ffffff' : colour;
   for (const s of image.ships) {
-    const end = s.axis === 'alongRow' ? { row: s.origin.row, col: s.origin.col + s.length - 1 } : { row: s.origin.row + s.length - 1, col: s.origin.col };
-    const a = L.at(s.origin.row, s.origin.col);
-    const b = L.at(end.row, end.col);
-    const x0 = Math.min(a.x, b.x);
-    const y0 = Math.min(a.y, b.y);
-    const w = Math.abs(a.x - b.x) + CELL;
-    const h = Math.abs(a.y - b.y) + CELL;
+    const inPiece = new Set(s.cells.map((c) => `${c.row},${c.col}`));
     ctx.fillStyle = 'rgba(86, 180, 233, 0.18)';
-    ctx.fillRect(x0 + 5, y0 + 5, w - 10, h - 10);
-    ctx.strokeStyle = colour === '#000000' ? '#ffffff' : colour;
+    for (const c of s.cells) {
+      const p = L.at(c.row, c.col);
+      ctx.fillRect(p.x, p.y, CELL, CELL);
+    }
+    ctx.strokeStyle = stroke;
     ctx.lineWidth = 4;
-    ctx.strokeRect(x0 + 5, y0 + 5, w - 10, h - 10);
-    ctx.fillStyle = '#f5f7fa';
-    text(ctx, new Intl.NumberFormat(labels.digitsLocale).format(s.number), x0 + w / 2, y0 + h / 2, CELL * 0.45);
+    ctx.beginPath();
+    for (const c of s.cells) {
+      const p = L.at(c.row, c.col);
+      for (const [dr, dc] of [[-1, 0], [1, 0], [0, -1], [0, 1]] as const) {
+        if (inPiece.has(`${c.row + dr},${c.col + dc}`)) continue;
+        // Find the shared edge physically: where would the neighbour be drawn?
+        const n = L.at(c.row + dr, c.col + dc);
+        const lo = 4;
+        const hi = CELL - 4;
+        const line = (x1: number, y1: number, x2: number, y2: number): void => {
+          ctx.moveTo(p.x + x1, p.y + y1);
+          ctx.lineTo(p.x + x2, p.y + y2);
+        };
+        if (n.x < p.x) line(lo, lo, lo, hi);
+        else if (n.x > p.x) line(hi, lo, hi, hi);
+        else if (n.y < p.y) line(lo, lo, hi, lo);
+        else line(lo, hi, hi, hi);
+      }
+    }
+    ctx.stroke();
+    const label = labelCell(s.cells);
+    if (label) {
+      const p = L.at(label.row, label.col);
+      ctx.fillStyle = '#f5f7fa';
+      text(ctx, new Intl.NumberFormat(labels.digitsLocale).format(s.number), p.x + CELL / 2, p.y + CELL / 2, CELL * 0.45);
+    }
   }
 
   // Legend, in the phone's language.

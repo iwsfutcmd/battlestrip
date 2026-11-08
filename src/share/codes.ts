@@ -47,7 +47,7 @@ export function gameCode(seed: number): string {
 export interface LayoutForCheck {
   readonly ship: string;
   readonly origin: { readonly row: number; readonly col: number };
-  readonly axis: 'alongRow' | 'alongCol';
+  readonly orientation: number;
 }
 
 /** Three characters that change with every reroll; the phone and the laptop preview must match. */
@@ -56,7 +56,7 @@ export function fleetCheck(code: string, seat: number, layoutVersion: number, la
   bytes.push(seat & 0xff, ...intBytes(layoutVersion));
   for (const p of layout) {
     for (const c of p.ship) bytes.push(c.charCodeAt(0) & 0xff);
-    bytes.push(p.origin.row, p.origin.col, p.axis === 'alongRow' ? 0 : 1);
+    bytes.push(p.origin.row, p.origin.col, p.orientation & 7);
   }
   return toCrockford(fnv1a(bytes) & 0x7fff, 3);
 }

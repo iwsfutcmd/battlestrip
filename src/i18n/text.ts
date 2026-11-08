@@ -17,3 +17,13 @@ export function cleanName(text: string, max = MAX_NAME_GRAPHEMES): string {
 export function sameName(a: string, b: string, locale: string): boolean {
   return new Intl.Collator(locale, { sensitivity: 'base', usage: 'search' }).compare(a.trim(), b.trim()) === 0;
 }
+
+/**
+ * A form of `text` for "contains" search: lower-cased for `locale`, then
+ * decomposed with the combining marks dropped (so "Ngugi" finds "Ngũgĩ" and
+ * "cafe" finds "café").
+ */
+export function searchKey(text: string, locale: string): string {
+  // Lower-case first: in Turkish, İ lower-cases to i only while its dot is still there.
+  return text.toLocaleLowerCase(locale).normalize('NFD').replaceAll(/\p{M}/gu, '').normalize('NFC');
+}

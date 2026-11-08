@@ -1,4 +1,4 @@
-import { placementsFor, VIEW_HIT, VIEW_UNSHOT, type Coord, type PlayerView } from '../engine/index.ts';
+import { placementsFor, shapeOf, VIEW_HIT, VIEW_UNSHOT, type Coord, type PlayerView, type ShipyardShip } from '../engine/index.ts';
 import { coordIndex, ownUnhitSquares, pick, targetSeats, viewerSeat } from './common.ts';
 
 /** Weight per unattributed hit a placement covers (classic hit-only reporting; simulation only). */
@@ -13,17 +13,12 @@ interface Placement {
 
 const placementCache = new Map<string, readonly Placement[]>();
 
-function placements(rows: number, cols: number, length: number): readonly Placement[] {
-  const key = `${rows}x${cols}:${length}`;
+function placements(rows: number, cols: number, ship: Pick<ShipyardShip, 'length' | 'shape'>): readonly Placement[] {
+  const key = `${rows}x${cols}:${shapeOf(ship).map(([r, c]) => `${r},${c}`).join(';')}`;
   const cached = placementCache.get(key);
   if (cached) return cached;
-  const out = placementsFor({ rows, cols }, length).map(({ origin, axis }): Placement => {
-    const mine = new Set<number>();
-    for (let k = 0; k < length; k++) {
-      const r = axis === 'alongCol' ? origin.row + k : origin.row;
-      const c = axis === 'alongRow' ? origin.col + k : origin.col;
-      mine.add(r * cols + c);
-    }
+  const out = placementsFor({ rows, cols }, ship).map(({ cells }): Placement => {
+    const mine = new Set<number>(cells.map((c) => c.row * cols + c.col));
     const ring = new Set<number>();
     for (const i of mine) {
       const r = Math.floor(i / cols);
@@ -71,7 +66,7 @@ export function boardDensity(view: PlayerView, seat: number): Float64Array {
     if (announceShipOnHit) for (let i = 0; i < size; i++) if (cells[i] === k) named++;
     acc.fill(0);
     let total = 0;
-    for (const p of placements(rows, cols, ship.length)) {
+    for (const p of placements(rows, cols, ship)) {
       let covered = 0;
       let unknown = 0;
       let ok = true;

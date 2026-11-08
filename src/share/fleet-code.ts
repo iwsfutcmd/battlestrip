@@ -1,4 +1,4 @@
-import { nextInt, placementsFor, seedRng, type Axis, type Coord, type Rules } from '../engine/index.ts';
+import { nextInt, placedCells, placementsFor, seedRng, shapeOf, type Coord, type Orientation, type Placement, type Rules } from '../engine/index.ts';
 import { digitValue } from '../i18n/parse.ts';
 import { CROCKFORD, fnv1a } from './codes.ts';
 
@@ -7,8 +7,9 @@ import { CROCKFORD, fnv1a } from './codes.ts';
  * a short code the laptop scans or the player types in.
  *
  * The code packs, in mixed radix, low digits first: a 10-bit game check, the
- * seat, the fleet subset (a bitmask of shipyard ships), and each chosen
- * ship's index into placementsFor(rules, length). The base-32 digits are
+ * seat, and, for each piece of that seat's outfit (known to both sides from
+ * the lobby, in shipyard order), its index into placementsFor(rules, piece).
+ * The base-32 digits are
  * lightly obfuscated with a keystream keyed by the game code, then written in
  * Crockford Base32 with Crockford's mod-37 check symbol. Because 37 is prime
  * and larger than 32, any single substitution and any adjacent transposition
@@ -22,13 +23,15 @@ const MAX_SEATS = 8n;
 export interface FleetCodeContext {
   readonly gameCode: string;
   readonly rules: Pick<Rules, 'rows' | 'cols' | 'shipyard'>;
+  /** Each seat's outfit, as shipyard indices (public: chosen in the lobby). */
+  readonly fleets: readonly (readonly number[])[];
 }
 
 export interface PlacedByIndex {
   /** Index into rules.shipyard. */
   readonly ship: number;
   readonly origin: Coord;
-  readonly axis: Axis;
+  readonly orientation: Orientation;
 }
 
 export interface FleetCodeContent {
@@ -40,19 +43,40 @@ export type FleetCodeError = 'code.empty' | 'code.badCharacter' | 'code.length' 
 
 const gameCheck = (gameCode: string): bigint => BigInt(fnv1a([...gameCode].map((c) => c.charCodeAt(0))) % 1024);
 
-function placementLists(ctx: FleetCodeContext) {
-  const cache: Record<number, ReturnType<typeof placementsFor>> = {};
-  return ctx.rules.shipyard.map((s) => (cache[s.length] ??= placementsFor(ctx.rules, s.length)));
+const placementCache = new Map<string, readonly Placement[]>();
+
+/** A piece's placements on this board, computed once per board size and shape. */
+function placementsOf(ctx: FleetCodeContext, k: number): readonly Placement[] | undefined {
+  const def = ctx.rules.shipyard[k];
+  if (!def) return undefined;
+  const key = `${ctx.rules.rows}x${ctx.rules.cols}:${shapeOf(def).map(([r, c]) => `${r},${c}`).join(';')}`;
+  let list = placementCache.get(key);
+  if (!list) {
+    list = placementsFor(ctx.rules, def);
+    placementCache.set(key, list);
+  }
+  return list;
 }
 
-/** The number of data characters every code in this game has. */
+const placedCellsOf = (def: Rules['shipyard'][number], p: PlacedByIndex): Coord[] => placedCells(def, p.origin, p.orientation);
+
+const sortedFleet = (fleet: readonly number[]): number[] => [...fleet].sort((a, b) => a - b);
+
+/** The number of data characters every code in this game has (enough for the roomiest outfit). */
 export function codeLength(ctx: FleetCodeContext): number {
-  let capacity = GAME_CHECK_RADIX * MAX_SEATS * (1n << BigInt(ctx.rules.shipyard.length));
-  for (const list of placementLists(ctx)) capacity *= BigInt(list.length);
+  let capacity = 0n;
+  for (const fleet of ctx.fleets) {
+    let c = GAME_CHECK_RADIX * MAX_SEATS;
+    for (const k of fleet) c *= BigInt(placementsOf(ctx, k)?.length ?? 1);
+    if (c > capacity) capacity = c;
+  }
   let chars = 0;
   for (let c = capacity - 1n; c > 0n; c >>= 5n) chars++;
   return Math.max(chars, 1);
 }
+
+const sameCells = (a: Placement, cells: readonly Coord[]): boolean =>
+  a.cells.length === cells.length && a.cells.every((c, i) => c.row === cells[i]?.row && c.col === cells[i]?.col);
 
 function keystream(gameCode: string, length: number): number[] {
   let rng = seedRng(fnv1a([...gameCode].map((c) => c.charCodeAt(0)), 0x2545f491));
@@ -73,20 +97,21 @@ function checkSymbol(digits: readonly number[]): string {
 
 /** Encode, returning the bare characters (data then check), e.g. "7K2MQR9AXXXC". */
 export function encodeFleetCode(ctx: FleetCodeContext, content: FleetCodeContent): string {
-  const lists = placementLists(ctx);
-  const sorted = [...content.ships].sort((a, b) => a.ship - b.ship);
-  // Build from the innermost (last ship) outwards so decoding can read low digits first.
+  const fleet = sortedFleet(ctx.fleets[content.seat] ?? []);
+  // Build from the innermost (last piece) outwards so decoding can read low digits first.
   let v = 0n;
-  for (let k = sorted.length - 1; k >= 0; k--) {
-    const s = sorted[k];
-    const list = s ? lists[s.ship] : undefined;
-    if (!s || !list) throw new Error('encodeFleetCode: bad ship');
-    const i = list.findIndex((p) => p.axis === (ctx.rules.shipyard[s.ship]?.length === 1 ? 'alongRow' : s.axis) && p.origin.row === s.origin.row && p.origin.col === s.origin.col);
+  for (let k = fleet.length - 1; k >= 0; k--) {
+    const shipIndex = fleet[k];
+    const placed = content.ships.find((s) => s.ship === shipIndex);
+    const def = shipIndex === undefined ? undefined : ctx.rules.shipyard[shipIndex];
+    const list = shipIndex === undefined ? undefined : placementsOf(ctx, shipIndex);
+    if (!placed || !def || !list) throw new Error('encodeFleetCode: the content does not match the seat’s outfit');
+    // Match on covered cells, so orientations that look the same map to the same placement.
+    const cells = placedCellsOf(def, placed);
+    const i = list.findIndex((p) => sameCells(p, cells));
     if (i < 0) throw new Error('encodeFleetCode: placement not on the board');
     v = v * BigInt(list.length) + BigInt(i);
   }
-  const subset = sorted.reduce((m, s) => m | (1n << BigInt(s.ship)), 0n);
-  v = v * (1n << BigInt(ctx.rules.shipyard.length)) + subset;
   v = v * MAX_SEATS + BigInt(content.seat);
   v = v * GAME_CHECK_RADIX + gameCheck(ctx.gameCode);
 
@@ -150,19 +175,16 @@ export function decodeFleetCode(ctx: FleetCodeContext, input: string): { ok: tru
   v /= GAME_CHECK_RADIX;
   const seat = Number(v % MAX_SEATS);
   v /= MAX_SEATS;
-  const shipyardSize = BigInt(ctx.rules.shipyard.length);
-  const subset = v % (1n << shipyardSize);
-  v /= 1n << shipyardSize;
-  const lists = placementLists(ctx);
+  const fleet = ctx.fleets[seat];
+  if (!fleet) return { ok: false, error: 'code.corrupt' };
   const ships: PlacedByIndex[] = [];
-  for (let k = 0; k < ctx.rules.shipyard.length; k++) {
-    if (!((subset >> BigInt(k)) & 1n)) continue;
-    const list = lists[k];
+  for (const k of sortedFleet(fleet)) {
+    const list = placementsOf(ctx, k);
     if (!list) return { ok: false, error: 'code.corrupt' };
     const p = list[Number(v % BigInt(list.length))];
     v /= BigInt(list.length);
     if (!p) return { ok: false, error: 'code.corrupt' };
-    ships.push({ ship: k, origin: p.origin, axis: p.axis });
+    ships.push({ ship: k, origin: p.origin, orientation: p.orientation });
   }
   if (v !== 0n || ships.length === 0) return { ok: false, error: 'code.corrupt' };
   return { ok: true, value: { seat, ships } };

@@ -10,6 +10,8 @@ import { Msg } from '../common/Msg.tsx';
 import { FleetBoard } from '../table/FleetBoard.tsx';
 import { colText, labelsFor, rowText, shipName } from '../table/format.ts';
 import { fleetPng } from './png.ts';
+import { ShapeIcon } from '../table/Piece.tsx';
+import { WARDROBE } from '../../engine/index.ts';
 import { formatNumber } from '../../i18n/labels.ts';
 
 /**
@@ -21,13 +23,9 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
   const [always, setAlways] = useState(false);
   const labels = labelsFor(image.labels, image.labels2, image.numbering);
   const ships = [...image.ships].sort((a, b) => a.number - b.number);
-  const legend = ships.map((s) => `${formatNumber(t.locale, s.number)} · ${shipName(t, s.kind, s.copy)}`);
+  const legend = ships.map((s) => `${formatNumber(t.locale, s.number)} · ${shipName(t, s.kind, null)}`);
   const squares = (s: (typeof ships)[number]): string =>
-    Array.from({ length: s.length }, (_, k) => {
-      const row = s.axis === 'alongCol' ? s.origin.row + k : s.origin.row;
-      const col = s.axis === 'alongRow' ? s.origin.col + k : s.origin.col;
-      return t.format('coord.label', { row: rowText(labels, row), col: colText(labels, col) });
-    }).join(', ');
+    s.cells.map((c) => t.format('coord.label', { row: rowText(labels, c.row), col: colText(labels, c.col) })).join(', ');
 
   const save = async (): Promise<void> => {
     const blob = await fleetPng(image, labels, legend);
@@ -62,12 +60,8 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
           <ul>
             {ships.map((s) => (
               <li key={s.number}>
-                <span class="legend-number">{formatNumber(t.locale, s.number)}</span> <ClothingIcon kind={s.kind} /> <span>{shipName(t, s.kind, s.copy)}</span>{' '}
-                <span class="ship-pic-hull" aria-hidden="true">
-                  {Array.from({ length: s.length }, (_, k) => (
-                    <span key={k} class="ship-seg" />
-                  ))}
-                </span>
+                <span class="legend-number">{formatNumber(t.locale, s.number)}</span> <ClothingIcon kind={s.kind} /> <span>{shipName(t, s.kind, null)}</span>{' '}
+                <ShapeIcon shape={WARDROBE[s.item]?.shape ?? []} />
               </li>
             ))}
           </ul>
@@ -76,7 +70,7 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
           <ul>
             {ships.map((s) => (
               <li key={s.number}>
-                <Msg id="phone.shipLine" values={{ number: s.number, ship: shipName(t, s.kind, s.copy), squares: squares(s) }} />
+                <Msg id="phone.shipLine" values={{ number: s.number, ship: shipName(t, s.kind, null), squares: squares(s) }} />
               </li>
             ))}
           </ul>

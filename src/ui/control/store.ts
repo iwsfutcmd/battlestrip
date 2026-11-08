@@ -1,10 +1,12 @@
 import { batch, computed, effect, signal } from '@preact/signals';
-import { callSeed, chooseCall, chooseFleet, type BotKind } from '../../bots/index.ts';
+import { callSeed, chooseCall, type BotKind } from '../../bots/index.ts';
 import {
   gameStats,
   legalCalls,
   newGame,
-  presetRules,
+  OUTFIT_IDS,
+  outfit,
+  wardrobeRules,
   reduce,
   replay,
   undoLastCall,
@@ -13,7 +15,6 @@ import {
   type Coord,
   type GameState,
   type PlayerId,
-  type PresetId,
   type Rules,
   type RuleViolation,
   type Seat,
@@ -38,11 +39,11 @@ export interface SeatConfig {
   readonly bot: BotKind;
   readonly policy: FleetPolicyKind;
   /** The chosen ships (humans, and bots with the `fixed` policy). */
+  /** The chosen outfit (humans, and bots with the `fixed` policy). */
   readonly fleet: readonly ShipId[];
 }
 
 export interface LobbyConfig {
-  readonly preset: PresetId;
   readonly rows: number;
   readonly cols: number;
   readonly allowTouching: boolean;
@@ -83,16 +84,15 @@ const newKey = (): string => `s${Date.now().toString(36)}${(seatCounter++).toStr
 
 export function rulesForLobby(c: LobbyConfig): Rules {
   // Saves from before playOut existed read as "play on" (the lobby default).
-  return presetRules(c.preset, { rows: c.rows, cols: c.cols, allowTouching: c.allowTouching, playOut: c.playOut ?? true });
+  return wardrobeRules({ rows: c.rows, cols: c.cols, allowTouching: c.allowTouching, playOut: c.playOut ?? true });
 }
 
-function defaultSeat(kind: 'human' | 'bot', preset: PresetId): SeatConfig {
-  return { key: newKey(), name: '', kind, bot: 'density', policy: 'full', fleet: presetRules(preset).shipyard.map((s) => s.id) };
+function defaultSeat(kind: 'human' | 'bot'): SeatConfig {
+  return { key: newKey(), name: '', kind, bot: 'density', policy: 'full', fleet: outfit('everyday') };
 }
 
 export function defaultLobby(locale = 'en'): LobbyConfig {
   return {
-    preset: 'classic',
     rows: 10,
     cols: 10,
     allowTouching: true,
@@ -105,7 +105,7 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     speech: true,
     placement: 'random',
     playOut: true,
-    seats: [defaultSeat('human', 'classic'), defaultSeat('human', 'classic'), defaultSeat('human', 'classic')],
+    seats: [defaultSeat('human'), defaultSeat('human'), defaultSeat('human')],
   };
 }
 
@@ -126,11 +126,6 @@ export const placedOnPhone = signal<readonly PlayerId[]>([]);
 
 export function updateLobby(patch: Partial<LobbyConfig>): void {
   const next = { ...lobby.value, ...patch };
-  if (patch.preset && patch.preset !== lobby.value.preset) {
-    const rules = presetRules(patch.preset);
-    next.allowTouching = rules.allowTouching;
-    next.seats = next.seats.map((s) => ({ ...s, fleet: rules.shipyard.map((x) => x.id) }));
-  }
   lobby.value = next;
 }
 
@@ -140,7 +135,7 @@ export function updateSeat(key: string, patch: Partial<SeatConfig>): void {
 
 export function addSeat(kind: 'human' | 'bot'): void {
   if (lobby.value.seats.length >= MAX_SEATS) return;
-  lobby.value = { ...lobby.value, seats: [...lobby.value.seats, defaultSeat(kind, lobby.value.preset)] };
+  lobby.value = { ...lobby.value, seats: [...lobby.value.seats, defaultSeat(kind)] };
 }
 
 export function removeSeat(key: string): void {
@@ -182,6 +177,16 @@ function seedFrom(text: string): number {
 export const violationNotice = (code: RuleViolation): Notice =>
   code === 'noLegalLayout' ? { key: 'lobby.noLayout', tone: 'error' } : { key: 'error.violation', values: { code }, tone: 'error' };
 
+/**
+ * A bot's outfit: the everyday outfit (`full`), one of the ready-made
+ * outfits picked by the seed (`random`), or the pieces chosen in the lobby.
+ */
+function botOutfit(s: SeatConfig, seed: number): ShipId[] {
+  if (s.policy === 'fixed' && s.fleet.length > 0) return [...s.fleet];
+  if (s.policy === 'random') return outfit(OUTFIT_IDS[seed % OUTFIT_IDS.length] ?? 'everyday');
+  return outfit('everyday');
+}
+
 /** Validate the lobby, place every fleet, and go to the handout. Names come from the lobby (default "Player n"). */
 export function deal(names: readonly string[], locale: string): boolean {
   const c = lobby.value;
@@ -192,7 +197,7 @@ export function deal(names: readonly string[], locale: string): boolean {
     kind: s.kind,
     fleet:
       s.kind === 'bot'
-        ? chooseFleet(s.policy === 'fixed' ? { kind: 'fixed', ships: s.fleet } : { kind: s.policy }, rules, seed + i)
+        ? botOutfit(s, seed + i)
         : [...s.fleet],
   }));
   const created = newGame(rules, seats, seed);
@@ -235,7 +240,8 @@ export function acceptFleetCode(input: string): PlayerId | null {
   const g = game.value;
   const s = session.value;
   if (!g || !s || g.phase !== 'setup') return null;
-  const r = decodeFleetCode({ gameCode: gameCode(s.seed), rules: s.rules }, input);
+  const fleets = s.seats.map((seat) => seat.fleet.map((id) => s.rules.shipyard.findIndex((x) => x.id === id)));
+  const r = decodeFleetCode({ gameCode: gameCode(s.seed), rules: s.rules, fleets }, input);
   if (!r.ok) {
     notice.value = { key: 'code.error', values: { code: r.error.replace('code.', '') }, tone: 'error' };
     return null;
@@ -251,7 +257,7 @@ export function acceptFleetCode(input: string): PlayerId | null {
     notice.value = { key: 'code.error', values: { code: 'wrongFleet' }, tone: 'error' };
     return null;
   }
-  const fleet = r.value.ships.map((x) => ({ ship: s.rules.shipyard[x.ship]?.id ?? seat.fleet[0] ?? ('' as ShipId), origin: x.origin, axis: x.axis }));
+  const fleet = r.value.ships.map((x) => ({ ship: s.rules.shipyard[x.ship]?.id ?? seat.fleet[0] ?? ('' as ShipId), origin: x.origin, orientation: x.orientation }));
   const placed = reduce(g, { kind: 'place', player: seat.id, fleet });
   if (!placed.ok) {
     notice.value = { key: 'code.error', values: { code: 'badLayout' }, tone: 'error' };
@@ -272,7 +278,6 @@ export const inviteUrl = computed<string | null>(() => {
   if (!s || stage.value !== 'placement') return null;
   const invite: PlacementInvite = {
     gameCode: gameCode(s.seed),
-    preset: lobby.value.preset,
     rows: s.rules.rows,
     cols: s.rules.cols,
     allowTouching: s.rules.allowTouching,

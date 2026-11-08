@@ -24,8 +24,8 @@ test('exit test: a 4-player game, each phone used exactly once to scan', async (
   await page.locator('.handout-done button.primary').click();
   await expect(tv.locator('.shared-board')).toBeVisible();
   // No fleet anywhere on the shared screens during play.
-  await expect(tv.locator('.ship-outline')).toHaveCount(0);
-  await expect(page.locator('.tv .ship-outline')).toHaveCount(0);
+  await expect(tv.locator('.piece-cell')).toHaveCount(0);
+  await expect(page.locator('.tv .piece-cell')).toHaveCount(0);
 
   const calls = await playToTheEnd(page, 10, 10, latin);
   expect(calls).toBeGreaterThan(10);
@@ -101,7 +101,7 @@ test('a Chinese table: 天干 rows on the TV and the phone', async ({ page, brow
   await phone.goto(urls[0] ?? '');
   await phone.getByRole('checkbox').check();
   await expect(phone.locator('.fleet-board .board-row-label').nth(18)).toContainText('癸');
-  await expect(phone.locator('.phone-legend')).toContainText('褲子');
+  await expect(phone.locator('.phone-legend')).toContainText('牛仔褲');
   await phone.close();
   // Typed calls in the table's own labels.
   await page.locator('.call-input').fill('甲７');
@@ -127,10 +127,10 @@ test('the private peek shows a fleet only while held', async ({ page, browser })
   await page.getByRole('button', { name: visibleText('en', 'play.peek') }).click();
   await page.locator('.peek-players button').first().click();
   await page.locator('.peek button.primary').click();
-  await expect(page.locator('.peek .ship-outline')).toHaveCount(0);
+  await expect(page.locator('.peek .piece-cell')).toHaveCount(0);
   const hold = page.locator('.hold-button');
   await hold.dispatchEvent('pointerdown', { pointerId: 1 });
-  await expect(page.locator('.peek .ship-outline').first()).toBeVisible();
+  await expect(page.locator('.peek .piece-cell').first()).toBeVisible();
   await hold.dispatchEvent('pointerup', { pointerId: 1 });
-  await expect(page.locator('.peek .ship-outline')).toHaveCount(0);
+  await expect(page.locator('.peek .piece-cell')).toHaveCount(0);
 });

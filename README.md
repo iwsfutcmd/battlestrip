@@ -8,18 +8,21 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 
 ## The theme
 
-Battlestrip is played like Battleship, but every piece is a piece of clothing:
+Battlestrip is played like Battleship, but every piece is a piece of clothing, and pieces come in shapes, not just lines.
 
-| Wardrobe | Pieces (length) | Rules |
-|---|---|---|
-| **Everyday** (default) | 1 pants (5) · 2 shirt (4) · 3 underwear (3) · 4 socks (3) · 5 shoes (2) | classic Battleship sizes; pieces may touch |
-| **Bundled up** | 1 coat (4) · 2 sweater (3) · 3 pants (3) · 4 scarf (2) · 5–6 sock 1 and 2 (2) · 7–8 glove 1 and 2 (1) · 9 hat (1) · 10 underwear (1) | Морской бой sizes; nothing may touch |
+- **The wardrobe** (`src/engine/wardrobe.ts`) has 42 pieces in 8 categories (tops, bottoms, one-pieces, underwear, footwear, outerwear, headwear, accessories).
+  - Each piece has a fixed number (1 T-shirt … 42 ring) and a shape: a polyomino from 1 to 8 squares. The shapes are whimsical, not to scale: a T-shirt is a T, pants are an upside-down U with legs, socks are a small L, a scarf is a long line, a ring is one square.
+  - Shapes may be turned and mirrored: up to 8 orientations each.
+  - New pieces are appended at the end of the list. Numbers and list positions travel in QR codes and outfit codes, so existing pieces are never reordered.
+- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, socks, shoes: 19 squares, the default), Bundled up, Beach day, Dressed up and Night in.
+- **Search.** Each seat's picker has a search box and a category filter. It matches the piece's name in the game language, its English name, its category and its number, ignoring case and accents. Search keys are lower-cased in the game's locale before accents are dropped, so Turkish İ still finds i.
+- **Pickers show each piece's shape**, as a small icon next to its number, decorative emoji and name.
 
 - **Wording on screen.** A hit item is still "hit". A fully hit item is "off" ("Off: Bo, shirt"). A player with nothing left on goes nuclear. The last player still dressed is announced, and by default the table plays on until they're down to nothing too.
 - **Clothes are optional.** The app only tracks the game. Whether anyone actually takes anything off is up to the table.
-- **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. The preset ids `classic` and `morskoyBoy` name the rule sets the wardrobes use. Only `src/engine/presets.ts`, the catalogs (`ship.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
-- **The QR payload went to version 2** when the kinds table changed from ships to clothes, so codes from before the change are refused with a clear message.
-- **Sizes are Battleship's,** so the pacing numbers below still apply.
+- **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. Only the wardrobe and presets (`src/engine/wardrobe.ts`, `presets.ts`), the catalogs (`ship.name`, `category.name`, `outfit.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
+- **The QR payload is at version 3.** Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
+- **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has 19 squares in shapes, so games should run a little longer. The simulation hasn't been rerun with shapes.
 
 ## Status
 
@@ -117,7 +120,8 @@ docs/       the spec
 | `gameStats(state)` | per-player numbers and the earned awards |
 | `replay(rules, seats, seed, actions)`, `undoLastCall(state)` | undo replays the log without the last call |
 
-- **Placement** is uniform over all legal layouts. Each ship's placement is drawn independently, and the *whole* layout is rejected on any overlap (or touch). The test compares the empirical occupancy of every cell with an exact enumeration on 5×5 boards, and shows that a naive one-ship-at-a-time placer fails the same test. Classic fleets take about 0.07 ms. Морской бой on 10×10 takes about 13 ms. An impossible setup returns `noLegalLayout` after a million attempts, in about 2 s.
+- **Shapes.** `ShipyardShip.shape` is a polyomino; without one, a piece is a straight line of its `length`. `PlacedShip` has an `orientation` (0–7: quarter turns clockwise, mirrored first when bit 2 is set) instead of the spec's `axis`. For a line, orientation 0 lies along a row and 1 along a column. `placementsFor(rules, piece)` lists each distinct orientation at every origin where it fits, in a fixed order. Everything downstream works on covered squares, so any shape works.
+- **Placement** is uniform over all legal layouts. Each ship's placement is drawn independently, and the *whole* layout is rejected on any overlap (or touch). The test compares the empirical occupancy of every cell with an exact enumeration on 5×5 boards, for lines and for L, T, square and S shapes, and shows that a naive one-ship-at-a-time placer fails the same test. Classic fleets take about 0.07 ms. Морской бой on 10×10 takes about 13 ms. An impossible setup returns `noLegalLayout` after a million attempts, in about 2 s.
 - **Bombs:** a nuclear player's call is a 2×2 bomb. The called square is the first corner (D4 covers D4, D5, E4, E5). Squares already called on every target board are skipped.
 - **Additions to the spec's API:**
   - a `place` action (a player's own layout: needed for M5, and used by tests)
@@ -226,11 +230,11 @@ Choose **Ship placement → Players place their own on their phones** in the lob
 
 1. **On the phone** (`/place/`, in the phone's own language, with the game's labels, direction and writing mode):
    - Pick your name.
-   - Place your ships: pick a ship and tap its starting square, rotate the selected ship, or press Random (the engine's uniform placer).
+   - Lay out your clothes: pick a piece and tap where its first square goes (tapping a placed piece selects it). Rotate turns it a quarter turn and Flip mirrors it. Random uses the engine's uniform placer.
    - Overlap and touching are checked with the engine's own `occupancy` rules.
 2. **The fleet code.** The phone shows it as a QR code and as text, grouped 4-4-4-1 in an LTR isolate (`src/share/fleet-code.ts`).
-   - It's mixed radix, low digits first: a 10-bit game check, the seat, the fleet subset, and each ship's index into `placementsFor(rules, length)`. The digits are obfuscated with a keystream keyed by the game code, then written in Crockford Base32 with Crockford's mod-37 check symbol.
-   - Classic fleets need 12 characters. Morskoy boy fleets on 10×10 need 20, since a code is as long as the largest fleet the shipyard allows.
+   - It's mixed radix, low digits first: a 10-bit game check, the seat, and each piece's index into `placementsFor(rules, piece)`. The pieces are that seat's outfit, which both sides know from the lobby, so the outfit itself isn't packed; a 42-bit subset mask would have cost about nine characters. The digits are obfuscated with a keystream keyed by the game code, then written in Crockford Base32 with Crockford's mod-37 check symbol.
+   - A code is as long as the roomiest outfit at the table needs. Five classic lines need 12 characters; the shaped outfits take about 14 to 24.
 3. **Back on the laptop**, the code is typed or shown to the webcam.
    - Decoding applies NFKC, accepts any `\p{Nd}` digit, ignores case, hyphens and spaces, and maps I/L → 1 and O → 0.
    - A typo, a code from another game, or a code that doesn't match the player's lobby fleet is rejected with a localised message.

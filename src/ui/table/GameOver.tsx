@@ -1,4 +1,4 @@
-import { copyNumber, type Award, type GameStats, type PlayerView } from '../../engine/index.ts';
+import { cellsOf, type Award, type GameStats, type PlayerView } from '../../engine/index.ts';
 import { formatList } from '../../i18n/index.ts';
 import { numberingSystemOf } from '../../i18n/labels.ts';
 import { Glyph } from '../common/identity.tsx';
@@ -92,14 +92,7 @@ export function GameOver({
                     className="is-small"
                     ships={fleet.map((p) => {
                       const def = view.rules.shipyard.find((s) => s.id === p.ship);
-                      return {
-                        number: def?.number ?? 0,
-                        kind: def?.kind ?? '',
-                        copy: copyNumber(view.rules.shipyard, p.ship),
-                        length: def?.length ?? 1,
-                        origin: p.origin,
-                        axis: p.axis,
-                      };
+                      return { number: def?.number ?? 0, kind: def?.kind ?? '', cells: cellsOf(view.rules, p) };
                     })}
                   />
                 </li>

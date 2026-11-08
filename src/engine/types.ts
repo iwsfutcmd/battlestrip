@@ -7,15 +7,30 @@ export type ShipKindId = string & { readonly __brand: 'ShipKindId' };
 
 /** Logical, 0-based. Rows get letters, columns get numbers. */
 export type Coord = Readonly<{ row: number; col: number }>;
-/** Never "horizontal"/"vertical": those swap in vertical writing modes. */
-export type Axis = 'alongRow' | 'alongCol';
+
+/**
+ * A piece's shape: its cells as [row, col] offsets (a polyomino). Never
+ * "horizontal"/"vertical": rows and columns swap in vertical writing modes.
+ */
+export type Shape = readonly (readonly [row: number, col: number])[];
+
+/**
+ * How a shape is turned: quarter turns (orientation & 3), mirrored first when
+ * orientation & 4. For a line, 0 lies along a row and 1 along a column.
+ */
+export type Orientation = number;
 
 export interface ShipyardShip {
   readonly id: ShipId;
   readonly kind: ShipKindId;
   /** Fixed, 1-based, the same for every player. "3" is the underwear at any table. */
   readonly number: number;
+  /** The number of squares (a piece is off once all of them are hit). */
   readonly length: number;
+  /** Its cells; absent means a straight line of `length`. */
+  readonly shape?: Shape;
+  /** A grouping for pickers (tops, footwear, …): data, never shown as text. */
+  readonly category?: string;
 }
 
 export interface Rules {
@@ -49,8 +64,9 @@ export interface Seat {
 
 export interface PlacedShip {
   readonly ship: ShipId;
+  /** Where the turned shape's [0, 0] offset lands (its bounding box's first corner). */
   readonly origin: Coord;
-  readonly axis: Axis;
+  readonly orientation: Orientation;
 }
 
 export type Phase = 'setup' | 'playing' | 'over';

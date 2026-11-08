@@ -1,4 +1,3 @@
-import type { PresetId } from '../engine/index.ts';
 import type { Direction, WritingMode } from '../i18n/direction.ts';
 import type { LabelSystemId } from '../i18n/labels.ts';
 import { fromCrockford, toCrockford } from './codes.ts';
@@ -12,13 +11,12 @@ import { LABEL_SYSTEM_IDS, base64url, fitName, fromBase64url } from './payload.t
 export interface InviteSeat {
   readonly name: string;
   readonly human: boolean;
-  /** Shipyard indices. */
+  /** Wardrobe indices. */
   readonly fleet: readonly number[];
 }
 
 export interface PlacementInvite {
   readonly gameCode: string;
-  readonly preset: PresetId;
   readonly rows: number;
   readonly cols: number;
   readonly allowTouching: boolean;
@@ -30,7 +28,8 @@ export interface PlacementInvite {
   readonly seats: readonly InviteSeat[];
 }
 
-const VERSION = 1;
+/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. */
+const VERSION = 2;
 const NAME_BYTES = 48;
 const MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 
@@ -38,15 +37,14 @@ export function encodeInvite(inv: PlacementInvite): string {
   const enc = new TextEncoder();
   const code = fromCrockford(inv.gameCode) ?? 0;
   const b: number[] = [VERSION, (code >>> 16) & 0xff, (code >>> 8) & 0xff, code & 0xff];
-  b.push(inv.preset === 'morskoyBoy' ? 1 : 0, inv.rows, inv.cols);
+  b.push(inv.rows, inv.cols);
   b.push((inv.allowTouching ? 1 : 0) | (inv.dir === 'rtl' ? 2 : 0) | (MODES.indexOf(inv.writingMode) << 2));
   b.push(LABEL_SYSTEM_IDS.indexOf(inv.labels), inv.labels2 === null ? 255 : LABEL_SYSTEM_IDS.indexOf(inv.labels2));
   const nu = [...inv.numbering].map((c) => c.charCodeAt(0) & 0x7f);
   b.push(nu.length, ...nu, inv.seats.length);
   for (const s of inv.seats) {
-    const mask = s.fleet.reduce((m, k) => m | (1 << k), 0);
     const name = enc.encode(fitName(s.name, NAME_BYTES));
-    b.push(s.human ? 1 : 0, (mask >>> 8) & 0xff, mask & 0xff, name.byteLength, ...name);
+    b.push(s.human ? 1 : 0, s.fleet.length, ...s.fleet, name.byteLength, ...name);
   }
   return base64url(Uint8Array.from(b));
 }
@@ -62,7 +60,6 @@ export function decodeInvite(text: string): PlacementInvite | null {
   };
   try {
     const code = (next() << 16) | (next() << 8) | next();
-    const preset: PresetId = next() === 1 ? 'morskoyBoy' : 'classic';
     const rows = next();
     const cols = next();
     const flags = next();
@@ -74,19 +71,17 @@ export function decodeInvite(text: string): PlacementInvite | null {
     const seats: InviteSeat[] = [];
     for (let n = next(); n > 0; n--) {
       const human = next() === 1;
-      const mask = (next() << 8) | next();
+      const fleet: number[] = [];
+      for (let f = next(); f > 0; f--) fleet.push(next());
       const len = next();
       const name = new TextDecoder('utf-8', { fatal: true }).decode(bytes.slice(i, i + len));
       i += len;
-      const fleet: number[] = [];
-      for (let k = 0; k < 16; k++) if (mask & (1 << k)) fleet.push(k);
       seats.push({ name, human, fleet });
     }
     const writingMode = MODES[flags >> 2];
     if (!labels || labels2 === undefined || !writingMode || !/^[a-z]+$/u.test(numbering)) return null;
     return {
       gameCode: toCrockford(code, 4),
-      preset,
       rows,
       cols,
       allowTouching: (flags & 1) === 1,

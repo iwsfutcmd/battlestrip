@@ -7,3 +7,4 @@ export * from './rng.ts';
 export * from './stats.ts';
 export * from './types.ts';
 export * from './view.ts';
+export * from './wardrobe.ts';
