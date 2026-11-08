@@ -10,6 +10,8 @@
   grid-template-rows: var(--label) repeat(var(--rows), var(--cell)) var(--label);
   inline-size: max-content;
   margin-inline: auto;
+  border-radius: var(--bs-radius);
+  background: var(--bs-board-bg);
 }
 
 .board-row {
@@ -44,6 +46,8 @@
   display: grid;
   place-items: center;
   border: 1px solid var(--bs-grid);
+  border-radius: var(--bs-cell-radius);
+  background-color: var(--bs-cell-bg);
 }
 
 .board-cell[role="gridcell"] {
@@ -83,7 +87,7 @@
 }
 
 .board-cell.is-noop {
-  background-image: repeating-linear-gradient(45deg, transparent 0 0.25em, rgb(255 255 255 / 14%) 0.25em 0.38em);
+  background-image: repeating-linear-gradient(45deg, transparent 0 0.25em, var(--bs-noop-stripe) 0.25em 0.38em);
 }
 
 .hit-glyphs {
@@ -425,7 +429,7 @@
 
 /* Nuclear players are not greyed out: they get a badge and a different row style. */
 .roster-row.is-nuclear {
-  background: repeating-linear-gradient(135deg, #221f0c 0 0.6em, #2b2710 0.6em 1.2em);
+  background: repeating-linear-gradient(135deg, var(--bs-nuclear-a) 0 0.6em, var(--bs-nuclear-b) 0.6em 1.2em);
 }
 
 .roster-main {
@@ -453,18 +457,18 @@
   padding-inline: 0.5em;
   border-radius: 1em;
   font-size: 0.7em;
-  background: #2a3442;
+  background: var(--bs-badge-bg);
 }
 
 .badge-nuclear {
   font-weight: 700;
-  color: #000;
+  color: var(--bs-on-bomb);
   background: var(--bs-bomb);
 }
 
 .badge-last {
   font-weight: 700;
-  color: #000;
+  color: var(--bs-on-accent);
   background: var(--bs-accent);
 }
 
@@ -476,8 +480,8 @@
 }
 
 .badge-ready {
-  color: #000;
-  background: #009e73;
+  color: var(--bs-on-ready);
+  background: var(--bs-ready-bg);
 }
 
 .fleet-pics {

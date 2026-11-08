@@ -251,6 +251,7 @@
   "place.showFleet": "顯示我的穿著圖",
   "place.change": "修改佈置",
   "place.invalidLink": "這個連結沒有遊戲資料。請再掃描一次電視上的條碼。",
+  "lobby.theme": "主題",
   "lobby.placement": "擺放衣物",
   "placement.random": "隨機，以 QR 碼發放",
   "placement.phones": "玩家在手機上自己擺放",
@@ -319,5 +320,21 @@
   "lobby.category": "類別",
   "category.all": "所有類別",
   "lobby.noResults": "沒有符合的衣物。",
-  "place.flip": "翻面"
+  "place.flip": "翻面",
+  "theme.name": [
+    ".input {$id :string}",
+    ".match $id",
+    "classic {{經典}}",
+    "laundromat {{自助洗衣店}}",
+    "mirrorBall {{迪斯可球}}",
+    "grandmasSofa {{阿嬤的沙發}}",
+    "neonLockerRoom {{霓虹更衣室}}",
+    "clothesline {{曬衣繩}}",
+    "tieDye {{紮染}}",
+    "sockDrawer {{襪子抽屜}}",
+    "runway {{伸展台}}",
+    "beachTowel {{海灘浴巾}}",
+    "pajamaParty {{睡衣派對}}",
+    "* {{經典}}"
+  ]
 }

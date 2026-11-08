@@ -287,6 +287,7 @@
   "place.showFleet": "Show my outfit image",
   "place.change": "Change my placement",
   "place.invalidLink": "This link doesn’t hold a game. Scan the code on the TV again.",
+  "lobby.theme": "Theme",
   "lobby.placement": "Laying out clothes",
   "placement.random": "Random, handed out by QR code",
   "placement.phones": "Players lay out their own on their phones",
@@ -361,5 +362,21 @@
   "lobby.category": "Category",
   "category.all": "All categories",
   "lobby.noResults": "No clothes match.",
-  "place.flip": "Flip"
+  "place.flip": "Flip",
+  "theme.name": [
+    ".input {$id :string}",
+    ".match $id",
+    "classic {{Classic}}",
+    "laundromat {{Laundromat}}",
+    "mirrorBall {{Mirror ball}}",
+    "grandmasSofa {{Grandma’s sofa}}",
+    "neonLockerRoom {{Neon locker room}}",
+    "clothesline {{Clothesline}}",
+    "tieDye {{Tie-dye}}",
+    "sockDrawer {{Sock drawer}}",
+    "runway {{Runway}}",
+    "beachTowel {{Beach towel}}",
+    "pajamaParty {{Pajama party}}",
+    "* {{Classic}}"
+  ]
 }

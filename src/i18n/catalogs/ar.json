@@ -288,6 +288,7 @@
   "place.showFleet": "اعرض صورة ملابسي",
   "place.change": "غيّر توزيع سفني",
   "place.invalidLink": "هذا الرابط لا يحمل لعبة. امسح الرمز على التلفاز مرة أخرى.",
+  "lobby.theme": "المظهر",
   "lobby.placement": "ترتيب الملابس",
   "placement.random": "عشوائي، يُسلَّم برمز QR",
   "placement.phones": "يرتّب كل لاعب ملابسه على هاتفه",
@@ -368,5 +369,21 @@
   "lobby.category": "الفئة",
   "category.all": "كل الفئات",
   "lobby.noResults": "لا توجد ملابس مطابقة.",
-  "place.flip": "قلب"
+  "place.flip": "قلب",
+  "theme.name": [
+    ".input {$id :string}",
+    ".match $id",
+    "classic {{كلاسيكي}}",
+    "laundromat {{المغسلة}}",
+    "mirrorBall {{كرة الديسكو}}",
+    "grandmasSofa {{كنبة الجدة}}",
+    "neonLockerRoom {{غرفة تبديل الملابس بالنيون}}",
+    "clothesline {{حبل الغسيل}}",
+    "tieDye {{تاي داي}}",
+    "sockDrawer {{درج الجوارب}}",
+    "runway {{منصة عرض الأزياء}}",
+    "beachTowel {{منشفة الشاطئ}}",
+    "pajamaParty {{حفلة البيجامات}}",
+    "* {{كلاسيكي}}"
+  ]
 }

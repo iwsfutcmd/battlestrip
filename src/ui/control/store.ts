@@ -33,6 +33,7 @@ import { decodeFleetCode } from '../../share/fleet-code.ts';
 import { encodeInvite, type PlacementInvite } from '../../share/invite.ts';
 import { directionOf } from '../../i18n/direction.ts';
 import { translator } from '../common/locale-state.ts';
+import { preferredTheme, type ThemeId } from '../common/themes.ts';
 import type { PublicSeat, PublicTable, TableSettings, TableStage } from '../table/types.ts';
 
 export type FleetPolicyKind = 'full' | 'random' | 'fixed';
@@ -62,6 +63,8 @@ export interface LobbyConfig {
   readonly botSeconds: number;
   /** Read calls and results aloud (off unless the table turns it on). */
   readonly speech: boolean;
+  /** The look of the laptop, the TV and the lobby. */
+  readonly theme: ThemeId;
   /** M5: random layouts handed out by QR, or players place their own on their phones. */
   readonly placement: 'random' | 'phones';
   /** Keep playing after one fleet is left, until it sinks too (the table can still end it early). */
@@ -113,6 +116,7 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     beatSeconds: 0,
     botSeconds: 0,
     speech: false,
+    theme: preferredTheme(),
     placement: 'random',
     playOut: true,
     seats: [defaultSeat('human'), defaultSeat('human'), defaultSeat('human')],
@@ -276,6 +280,7 @@ export function deal(names: readonly string[], locale: string): boolean {
     writingMode: c.writingMode,
     beatMs: Math.max(0, c.beatSeconds * 1000),
     speech: c.speech,
+    theme: c.theme,
   };
   batch(() => {
     session.value = {
@@ -525,6 +530,7 @@ export const publicTable = computed<PublicTable | null>(() => {
     writingMode: c.writingMode,
     beatMs: c.beatSeconds * 1000,
     speech: c.speech,
+    theme: c.theme,
   };
   return {
     stage: stage.value,

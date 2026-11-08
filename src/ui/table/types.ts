@@ -1,6 +1,7 @@
 import type { GameStats, PlayerId, PlayerView } from '../../engine/index.ts';
 import type { WritingMode } from '../../i18n/direction.ts';
 import type { LabelSystemId } from '../../i18n/labels.ts';
+import type { ThemeId } from '../common/themes.ts';
 
 export interface TableSettings {
   /** The game language: a negotiated BCP 47 tag (keeps -u-nu- etc.). */
@@ -13,6 +14,8 @@ export interface TableSettings {
   /** The dramatic pause between a call and its results. */
   readonly beatMs: number;
   readonly speech: boolean;
+  /** Missing in saves from before themes: classic. */
+  readonly theme?: ThemeId | undefined;
 }
 
 export interface PublicSeat {

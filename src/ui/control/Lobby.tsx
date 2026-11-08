@@ -26,6 +26,7 @@ import {
   type SeatConfig,
 } from './store.ts';
 import { signal } from '@preact/signals';
+import { rememberTheme, THEME_IDS, type ThemeId } from '../common/themes.ts';
 
 const SYSTEMS = Object.keys(LABEL_SYSTEMS) as LabelSystemId[];
 const savedGame = signal(readSave());
@@ -116,6 +117,25 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
           <Msg id="lobby.settings" />
         </h2>
         <div class="settings-grid">
+          <Field labelId="lobby.theme">
+            {(id) => (
+              <select
+                id={id}
+                value={c.theme}
+                onChange={(e) => {
+                  const theme = e.currentTarget.value as ThemeId;
+                  rememberTheme(theme);
+                  updateLobby({ theme });
+                }}
+              >
+                {THEME_IDS.map((th) => (
+                  <option key={th} value={th}>
+                    {t.format('theme.name', { id: th })}
+                  </option>
+                ))}
+              </select>
+            )}
+          </Field>
           <Field labelId="lobby.placement">
             {(id) => (
               <select id={id} value={c.placement} onChange={(e) => updateLobby({ placement: e.currentTarget.value === 'phones' ? 'phones' : 'random' })}>

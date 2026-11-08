@@ -1,10 +1,12 @@
 import { effect, signal } from '@preact/signals';
 import { render } from 'preact';
 import '../common/base.css';
+import '../common/themes.css';
 import '../table/table.css';
 import { pseudoRequested } from '../common/LanguagePicker.tsx';
 import { activateLocale, requestedLocales, translator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
+import { applyTheme } from '../common/themes.ts';
 import { openChannel } from '../table/channel.ts';
 import { TableDisplay } from '../table/TableDisplay.tsx';
 import './control.css';
@@ -57,6 +59,8 @@ if (root) {
       displayConnected.value = false;
     }
   });
+  // The lobby's theme (a live preview while choosing), then the dealt table's.
+  effect(() => applyTheme(publicTable.value?.settings.theme));
   effect(() => {
     const table = publicTable.value;
     if (table) channel.post({ type: 'table', table });

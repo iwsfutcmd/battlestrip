@@ -22,8 +22,29 @@
   --bs-warning: #f0e442;
   --bs-error: #ff9a80;
 
+  /* Themeable details (themes.css); these defaults are the classic look. */
+  --bs-primary: #0072b2;
+  --bs-on-primary: #f5f7fa;
+  --bs-selected-bg: #0d3550;
+  --bs-badge-bg: #2a3442;
+  --bs-on-accent: #000;
+  --bs-on-bomb: #000;
+  --bs-ready-bg: #009e73;
+  --bs-on-ready: #000;
+  --bs-nuclear-a: #221f0c;
+  --bs-nuclear-b: #2b2710;
+  --bs-noop-stripe: rgb(255 255 255 / 14%);
+  --bs-cell-bg: transparent;
+  --bs-cell-radius: 0;
+  --bs-board-bg: transparent;
+  --bs-pattern: none;
+  --bs-pattern-size: auto;
+
   color-scheme: dark;
-  background: var(--bs-bg);
+  background-color: var(--bs-bg);
+  background-image: var(--bs-pattern);
+  background-attachment: fixed;
+  background-size: var(--bs-pattern-size);
   color: var(--bs-fg);
   font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
   line-height: 1.5;
@@ -112,7 +133,8 @@ button:disabled {
 button.primary {
   font-weight: 700;
   border-color: var(--bs-accent);
-  background: #0072b2;
+  color: var(--bs-on-primary);
+  background: var(--bs-primary);
 }
 
 button.big {

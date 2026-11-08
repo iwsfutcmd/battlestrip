@@ -77,7 +77,7 @@
   gap: 0.35em;
   align-items: center;
   border-color: var(--bs-accent);
-  background: #0d3550;
+  background: var(--bs-selected-bg);
 }
 
 .outfit-presets,
@@ -116,7 +116,7 @@
 
 .ship-toggle.is-on {
   border-color: var(--bs-accent);
-  background: #0d3550;
+  background: var(--bs-selected-bg);
   opacity: 1;
 }
 

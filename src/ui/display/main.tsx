@@ -1,9 +1,11 @@
 import { effect, signal } from '@preact/signals';
 import { render } from 'preact';
 import '../common/base.css';
+import '../common/themes.css';
 import '../table/table.css';
 import { activateLocale, requestedLocales, translator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
+import { applyTheme, preferredTheme } from '../common/themes.ts';
 import { openChannel } from '../table/channel.ts';
 import { TableDisplay } from '../table/TableDisplay.tsx';
 import type { PublicTable } from '../table/types.ts';
@@ -38,6 +40,8 @@ if (root) {
   });
   channel.post({ type: 'hello' });
   addEventListener('pagehide', () => channel.post({ type: 'bye' }));
+  // The table's theme; until the control window posts one, this browser's choice.
+  effect(() => applyTheme(table.value ? table.value.settings.theme : preferredTheme()));
   // The game language comes from the control window once it speaks.
   effect(() => {
     const locale = table.value?.settings.locale;
