@@ -150,9 +150,14 @@
 
 /* ---- TV layout ------------------------------------------------------------ */
 
+/*
+ * Two rows: the bar, then the table, which takes all the rest. The table's
+ * row must not be sized by its content: the side column's text changes with
+ * every call, and the board, sized to its wrapper, would grow and move with it.
+ */
 .tv {
   display: grid;
-  grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
   gap: clamp(0.5rem, 2vmin, 2rem);
   block-size: 100dvb;
   padding-block: clamp(0.5rem, 2vmin, 2rem);
@@ -183,6 +188,7 @@
 }
 
 .tv-note {
+  flex-basis: 100%;
   margin: 0;
   color: var(--bs-warning);
 }

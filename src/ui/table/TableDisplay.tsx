@@ -72,12 +72,12 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
           </p>
         )}
         {showHousekeeping && <Housekeeping />}
+        {noVoice && (
+          <p class="tv-note" role="status">
+            <Msg id="speech.noVoice" />
+          </p>
+        )}
       </header>
-      {noVoice && (
-        <p class="tv-note" role="status">
-          <Msg id="speech.noVoice" />
-        </p>
-      )}
       {table.stage === 'over' && view ? (
         <div class="tv-over">
           <GameOver view={view} seats={table.seats} stats={table.stats} settings={table.settings} />
