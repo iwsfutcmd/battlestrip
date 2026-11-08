@@ -212,7 +212,8 @@
 }
 
 .control-play .tv {
-  block-size: 100dvb;
+  block-size: auto;
+  min-block-size: 0;
   font-size: clamp(0.9rem, 0.5rem + 1.2vmin, 1.8rem);
 }
 
@@ -305,9 +306,18 @@
   list-style: none;
 }
 
+/*
+ * Narrow: the controls go under the table. Each gets a fixed share of the
+ * height, so the controls' contents (notices, hints) can't resize the board.
+ * Collapsed, the controls are just their heading and the table takes the rest.
+ */
 @media (width < 60rem) {
   .control-play {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 3fr) minmax(0, 2fr);
+  }
+
+  .control-play:has(.play-panel.is-collapsed) {
     grid-template-rows: minmax(0, 1fr) auto;
   }
 

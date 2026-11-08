@@ -72,11 +72,6 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
           </p>
         )}
         {showHousekeeping && <Housekeeping />}
-        {noVoice && (
-          <p class="tv-note" role="status">
-            <Msg id="speech.noVoice" />
-          </p>
-        )}
       </header>
       {table.stage === 'over' && view ? (
         <div class="tv-over">
@@ -120,6 +115,11 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
             <Roster table={table} view={view} />
           </aside>
         </div>
+      )}
+      {noVoice && (
+        <p class="tv-note" role="status">
+          <Msg id="speech.noVoice" />
+        </p>
       )}
     </div>
   );

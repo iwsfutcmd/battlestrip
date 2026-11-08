@@ -151,25 +151,40 @@
 /* ---- TV layout ------------------------------------------------------------ */
 
 /*
- * Two rows: the bar, then the table, which takes all the rest. The table's
- * row must not be sized by its content: the side column's text changes with
- * every call, and the board, sized to its wrapper, would grow and move with it.
+ * The TV is laid out by position, not by flow. Every region (the bar, the
+ * board, the side column, game over) is absolutely positioned at a place and
+ * size that come only from the screen: fixed paddings, a fixed bar height, a
+ * fixed share for the side column. Nothing inside a region can move another:
+ * the last-call card, the roster, a notice or a long name can change as much
+ * as they like, and the board stays exactly where it is. The board itself is
+ * absolutely centred in its region and sized from the region's size alone.
+ *
+ * All offsets are logical, so the same rules lay out an RTL table (mirrored)
+ * and, with the overrides below, a vertical one.
  */
 .tv {
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr);
-  gap: clamp(0.5rem, 2vmin, 2rem);
+  --tv-pad-block: clamp(0.5rem, 2vmin, 2rem);
+  --tv-pad-inline: clamp(0.75rem, 3vmin, 3rem);
+  --tv-gap: clamp(0.75rem, 3vmin, 3rem);
+  --tv-bar: 1.9em;
+
+  /* Percentages here resolve against the main region, where they are used. */
+  --tv-side: max(14em, calc((100% - var(--tv-gap)) * 0.4));
+
+  position: relative;
+  overflow: hidden;
   block-size: 100dvb;
-  padding-block: clamp(0.5rem, 2vmin, 2rem);
-  padding-inline: clamp(0.75rem, 3vmin, 3rem);
   font-size: clamp(1rem, 0.55rem + 1.5vmin, 2.4rem);
 }
 
 .tv-bar {
+  position: absolute;
+  inset-block-start: var(--tv-pad-block);
+  inset-inline: var(--tv-pad-inline);
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5em 1.5em;
+  gap: 1.5em;
   align-items: baseline;
+  block-size: var(--tv-bar);
 }
 
 .tv-title {
@@ -183,42 +198,74 @@
 }
 
 .tv-fullscreen {
+  align-self: center;
   margin-inline-start: auto;
   font-size: 0.7em;
 }
 
+/* A passing notice, laid over the corner of the side column. */
 .tv-note {
-  flex-basis: 100%;
+  position: absolute;
+  z-index: 1;
+  inset-block-end: var(--tv-pad-block);
+  inset-inline-end: var(--tv-pad-inline);
+  max-inline-size: min(30em, 50%);
   margin: 0;
+  padding-block: 0.5em;
+  padding-inline: 0.8em;
+  border-radius: var(--bs-radius);
   color: var(--bs-warning);
+  background: var(--bs-surface);
 }
 
-.tv-main {
-  display: grid;
-  grid-template-columns: minmax(0, 3fr) minmax(14em, 2fr);
-  gap: clamp(0.75rem, 3vmin, 3rem);
-  min-block-size: 0;
+.tv-main,
+.tv-over {
+  position: absolute;
+  inset-block: calc(var(--tv-pad-block) + var(--tv-bar) + var(--tv-gap)) var(--tv-pad-block);
+  inset-inline: var(--tv-pad-inline);
 }
 
 .tv-board-wrap {
   container-type: size;
+  position: absolute;
+  inset-block: 0;
+  inset-inline: 0 calc(var(--tv-side) + var(--tv-gap));
   display: grid;
   place-items: center;
-  min-block-size: 0;
 }
 
 .tv-board-wrap .board {
   --cell: min(calc(100cqi / (var(--cols) + 2)), calc(100cqb / (var(--rows) + 2)));
+
+  position: absolute;
+  inset: 0;
+  block-size: max-content;
+  margin: auto;
+}
+
+.tv-side {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  inline-size: var(--tv-side);
 }
 
 /*
  * Vertical tables (§7.8): the whole TV takes the game's writing mode, so the
- * board wrapper is vertical too and the formula above already measures
- * columns along the (now vertical) inline axis. The outer box is pinned to
- * the viewport with inset, which is the same in every writing mode
- * (browsers disagree on which writing mode vi/vb follow).
+ * logical offsets above already turn with it: the bar is a column at the
+ * block start, and the board's formula measures columns along the (now
+ * vertical) inline axis. Here the side column follows the board along the
+ * block axis instead of sitting beside it. The outer box is pinned to the
+ * viewport with inset, which is the same in every writing mode (browsers
+ * disagree on which writing mode vi/vb follow).
  */
 .tv[data-wm^="vertical"] {
+  --tv-side: max(12em, calc((100% - var(--tv-gap)) * 0.4));
+
   position: fixed;
   inset: 0;
   block-size: auto;
@@ -226,16 +273,29 @@
 
 /* Embedded in the control window, the grid cell sizes it. */
 .control-play .tv[data-wm^="vertical"] {
-  position: static;
+  position: relative;
+  inset: auto;
   block-size: auto;
   min-block-size: 0;
   max-block-size: 100%;
 }
 
-.tv[data-wm^="vertical"] .tv-main,
+.tv[data-wm^="vertical"] .tv-board-wrap {
+  inset-block: 0 calc(var(--tv-side) + var(--tv-gap));
+  inset-inline: 0;
+}
+
+.tv[data-wm^="vertical"] .tv-side {
+  inset-block: auto 0;
+  inset-inline: 0;
+  inline-size: auto;
+  block-size: var(--tv-side);
+}
+
+/* Vertical game over: the results and the roster one after the other, scrolling, so neither spills into the other. */
 .tv[data-wm^="vertical"] .tv-over {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 3fr) minmax(12em, 2fr);
+  grid-template-rows: auto auto;
 }
 
 .tv[data-wm^="vertical"] .coord-big {
@@ -247,25 +307,17 @@
   text-combine-upright: all;
 }
 
-.tv-side {
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-  min-block-size: 0;
-  overflow: auto;
-}
-
 .tv-waiting {
   font-size: 1.3em;
   color: var(--bs-muted);
 }
 
+/* Game over scrolls inside its region; nothing in it needs to hold still. */
 .tv-over {
+  overflow: auto;
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(14em, 1fr);
   gap: 2em;
-  min-block-size: 0;
-  overflow: auto;
 }
 
 /* ---- Last call ------------------------------------------------------------ */

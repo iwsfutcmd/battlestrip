@@ -58,5 +58,12 @@ for (const c of CASES) {
     }
     expect([...seen.tv]).toHaveLength(1);
     expect([...seen.control]).toHaveLength(1);
+    // On the laptop, the board never sits under the controls.
+    const board = await page.locator('.tv .board').boundingBox();
+    const panel = await page.locator('.play-panel').boundingBox();
+    if (!board || !panel) throw new Error('board or controls missing');
+    const overlaps =
+      board.x < panel.x + panel.width && panel.x < board.x + board.width && board.y < panel.y + panel.height && panel.y < board.y + board.height;
+    expect(overlaps).toBe(false);
   });
 }
