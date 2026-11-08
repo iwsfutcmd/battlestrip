@@ -4,7 +4,6 @@ import {
   CLASSIC_SHIPYARD,
   legalCalls,
   newGame,
-  presetRules,
   reduce,
   shipCells,
   viewFor,
@@ -14,7 +13,7 @@ import {
   type Seat,
   type ShipId,
 } from '../engine/index.ts';
-import { at, call, pid, seat, ship, startedGame } from '../engine/test-utils.ts';
+import { at, call, navalRules, pid, seat, ship, startedGame } from '../engine/test-utils.ts';
 import { boardDensity, callSeed, chooseCall, chooseFleet, playBotGame, type BotKind } from './index.ts';
 
 const key = (c: Coord): string => `${c.row},${c.col}`;
@@ -69,7 +68,7 @@ describe('bots', () => {
   });
 
   it('are deterministic in the seed', () => {
-    const rules = presetRules('classic');
+    const rules = navalRules();
     const seats = [seat('a', ['carrier', 'destroyer'], 'bot'), seat('b', ['cruiser'], 'bot'), seat('c', ['battleship'], 'bot')];
     for (const kind of ['density', 'random'] as const) {
       const one = playBotGame({ rules, seats, seed: 5, bots: [kind, kind, kind] });
@@ -146,8 +145,8 @@ describe('DensityBot', () => {
   });
 
   it('beats RandomBot: shorter games, and wins most head-to-heads', () => {
-    const rules = presetRules('classic');
-    const fleet = CLASSIC_SHIPYARD.map((s) => s.id);
+    const rules = navalRules();
+    const fleet = rules.shipyard.map((s) => s.id);
     const seats = [seat('a', fleet, 'bot'), seat('b', fleet, 'bot')];
     let densityTurns = 0;
     let randomTurns = 0;
@@ -169,9 +168,9 @@ describe('DensityBot', () => {
 });
 
 describe('chooseFleet', () => {
-  const rules = presetRules('classic');
+  const rules = navalRules();
   it('full takes the whole shipyard', () => {
-    expect(chooseFleet({ kind: 'full' }, rules, 1)).toEqual(CLASSIC_SHIPYARD.map((s) => s.id));
+    expect(chooseFleet({ kind: 'full' }, rules, 1)).toEqual(rules.shipyard.map((s) => s.id));
   });
   it('fixed keeps shipyard order and falls back to full when empty', () => {
     const ships = ['destroyer', 'carrier', 'nope'] as ShipId[];

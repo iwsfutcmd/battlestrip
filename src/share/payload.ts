@@ -35,7 +35,8 @@ export interface FleetImage {
   readonly ships: readonly FleetImageShip[];
 }
 
-export const PAYLOAD_VERSION = 1;
+/** 2: clothing kinds replaced ship kinds. */
+export const PAYLOAD_VERSION = 2;
 /** Keeps the worst-case URL under ~400 characters (24 emoji ZWJ sequences would be ~600 bytes). */
 export const MAX_NAME_BYTES = 160;
 
@@ -44,7 +45,7 @@ export const LABEL_SYSTEM_IDS: readonly LabelSystemId[] = [
   'latin', 'arabicAbjad', 'arabicAlphabetical', 'persian', 'persianAbjad', 'hebrew', 'greek', 'morskoyBoy',
   'respublika', 'heavenlyStems', 'earthlyBranches', 'hangul', 'iroha', 'numeric',
 ];
-export const SHIP_KINDS: readonly string[] = ['carrier', 'battleship', 'cruiser', 'submarine', 'destroyer', 'torpedoBoat'];
+export const SHIP_KINDS: readonly string[] = ['pants', 'shirt', 'underwear', 'socks', 'shoes', 'coat', 'sweater', 'scarf', 'sock', 'glove', 'hat'];
 const WRITING_MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 
 const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_';

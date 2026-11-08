@@ -5,7 +5,7 @@ import { newGame, reduce } from './game.ts';
 import { presetRules } from './presets.ts';
 import { randomLayout } from './placement.ts';
 import { seedRng, type RngState } from './rng.ts';
-import { pid, seat } from './test-utils.ts';
+import { navalRules, pid, seat } from './test-utils.ts';
 import type { PlacedShip, Rules, ShipId, ShipKindId } from './types.ts';
 
 function smallRules(lengths: readonly number[], allowTouching: boolean): Rules {
@@ -132,7 +132,7 @@ describe('random placement', () => {
   }, 20_000); // a million rejected attempts: about 2 s, longer on a busy machine
 
   it('rerolls change the layout version and (almost always) the layout', () => {
-    const rules = presetRules('classic');
+    const rules = navalRules();
     const s0 = newGame(rules, [seat('a', ['carrier', 'cruiser']), seat('b', ['destroyer'])], 9);
     if (!s0.ok) throw new Error('setup failed');
     const r = reduce(s0.value, { kind: 'reroll', player: pid('a') });

@@ -68,7 +68,7 @@ test('play on after one fleet is left, until it sinks too', async ({ page, brows
   await expect(page.locator('.game-over')).toHaveCount(0);
 
   while (!(await page.locator('.game-over').count()) && i < 4000) await step();
-  await expect(tv.locator('.over-result')).toContainText('was the last fleet standing');
+  await expect(tv.locator('.over-result')).toContainText('was the last one still dressed');
 });
 
 test('or end the game as soon as one fleet is left', async ({ page, browser }) => {
@@ -78,5 +78,5 @@ test('or end the game as soon as one fleet is left', async ({ page, browser }) =
   await page.locator('.handout-done button.primary').click();
   await callUntil(page, async () => (await page.locator('.last-fleet-banner').count()) > 0);
   await page.getByRole('button', { name: visibleText('en', 'play.endHere') }).click();
-  await expect(page.locator('.over-result')).toContainText('is the last fleet standing!');
+  await expect(page.locator('.over-result')).toContainText('is the last one still dressed!');
 });

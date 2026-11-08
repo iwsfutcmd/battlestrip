@@ -34,7 +34,7 @@ export function fleetImageFor(s: GameState, player: PlayerId, name: string, sett
       const def = s.rules.shipyard.find((x) => x.id === p.ship);
       return {
         number: def?.number ?? 0,
-        kind: def?.kind ?? 'carrier',
+        kind: def?.kind ?? '',
         copy: copyNumber(s.rules.shipyard, p.ship),
         length: def?.length ?? 1,
         origin: p.origin,

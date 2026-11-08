@@ -418,6 +418,11 @@
   color: var(--bs-muted);
 }
 
+.clothing-icon {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  line-height: 1;
+}
+
 .ship-pic-hull {
   display: inline-flex;
   gap: 0.12em;

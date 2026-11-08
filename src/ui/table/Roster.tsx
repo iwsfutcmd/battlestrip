@@ -1,5 +1,6 @@
 import { copyNumber, type PlayerView } from '../../engine/index.ts';
 import { formatNumber } from '../../i18n/labels.ts';
+import { ClothingIcon } from '../common/clothing.tsx';
 import { Glyph } from '../common/identity.tsx';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
@@ -79,6 +80,7 @@ export function Roster({ table, view }: { readonly table: PublicTable; readonly 
                           <span class="ship-pic-number" aria-hidden="true">
                             {formatNumber(table.settings.locale, def?.number ?? 0)}
                           </span>
+                          <ClothingIcon kind={def?.kind ?? ''} />
                           <span class="ship-pic-hull" aria-hidden="true">
                             {Array.from({ length: s.length }, (_, k) => (
                               <span key={k} class={`ship-seg ${k < hits ? 'is-hit' : ''}`} />

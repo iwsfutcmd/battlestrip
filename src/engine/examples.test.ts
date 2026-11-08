@@ -4,9 +4,8 @@
  * battleship, cruiser and submarine; Chen takes only a destroyer.
  */
 import { describe, expect, it } from 'vitest';
-import { presetRules } from './presets.ts';
 import { legalCalls, reduce } from './game.ts';
-import { ALL_CLASSIC, at, call, pid, resolved, seat, ship, startedGame } from './test-utils.ts';
+import { ALL_CLASSIC, at, call, navalRules, pid, resolved, seat, ship, startedGame } from './test-utils.ts';
 
 const seats = [seat('Amani', ALL_CLASSIC), seat('Bo', ['battleship', 'cruiser', 'submarine']), seat('Chen', ['destroyer'])];
 
@@ -126,7 +125,7 @@ describe('§2.4 end of the game', () => {
 
 describe('playing it out (playOut)', () => {
   const endSeats = [seat('Amani', ['destroyer']), seat('Bo', ['destroyer']), seat('Chen', ['destroyer'])];
-  const rules = presetRules('classic', { playOut: true });
+  const rules = navalRules({ playOut: true });
 
   /** Same game as above: after turn 7 Amani (last square A1) is the last fleet standing. */
   function toLastFleet() {
@@ -188,7 +187,7 @@ describe('playing it out (playOut)', () => {
 });
 
 describe('§2.4 selfFire: false (engine and simulation only)', () => {
-  const rules = presetRules('classic', { selfFire: false });
+  const rules = navalRules({ selfFire: false });
   const s0 = startedGame(seats, layouts, 'Amani', rules);
   const t1 = call(s0, 'Amani', 'D4');
 

@@ -1,10 +1,25 @@
 # Battlestrip
 
-N-player, simultaneous-fire Battleship for one shared screen. Every call lands on every board, including the caller's own. A player whose last ship sinks keeps playing as a bomber. The app places every fleet and resolves every call. Each player scans one QR code at the start, which shows a static picture of their own fleet on their phone. There's no server.
+Strip battleship for the whole table, on one shared screen. Instead of ships, each player hides an outfit on their board: pants, shirt, underwear, socks, shoes. Every call lands on every board, including the caller's own. When a piece of clothing is hit on every square, it's off. A player with nothing left on keeps playing, and drops 2×2 bombs. The app places every outfit and resolves every call. Each player scans one QR code at the start, which shows a static picture of their own outfit on their phone. There's no server.
 
 **Play it:** <https://iwsfutcmd.github.io/battlestrip/>. Open it on the laptop that drives the TV; phones only ever scan a QR code.
 
 The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its working title. This README tracks what's built.
+
+## The theme
+
+Battlestrip is played like Battleship, but every piece is a piece of clothing:
+
+| Wardrobe | Pieces (length) | Rules |
+|---|---|---|
+| **Everyday** (default) | 1 pants (5) · 2 shirt (4) · 3 underwear (3) · 4 socks (3) · 5 shoes (2) | classic Battleship sizes; pieces may touch |
+| **Bundled up** | 1 coat (4) · 2 sweater (3) · 3 pants (3) · 4 scarf (2) · 5–6 sock 1 and 2 (2) · 7–8 glove 1 and 2 (1) · 9 hat (1) · 10 underwear (1) | Морской бой sizes; nothing may touch |
+
+- **Wording on screen.** A hit item is still "hit". A fully hit item is "off" ("Off: Bo, shirt"). A player with nothing left on goes nuclear. The last player still dressed is announced, and by default the table plays on until they're down to nothing too.
+- **Clothes are optional.** The app only tracks the game. Whether anyone actually takes anything off is up to the table.
+- **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. The preset ids `classic` and `morskoyBoy` name the rule sets the wardrobes use. Only `src/engine/presets.ts`, the catalogs (`ship.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
+- **The QR payload went to version 2** when the kinds table changed from ships to clothes, so codes from before the change are refused with a clear message.
+- **Sizes are Battleship's,** so the pacing numbers below still apply.
 
 ## Status
 
@@ -46,12 +61,12 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 
 ## Playing
 
-1. Open `/` on the laptop. Choose the game language, the players (each in any script; human or bot) and each player's fleet.
-2. Press **Deal the fleets**. For each human in seat order, the laptop shows a privacy screen, then a QR code. The player scans it with their phone's ordinary camera, checks that the three-character fleet check matches, and presses **Got it** (or **Reroll**).
+1. Open `/` on the laptop. Choose the game language, the wardrobe, the players (each in any script; human or bot) and each player's outfit: any non-empty set of pieces from the wardrobe.
+2. Press **Deal the outfits**. For each human in seat order, the laptop shows a privacy screen, then a QR code. The player scans it with their phone's ordinary camera, checks that the three-character outfit check matches, and presses **Got it** (or **Reroll**).
 3. **Open the TV window** and drag it to the TV. Two-window mode keeps the QR code off the TV; the TV window only ever receives the public table. In one-window mode, the table and the docked controls share the laptop's screen. Don't mirror the laptop to the TV during the handout.
 4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat, then reveals every result at once and reads it aloud where a voice exists. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
-5. **Show a fleet privately** covers players without a phone and lost images. It can also show the QR code again.
-6. **When only one fleet is left**, the TV announces the last fleet standing. By default, play goes on: everyone else bombs it until it sinks, and its owner keeps calling squares on their own board. The game-over screen then says how long it held out. **End the game here** on the laptop stops at that moment instead. To always stop there, untick "Play on after one fleet is left" in the lobby.
+5. **Show an outfit privately** covers players without a phone and lost images. It can also show the QR code again.
+6. **When only one player is still dressed**, the TV announces them. By default, play goes on: everyone else bombs them until they're down to nothing, and they keep calling squares on their own board. The game-over screen then says how long they held out. **End the game here** on the laptop stops at that moment instead. To always stop there, untick "Play on when only one player is still dressed" in the lobby.
 
 The game autosaves to `localStorage` after every action, and a reload offers to resume.
 
@@ -232,8 +247,9 @@ The laptop's state holds every fleet. Anyone with devtools could peek. That's fi
 
 1. **The name in other languages.** Every catalog uses "Battlestrip" (Latin). I kept the default; localised titles are a one-line catalog change.
 2. **zh-Hant spacing around names.** This is left to `text-autospace`, which Chromium doesn't apply next to Arabic or Hebrew names.
-3. **Translations.** The `ar` and `zh-Hant` catalogs are quick drafts. The Arabic avoids gendered verbs next to player names, using masdar constructions such as «غرق: …» and «تم إغراق …».
-4. **Two-player games** usually end with no last fleet: see the M3 findings below. Playing on doesn't change that. When one call sinks both fleets, there's nothing left to play out.
+3. **Translations.** The `ar` and `zh-Hant` catalogs are quick drafts. The Arabic avoids gendered verbs next to player names, using masdar constructions such as «خلع: …» and «تم خلع …».
+4. **Two-player games** usually end with nobody left dressed: see the M3 findings below. Playing on doesn't change that. When one call takes the last piece from both players, there's nothing left to play out.
+5. **Layering.** Pieces come off in whatever order they're hit, so underwear can come off before pants. A layering rule (inner pieces can't be hit while an outer piece covering them is still on) would change the game's rules, so it's not in yet.
 
 ## Bots and simulation (M3)
 

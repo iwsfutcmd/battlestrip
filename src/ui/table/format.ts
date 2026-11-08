@@ -29,7 +29,7 @@ export function coordSpoken(t: Translator, l: BoardLabels, c: Coord): string {
   return t.format('coord.spoken', { row: rowText(l, c.row), col: colText(l, c.col) });
 }
 
-/** "cruiser", or "cruiser 2" when the shipyard repeats the kind. */
+/** "shirt", or "sock 2" when the shipyard repeats the kind. */
 export function shipName(t: Translator, kind: string, copy: number | null): string {
   const name = t.format('ship.name', { kind });
   return copy === null ? name : t.format('ship.withCopy', { name, copy });

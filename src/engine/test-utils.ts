@@ -1,6 +1,6 @@
-import { CLASSIC_SHIPYARD, presetRules } from './presets.ts';
+import { presetRules } from './presets.ts';
 import { reduce } from './game.ts';
-import type { Action, Axis, Coord, GameEvent, GameState, PlacedShip, PlayerId, Rules, Seat, ShipId } from './types.ts';
+import type { Action, Axis, Coord, GameEvent, GameState, PlacedShip, PlayerId, Rules, Seat, ShipId, ShipKindId, ShipyardShip } from './types.ts';
 import { newGame } from './game.ts';
 
 /** "D4" → row 3, col 3 (Latin rows, 1-based columns), for readable tests. */
@@ -17,7 +17,24 @@ export function seat(id: string, fleet: readonly string[], kind: Seat['kind'] = 
   return { id: pid(id), kind, fleet: fleet.map(sid) };
 }
 
-export const ALL_CLASSIC = CLASSIC_SHIPYARD.map((s) => s.id);
+/**
+ * The spec's naval shipyard (§2.1), so the worked examples in §2.4 stay
+ * verbatim. The game itself ships clothing (presets.ts); the engine only
+ * cares about lengths.
+ */
+export const NAVAL_SHIPYARD: readonly ShipyardShip[] = (
+  [
+    ['carrier', 5],
+    ['battleship', 4],
+    ['cruiser', 3],
+    ['submarine', 3],
+    ['destroyer', 2],
+  ] as const
+).map(([id, length], i) => ({ id: id as ShipId, kind: id as string as ShipKindId, number: i + 1, length }));
+
+export const navalRules = (overrides: Partial<Rules> = {}): Rules => presetRules('classic', { shipyard: NAVAL_SHIPYARD, ...overrides });
+
+export const ALL_CLASSIC = NAVAL_SHIPYARD.map((s) => s.id);
 
 export function ship(id: string, origin: string, axis: Axis): PlacedShip {
   return { ship: sid(id), origin: at(origin), axis };
@@ -36,7 +53,7 @@ export function startedGame(
   seats: readonly Seat[],
   layouts: Readonly<Record<string, readonly PlacedShip[]>>,
   first: string,
-  rules: Rules = presetRules('classic'),
+  rules: Rules = navalRules(),
 ): GameState {
   for (let seed = 0; seed < 10_000; seed++) {
     let s = must(newGame(rules, seats, seed));

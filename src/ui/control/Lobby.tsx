@@ -3,6 +3,7 @@ import { presetRules, type ShipId } from '../../engine/index.ts';
 import { writingModesFor, type CatalogId } from '../../i18n/index.ts';
 import { fits, LABEL_SYSTEMS, systemForRows, defaultLabelSystem, type LabelSystemId } from '../../i18n/labels.ts';
 import { cleanName, sameName } from '../../i18n/text.ts';
+import { ClothingIcon } from '../common/clothing.tsx';
 import { Glyph } from '../common/identity.tsx';
 import { LanguagePicker } from '../common/LanguagePicker.tsx';
 import { activateLocale, useTranslator } from '../common/locale-state.ts';
@@ -333,6 +334,7 @@ function SeatEditor({ seat, index, count, shipyard }: { readonly seat: SeatConfi
             return (
               <button key={s.id} type="button" class={`ship-toggle ${on ? 'is-on' : ''}`} aria-pressed={on ? 'true' : 'false'} onClick={() => toggle(s.id)}>
                 <span class="ship-toggle-number">{new Intl.NumberFormat(t.locale).format(s.number)}</span>
+                <ClothingIcon kind={s.kind} />
                 <span class="ship-toggle-name">{name}</span>
                 <span class="ship-pic-hull" aria-hidden="true">
                   {Array.from({ length: s.length }, (_, k) => (

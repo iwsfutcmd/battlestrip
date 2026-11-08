@@ -2,7 +2,7 @@ import type { RngState } from './rng.ts';
 
 export type PlayerId = string & { readonly __brand: 'PlayerId' };
 export type ShipId = string & { readonly __brand: 'ShipId' };
-/** carrier, cruiser, …: what messages and pictograms are keyed on. */
+/** pants, shirt, …: what messages and pictograms are keyed on. (In Battlestrip every ship is an item of clothing.) */
 export type ShipKindId = string & { readonly __brand: 'ShipKindId' };
 
 /** Logical, 0-based. Rows get letters, columns get numbers. */
@@ -13,7 +13,7 @@ export type Axis = 'alongRow' | 'alongCol';
 export interface ShipyardShip {
   readonly id: ShipId;
   readonly kind: ShipKindId;
-  /** Fixed, 1-based, the same for every player. "3" is the cruiser at any table. */
+  /** Fixed, 1-based, the same for every player. "3" is the underwear at any table. */
   readonly number: number;
   readonly length: number;
 }

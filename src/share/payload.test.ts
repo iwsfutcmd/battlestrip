@@ -67,7 +67,7 @@ describe('fleet-image payload', () => {
         identity: 7,
         ships: Array.from({ length: 10 }, (_, i) => ({
           number: i + 1,
-          kind: 'torpedoBoat',
+          kind: 'glove',
           copy: 4,
           length: 4,
           origin: { row: 19, col: 19 },

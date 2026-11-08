@@ -2,6 +2,7 @@ import { useState } from 'preact/hooks';
 import type { CatalogId } from '../../i18n/index.ts';
 import type { FleetImage } from '../../share/payload.ts';
 import { HoldToReveal } from '../common/HoldToReveal.tsx';
+import { ClothingIcon } from '../common/clothing.tsx';
 import { Glyph } from '../common/identity.tsx';
 import { LanguagePicker } from '../common/LanguagePicker.tsx';
 import { useTranslator } from '../common/locale-state.ts';
@@ -61,7 +62,7 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
           <ul>
             {ships.map((s) => (
               <li key={s.number}>
-                <span class="legend-number">{formatNumber(t.locale, s.number)}</span> <span>{shipName(t, s.kind, s.copy)}</span>{' '}
+                <span class="legend-number">{formatNumber(t.locale, s.number)}</span> <ClothingIcon kind={s.kind} /> <span>{shipName(t, s.kind, s.copy)}</span>{' '}
                 <span class="ship-pic-hull" aria-hidden="true">
                   {Array.from({ length: s.length }, (_, k) => (
                     <span key={k} class="ship-seg" />

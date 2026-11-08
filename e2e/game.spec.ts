@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
+import { visibleText, watchForErrors } from './helpers.ts';
 import { deal, handOut, playToTheEnd } from './table.ts';
-import { watchForErrors } from './helpers.ts';
 
 test.use({ reducedMotion: 'reduce' });
 
@@ -64,7 +64,7 @@ test('undo takes back only the last call (Ctrl+Z on the physical key)', async ({
   await page.keyboard.press('Control+KeyZ');
   await expect(page.locator('.play-panel [role=status]')).toBeVisible();
   await expect.poll(async () => strip(await page.locator('.last-call-coord').textContent())).toContain('A1');
-  await expect(page.getByRole('button', { name: 'Undo last call' })).toBeDisabled();
+  await expect(page.getByRole('button', { name: visibleText('en', 'play.undo') })).toBeDisabled();
 });
 
 test('an Arabic table: mirrored grid with abjad labels on the TV and the phones', async ({ page, browser }) => {
@@ -101,7 +101,7 @@ test('a Chinese table: 天干 rows on the TV and the phone', async ({ page, brow
   await phone.goto(urls[0] ?? '');
   await phone.getByRole('checkbox').check();
   await expect(phone.locator('.fleet-board .board-row-label').nth(18)).toContainText('癸');
-  await expect(phone.locator('.phone-legend')).toContainText('航空母艦');
+  await expect(phone.locator('.phone-legend')).toContainText('褲子');
   await phone.close();
   // Typed calls in the table's own labels.
   await page.locator('.call-input').fill('甲７');
@@ -124,7 +124,7 @@ test('the private peek shows a fleet only while held', async ({ page, browser })
   await deal(page, { lang: 'en', names: ['Amani', 'Bo'] });
   await handOut(page, browser);
   await page.locator('.handout-done button.primary').click();
-  await page.getByRole('button', { name: 'Show a fleet privately' }).click();
+  await page.getByRole('button', { name: visibleText('en', 'play.peek') }).click();
   await page.locator('.peek-players button').first().click();
   await page.locator('.peek button.primary').click();
   await expect(page.locator('.peek .ship-outline')).toHaveCount(0);

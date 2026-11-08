@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import { visibleText } from './helpers.ts';
 import { deal } from './table.ts';
 
 test.use({ reducedMotion: 'reduce' });
@@ -17,8 +18,8 @@ test('M5: players place their own ships on their phones and bring back fleet cod
   const a = await phoneCtx.newPage();
   await a.goto(invite ?? '');
   await a.locator('.place-seats button', { hasText: 'Amani' }).click();
-  await a.getByRole('button', { name: 'Random' }).click();
-  await a.getByRole('button', { name: 'Done' }).click();
+  await a.getByRole('button', { name: visibleText('en', 'place.random') }).click();
+  await a.getByRole('button', { name: visibleText('en', 'place.done') }).click();
   const codeA = (await a.locator('[data-testid=fleet-code]').textContent()) ?? '';
   expect(codeA).toMatch(/^[0-9A-Z]{4}-[0-9A-Z]{4}-[0-9A-Z]{1,4}-[0-9A-Z*~$=]$/u);
 
@@ -40,10 +41,10 @@ test('M5: players place their own ships on their phones and bring back fleet cod
     await b.locator('.place-ships button').nth(row).click();
     await b.locator(`[data-cell="${row * 2}-0"]`).click();
   }
-  await b.getByRole('button', { name: 'Done' }).click();
+  await b.getByRole('button', { name: visibleText('en', 'place.done') }).click();
   const codeB = (await b.locator('[data-testid=fleet-code]').textContent()) ?? '';
   // Bo's phone image: the same fleet check the laptop will compute.
-  await b.getByRole('link', { name: 'Show my fleet image' }).click();
+  await b.getByRole('link', { name: visibleText('en', 'place.showFleet') }).click();
   await b.getByRole('checkbox').check();
   await expect(b.locator('.fleet-board .ship-outline')).toHaveCount(5);
   const phoneCheck = await b.locator('[data-testid=fleet-check]').textContent();
@@ -55,7 +56,7 @@ test('M5: players place their own ships on their phones and bring back fleet cod
   await expect(page.locator('.shared-board')).toBeVisible();
 
   // The private peek shows the same fleet check for Bo.
-  await page.getByRole('button', { name: 'Show a fleet privately' }).click();
+  await page.getByRole('button', { name: visibleText('en', 'play.peek') }).click();
   await page.locator('.peek-players button').nth(1).click();
   await page.locator('.peek button.primary').click();
   const hold = page.locator('.hold-button');

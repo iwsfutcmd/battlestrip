@@ -5,6 +5,7 @@ import { fleetCheck } from '../../share/codes.ts';
 import { encodeFleetCode, groupCode } from '../../share/fleet-code.ts';
 import type { PlacementInvite } from '../../share/invite.ts';
 import { encodeFleetImage, type FleetImage } from '../../share/payload.ts';
+import { ClothingIcon } from '../common/clothing.tsx';
 import { Glyph, identityColour } from '../common/identity.tsx';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
@@ -215,6 +216,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
             <li key={k}>
               <button type="button" class={`ship-toggle ${selected === k ? 'is-on' : ''} ${layout[k] ? 'is-placed' : ''}`} aria-pressed={selected === k ? 'true' : 'false'} onClick={() => setSelected(k)}>
                 <span class="ship-toggle-number">{formatNumber(t.locale, def.number)}</span>
+                <ClothingIcon kind={def.kind} />
                 <span>{shipName(t, def.kind, copyNumber(rules.shipyard, def.id))}</span>
                 <span class="ship-pic-hull" aria-hidden="true">
                   {Array.from({ length: def.length }, (_, i) => (
