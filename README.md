@@ -12,7 +12,7 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 | **M1 Engine**: rules, uniform placement, nuclear bombs, views, stats, replay, undo | ✅ done |
 | **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, speech, autosave, two-window sync | ✅ done |
 | **M3 Bots and simulation**: RandomBot, DensityBot, `npm run sim`, pacing table | ✅ done |
-| M4 Vertical modes | not started |
+| **M4 Vertical modes**: `vertical-rl` for zh-Hant/ja tables on the TV and every phone image | ✅ done |
 | M5 Players place their own ships | designed, not started |
 
 ## Quick start
@@ -169,6 +169,21 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
   - Bots, undo, autosave, and the private peek.
   - An Arabic table: mirrored grid, abjad labels on the TV and the phones, and an English phone with Arabic labels.
   - A Chinese table: 天干 labels, and typing `甲７`.
+
+## Vertical writing modes (M4)
+
+- **Who gets it.** A `zh-Hant` or `ja` table can switch the board orientation to vertical in the lobby. Mongolian script defaults to `vertical-lr` (`writingModesFor` in `src/i18n/direction.ts`), but there's no `mn-Mong` catalog yet. The choice travels in the QR payload, so the TV and every phone image switch together.
+- **The TV goes fully vertical.** Its root takes the writing mode; because every layout rule is logical, the grid simply transposes:
+  - In `vertical-rl`, cell (0,0) is top-right, columns run down, and rows (甲 乙 丙 …) run right to left. The bar, board and side panel stack right to left like the columns of a page.
+  - Labels are upright.
+  - Column numbers, ship numbers and roster numbers use `text-combine-upright: all`; boards never exceed 20, so that's at most two digits.
+  - The big coordinate in the last-call card is upright.
+- **The laptop controls stay horizontal.** The spec allows this. The embedded table follows the game's mode, and arrow keys still move visually (`src/ui/keyboard.ts`).
+- **The phone image** draws its board in the game's mode, while the rest of the page follows the phone's language. The PNG export lays cells out per mode and draws each label upright in its cell.
+- **Sizing gotcha:** Chromium resolves logical viewport and container units (`vi`, `vb`, `cqi`, `cqb`) against the *element's own* writing mode. So:
+  - the vertical TV is pinned with `position: fixed; inset: 0`
+  - the phone board is sized by its container's physical width (`cqw`), the one physical unit in the CSS, with a comment saying why
+- **Screenshots** (`e2e/screenshots.spec.ts`) cover the TV at setup, mid-game and game over, and the phone, in `en`, `ar`, `ar-XB`, `en-XA`, `zh-Hant` and vertical `zh-Hant`, plus an Arabic phone showing a Latin-labelled game. They go to `test-results/screenshots/` for review, and each asserts there's no overflow. They aren't pixel baselines, because fonts differ between machines.
 
 ## Hidden information
 

@@ -8,6 +8,7 @@ export interface DealOptions {
   readonly labels?: string;
   readonly rows?: number;
   readonly cols?: number;
+  readonly writingMode?: 'horizontal-tb' | 'vertical-rl';
 }
 
 /** Fill the lobby and deal. Beat and bot delay go to 0 so tests run fast. */
@@ -29,6 +30,7 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   await numbers.nth(3).fill('0');
   await numbers.nth(3).blur();
   if (o.labels) await page.locator('.settings-grid select').nth(1).selectOption(o.labels);
+  if (o.writingMode) await page.locator('.settings-grid select').nth(3).selectOption(o.writingMode);
   await page.locator('button.primary.big').click();
   await expect(page.locator('.handout')).toBeVisible();
 }

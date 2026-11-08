@@ -59,7 +59,7 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
   }, [spokenKey]);
 
   return (
-    <div class="tv" data-stage={table.stage}>
+    <div class="tv" data-stage={table.stage} data-wm={table.settings.writingMode} style={{ writingMode: table.settings.writingMode }}>
       <header class="tv-bar">
         <h1 class="tv-title">
           <Msg id="app.title" />

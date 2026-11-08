@@ -180,8 +180,40 @@
   --cell: min(calc(100cqi / (var(--cols) + 2)), calc(100cqb / (var(--rows) + 2)));
 }
 
-.tv-board-wrap .board[data-wm^="vertical"] {
-  --cell: min(calc(100cqb / (var(--cols) + 2)), calc(100cqi / (var(--rows) + 2)));
+/*
+ * Vertical tables (§7.8): the whole TV takes the game's writing mode, so the
+ * board wrapper is vertical too and the formula above already measures
+ * columns along the (now vertical) inline axis. The outer box is pinned to
+ * the viewport with inset, which is the same in every writing mode
+ * (browsers disagree on which writing mode vi/vb follow).
+ */
+.tv[data-wm^="vertical"] {
+  position: fixed;
+  inset: 0;
+  block-size: auto;
+}
+
+/* Embedded in the control window, the grid cell sizes it. */
+.control-play .tv[data-wm^="vertical"] {
+  position: static;
+  block-size: auto;
+  min-block-size: 0;
+  max-block-size: 100%;
+}
+
+.tv[data-wm^="vertical"] .tv-main,
+.tv[data-wm^="vertical"] .tv-over {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 3fr) minmax(12em, 2fr);
+}
+
+.tv[data-wm^="vertical"] .coord-big {
+  text-orientation: upright;
+}
+
+.tv[data-wm^="vertical"] .ship-pic-number,
+.board[data-wm^="vertical"] .ship-number {
+  text-combine-upright: all;
 }
 
 .tv-side {

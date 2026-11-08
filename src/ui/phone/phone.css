@@ -1,6 +1,7 @@
 /* The phone page: one static image, readable at a glance. */
 
 .phone {
+  container-type: inline-size;
   display: grid;
   gap: 1rem;
   align-content: start;
@@ -23,12 +24,18 @@
   font-size: 1.6rem;
 }
 
+/*
+ * The constraint is the phone's physical width, whatever the board's writing
+ * mode: columns span it when horizontal, rows when vertical. Logical units
+ * (cqi, vi) would follow the board's own writing mode in Chromium, so this is
+ * the one place a physical unit (cqw) is the honest choice.
+ */
 .phone-board {
-  --cell: min(calc((100vi - 2rem) / (var(--cols) + 2)), 2.6rem);
+  --cell: min(calc((100cqw - 0.5rem) / (var(--cols) + 2)), 2.6rem);
 }
 
 .phone-board[data-wm^="vertical"] {
-  --cell: min(calc((100vi - 2rem) / (var(--rows) + 2)), 2.6rem);
+  --cell: min(calc((100cqw - 0.5rem) / (var(--rows) + 2)), 2.6rem);
 }
 
 .phone-legend ul {
