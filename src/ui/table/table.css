@@ -101,13 +101,25 @@
 
 .piece-cell {
   --piece-edge: max(2px, calc(var(--cell) * 0.08));
+  --bridge: calc(var(--cell) * 0.32);
+  --bridge-offset: calc(var(--bridge) / -2);
 
+  position: relative;
   pointer-events: none;
   display: grid;
   place-items: center;
   border-style: solid;
   border-width: 0;
   background: rgb(86 180 233 / 22%);
+}
+
+.piece-bridge {
+  position: absolute;
+  z-index: 2;
+  inline-size: var(--bridge);
+  block-size: var(--bridge);
+  border-radius: 15%;
+  transform: rotate(45deg);
 }
 
 .piece-cell.is-selected {

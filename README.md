@@ -8,13 +8,15 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 
 ## The theme
 
-Battlestrip is played like Battleship, but every piece is a piece of clothing, and pieces come in shapes, not just lines.
+Battlestrip is played like Battleship, but every piece is a piece of clothing, and a piece can be any shape at all, not just a line.
 
-- **The wardrobe** (`src/engine/wardrobe.ts`) has 42 pieces in 8 categories (tops, bottoms, one-pieces, underwear, footwear, outerwear, headwear, accessories).
-  - Each piece has a fixed number (1 T-shirt … 42 ring) and a shape: a polyomino from 1 to 8 squares. The shapes are whimsical, not to scale: a T-shirt is a T, pants are an upside-down U with legs, socks are a small L, a scarf is a long line, a ring is one square.
+- **The wardrobe** (`src/engine/wardrobe.ts`) has 49 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
+  - Each piece has a fixed number (1 T-shirt … 49 leg warmers) and a shape of 1 to 8 squares. The shapes are whimsical, not to scale: a T-shirt is a T, pants are an upside-down U with legs, socks are a small L, a scarf is a long line, a ring is one square.
+  - **Shapes can be anything.** A shape is any set of squares, so a piece can be edge-connected, joined only at corners, or in separate parts. The sash is a diagonal line, the bow tie an X and the necklace a V; earrings are two squares apart, and a bikini comes in three parts.
+  - On boards and in saved images, squares that touch only at a corner get a small diamond "bridge" on that corner. Each separate part shows the piece's number, so a scattered piece still reads as one.
   - Shapes may be turned and mirrored: up to 8 orientations each.
   - New pieces are appended at the end of the list. Numbers and list positions travel in QR codes and outfit codes, so existing pieces are never reordered.
-- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, socks, shoes: 19 squares, the default), Bundled up, Beach day, Dressed up and Night in.
+- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, socks, shoes: 19 squares, the default), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie and suspenders) and Night in.
 - **Search.** Each seat's picker has a search box and a category filter. It matches the piece's name in the game language, its English name, its category and its number, ignoring case and accents. Search keys are lower-cased in the game's locale before accents are dropped, so Turkish İ still finds i.
 - **Pickers show each piece's shape**, as a small icon next to its number, decorative emoji and name.
 
@@ -120,7 +122,7 @@ docs/       the spec
 | `gameStats(state)` | per-player numbers and the earned awards |
 | `replay(rules, seats, seed, actions)`, `undoLastCall(state)` | undo replays the log without the last call |
 
-- **Shapes.** `ShipyardShip.shape` is a polyomino; without one, a piece is a straight line of its `length`. `PlacedShip` has an `orientation` (0–7: quarter turns clockwise, mirrored first when bit 2 is set) instead of the spec's `axis`. For a line, orientation 0 lies along a row and 1 along a column. `placementsFor(rules, piece)` lists each distinct orientation at every origin where it fits, in a fixed order. Everything downstream works on covered squares, so any shape works.
+- **Shapes.** `ShipyardShip.shape` is any non-empty set of cells; without one, a piece is a straight line of its `length`. `newGame` checks that a shape has no repeated cells, that `length` counts its cells, and that it fits the board in some orientation. Nothing else assumes connectivity: placement, the no-touching rule, sinking, the bots and codes all work on the covered squares. Fairness of placement is tested for an X with a split pair, and for a diagonal line with a V with no touching. `PlacedShip` has an `orientation` (0–7: quarter turns clockwise, mirrored first when bit 2 is set) instead of the spec's `axis`. For a line, orientation 0 lies along a row and 1 along a column. `placementsFor(rules, piece)` lists each distinct orientation at every origin where it fits, in a fixed order. Everything downstream works on covered squares, so any shape works.
 - **Placement** is uniform over all legal layouts. Each ship's placement is drawn independently, and the *whole* layout is rejected on any overlap (or touch). The test compares the empirical occupancy of every cell with an exact enumeration on 5×5 boards, for lines and for L, T, square and S shapes, and shows that a naive one-ship-at-a-time placer fails the same test. Classic fleets take about 0.07 ms. Морской бой on 10×10 takes about 13 ms. An impossible setup returns `noLegalLayout` after a million attempts, in about 2 s.
 - **Bombs:** a nuclear player's call is a 2×2 bomb. The called square is the first corner (D4 covers D4, D5, E4, E5). Squares already called on every target board are skipped.
 - **Additions to the spec's API:**

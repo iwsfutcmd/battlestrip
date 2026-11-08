@@ -3,6 +3,7 @@ import type { FleetImage } from '../../share/payload.ts';
 import { identityColour, identityShape } from '../common/identity.tsx';
 import { colText, row2Text, rowText, type BoardLabels } from '../table/format.ts';
 import { labelCell } from '../table/Piece.tsx';
+import { cellGroups } from '../../engine/index.ts';
 
 const CELL = 56;
 
@@ -121,8 +122,29 @@ export async function fleetPng(image: FleetImage, labels: BoardLabels, legend: r
       }
     }
     ctx.stroke();
-    const label = labelCell(s.cells);
-    if (label) {
+    // Bridges where cells meet only at a corner: a small diamond on the shared corner.
+    ctx.fillStyle = stroke;
+    for (const c of s.cells) {
+      for (const dc of [-1, 1]) {
+        if (!inPiece.has(`${c.row + 1},${c.col + dc}`) || inPiece.has(`${c.row + 1},${c.col}`) || inPiece.has(`${c.row},${c.col + dc}`)) continue;
+        const a = L.at(c.row, c.col);
+        const b = L.at(c.row + 1, c.col + dc);
+        const x = (a.x + b.x) / 2 + CELL / 2;
+        const y = (a.y + b.y) / 2 + CELL / 2;
+        const r = CELL * 0.16;
+        ctx.beginPath();
+        ctx.moveTo(x, y - r);
+        ctx.lineTo(x + r, y);
+        ctx.lineTo(x, y + r);
+        ctx.lineTo(x - r, y);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+    // A number in each separate part.
+    for (const group of cellGroups(s.cells)) {
+      const label = labelCell(group);
+      if (!label) continue;
       const p = L.at(label.row, label.col);
       ctx.fillStyle = '#f5f7fa';
       text(ctx, new Intl.NumberFormat(labels.digitsLocale).format(s.number), p.x + CELL / 2, p.y + CELL / 2, CELL * 0.45);

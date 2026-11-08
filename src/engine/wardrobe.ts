@@ -4,14 +4,15 @@ import type { Rules, ShipId, ShipKindId, ShipyardShip } from './types.ts';
 
 /**
  * The wardrobe: every piece of clothing a player can wear, with its shape.
- * Shapes are polyominoes drawn as rows of "#" separated by "/"; they're
- * whimsical, not to scale. Numbers are fixed (a piece's number is the same at
+ * Shapes are drawn as rows of "#" separated by "/", and may be anything:
+ * edge-connected, joined only at corners (the sash), or in separate parts
+ * (earrings). They're whimsical, not to scale. Numbers are fixed (a piece's number is the same at
  * every table), so append new pieces at the end of their list and never
  * reorder: numbers and indices travel in QR codes and fleet codes.
  *
  * Ids double as kinds and as message keys (ship.name) and icon keys.
  */
-export const WARDROBE_CATEGORIES = ['tops', 'bottoms', 'onePieces', 'underwear', 'footwear', 'outerwear', 'headwear', 'accessories'] as const;
+export const WARDROBE_CATEGORIES = ['tops', 'bottoms', 'onePieces', 'swimwear', 'underwear', 'footwear', 'outerwear', 'headwear', 'accessories'] as const;
 export type WardrobeCategory = (typeof WARDROBE_CATEGORIES)[number];
 
 const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: string])[] = [
@@ -29,7 +30,7 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['skirt', 'bottoms', '.#./###'],
   ['leggings', 'bottoms', '####'],
   ['dress', 'onePieces', '.#./.#./###'],
-  ['swimsuit', 'onePieces', '#.#/###/.#.'],
+  ['swimsuit', 'swimwear', '#.#/###/.#.'],
   ['robe', 'onePieces', '###/.#./###'],
   ['jumpsuit', 'onePieces', '.#./###/#.#'],
   ['underwear', 'underwear', '###/.#.'],
@@ -57,6 +58,14 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['watch', 'accessories', '#'],
   ['sunglasses', 'accessories', '##'],
   ['ring', 'accessories', '#'],
+  // Shapes that aren't edge-connected.
+  ['necklace', 'accessories', '#...#/.#.#./..#..'],
+  ['bowTie', 'accessories', '#.#/.#./#.#'],
+  ['earrings', 'accessories', '#.#'],
+  ['sash', 'accessories', '#../.#./..#'],
+  ['suspenders', 'accessories', '#.#/#.#/#.#'],
+  ['bikini', 'swimwear', '#.#/.../.#.'],
+  ['legWarmers', 'footwear', '#.#/#.#'],
 ];
 
 export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art], i) => {
@@ -68,8 +77,8 @@ export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art],
 export const OUTFITS = {
   everyday: ['tShirt', 'jeans', 'underwear', 'socks', 'shoes'],
   bundledUp: ['coat', 'sweater', 'pants', 'scarf', 'gloves', 'beanie', 'boots'],
-  beachDay: ['swimsuit', 'sunglasses', 'sandals', 'cap'],
-  dressedUp: ['shirt', 'blazer', 'pants', 'tie', 'belt', 'shoes', 'watch'],
+  beachDay: ['bikini', 'sunglasses', 'sandals', 'cap', 'necklace'],
+  dressedUp: ['shirt', 'blazer', 'pants', 'bowTie', 'suspenders', 'shoes', 'watch'],
   nightIn: ['robe', 'boxers', 'tankTop', 'slippers'],
 } as const satisfies Record<string, readonly string[]>;
 export type OutfitId = keyof typeof OUTFITS;

@@ -9,7 +9,8 @@ export type ShipKindId = string & { readonly __brand: 'ShipKindId' };
 export type Coord = Readonly<{ row: number; col: number }>;
 
 /**
- * A piece's shape: its cells as [row, col] offsets (a polyomino). Never
+ * A piece's shape: its cells as [row, col] offsets. Any non-empty set of
+ * cells: edge-connected, joined only at corners, or in separate parts. Never
  * "horizontal"/"vertical": rows and columns swap in vertical writing modes.
  */
 export type Shape = readonly (readonly [row: number, col: number])[];

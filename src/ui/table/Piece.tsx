@@ -1,4 +1,4 @@
-import type { Coord, Shape } from '../../engine/index.ts';
+import { cellGroups, type Coord, type Shape } from '../../engine/index.ts';
 import { formatNumber } from '../../i18n/labels.ts';
 
 /** What a board needs to draw a piece: its number, its kind and the squares it covers. */
@@ -44,7 +44,14 @@ export function PieceOutline({
   readonly selected?: boolean;
 }) {
   const inPiece = new Set(piece.cells.map((c) => key(c.row, c.col)));
-  const label = labelCell(piece.cells);
+  const has = (row: number, col: number): boolean => inPiece.has(key(row, col));
+  // One number per separate part (cells joined at an edge or a corner count as one part).
+  const labels = new Set(
+    cellGroups(piece.cells)
+      .map((g) => labelCell(g))
+      .flatMap((c) => (c ? [key(c.row, c.col)] : [])),
+  );
+  const ink = colour === '#000000' ? '#ffffff' : colour;
   const edge = (open: boolean): string => (open ? 'var(--piece-edge)' : '0');
   return (
     <>
@@ -55,14 +62,24 @@ export function PieceOutline({
           style={{
             gridRow: String(c.row + 2),
             gridColumn: String(c.col + 2),
-            borderColor: colour === '#000000' ? '#ffffff' : colour,
-            borderBlockStartWidth: edge(!inPiece.has(key(c.row - 1, c.col))),
-            borderBlockEndWidth: edge(!inPiece.has(key(c.row + 1, c.col))),
-            borderInlineStartWidth: edge(!inPiece.has(key(c.row, c.col - 1))),
-            borderInlineEndWidth: edge(!inPiece.has(key(c.row, c.col + 1))),
+            borderColor: ink,
+            borderBlockStartWidth: edge(!has(c.row - 1, c.col)),
+            borderBlockEndWidth: edge(!has(c.row + 1, c.col)),
+            borderInlineStartWidth: edge(!has(c.row, c.col - 1)),
+            borderInlineEndWidth: edge(!has(c.row, c.col + 1)),
           }}
         >
-          {label && label.row === c.row && label.col === c.col && <span class="ship-number">{formatNumber(digitsLocale, piece.number)}</span>}
+          {labels.has(key(c.row, c.col)) && <span class="ship-number">{formatNumber(digitsLocale, piece.number)}</span>}
+          {/* Cells joined only at a corner get a bridge on that corner (drawn once, from the upper cell). */}
+          {([-1, 1] as const).map((dc) =>
+            has(c.row + 1, c.col + dc) && !has(c.row + 1, c.col) && !has(c.row, c.col + dc) ? (
+              <span
+                key={dc}
+                class="piece-bridge"
+                style={dc < 0 ? { background: ink, insetBlockEnd: 'var(--bridge-offset)', insetInlineStart: 'var(--bridge-offset)' } : { background: ink, insetBlockEnd: 'var(--bridge-offset)', insetInlineEnd: 'var(--bridge-offset)' }}
+              />
+            ) : null,
+          )}
         </div>
       ))}
     </>

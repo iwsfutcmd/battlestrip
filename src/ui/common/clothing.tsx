@@ -45,6 +45,12 @@ const ICONS: Readonly<Record<string, string>> = {
   watch: '⌚',
   sunglasses: '🕶️',
   ring: '💍',
+  necklace: '📿',
+  bowTie: '🎀',
+  earrings: '💎',
+  sash: '🎗️',
+  bikini: '👙',
+  legWarmers: '🧦',
   sock: '🧦',
   glove: '🧤',
 };

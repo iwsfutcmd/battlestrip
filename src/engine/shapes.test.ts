@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { canonicalOrientation, occupancy, orient, orientations, parseShape, placementsFor, placedCells } from './board.ts';
+import { canonicalOrientation, cellGroups, occupancy, orient, orientations, parseShape, placementsFor, placedCells } from './board.ts';
 import { randomLayout } from './placement.ts';
 import { seedRng, type RngState } from './rng.ts';
 import type { PlacedShip, Rules, ShipId, ShipKindId } from './types.ts';
@@ -14,6 +14,9 @@ describe('shapes', () => {
     expect(orientations(parseShape('#./#./##'))).toHaveLength(8); // L: mirrors differ
     expect(orientations(parseShape('##./.##'))).toHaveLength(4); // S/Z
     expect(orientations(parseShape('###/###'))).toHaveLength(2); // 2×3 rectangle
+    expect(orientations(parseShape('#../.#./..#'))).toHaveLength(2); // diagonal line
+    expect(orientations(parseShape('#.#/.#./#.#'))).toHaveLength(1); // X
+    expect(orientations(parseShape('#.#'))).toHaveLength(2); // a split pair
   });
 
   it('turns lines the way the spec names them: 0 along a row, 1 along a column', () => {
@@ -89,6 +92,8 @@ describe('random placement of shapes', () => {
   it.each([
     ['L and T, touching allowed', ['#./#./##', '###/.#.'], true],
     ['square and S, no touching', ['##/##', '##./.##'], false],
+    ['X and a split pair, touching allowed', ['#.#/.#./#.#', '#.#'], true],
+    ['diagonal line and V, no touching', ['#../.#./..#', '#.#/.#.'], false],
   ] as const)('is uniform over legal layouts: %s', (_label, arts, touching) => {
     const rules = shapedRules(arts, touching);
     const exact = exactOccupancy(rules);
@@ -112,30 +117,44 @@ describe('random placement of shapes', () => {
 });
 
 describe('the wardrobe', () => {
-  it('has unique ids, numbers in order, and connected shapes', async () => {
+  it('has unique ids, numbers in order, and well-formed shapes of any kind', async () => {
     const { WARDROBE, OUTFITS } = await import('./wardrobe.ts');
     const ids = WARDROBE.map((s) => s.id);
     expect(new Set(ids).size).toBe(ids.length);
     WARDROBE.forEach((s, i) => expect(s.number).toBe(i + 1));
     for (const s of WARDROBE) {
       const cells = (s.shape ?? []).map(([r, c]) => `${r},${c}`);
-      // Flood fill from the first cell reaches every cell.
-      const seen = new Set([cells[0]]);
-      const stack = [s.shape?.[0]];
-      while (stack.length) {
-        const cur = stack.pop();
-        if (!cur) continue;
-        for (const [dr, dc] of [[1, 0], [-1, 0], [0, 1], [0, -1]] as const) {
-          const k = `${cur[0] + dr},${cur[1] + dc}`;
-          if (cells.includes(k) && !seen.has(k)) {
-            seen.add(k);
-            stack.push([cur[0] + dr, cur[1] + dc]);
-          }
-        }
-      }
-      expect(seen.size, s.id).toBe(cells.length);
-      expect(s.length).toBe(cells.length);
+      expect(new Set(cells).size, s.id).toBe(cells.length);
+      expect(s.length, s.id).toBe(cells.length);
     }
+    // Some pieces are joined only at corners, some are in separate parts.
+    const groups = (id: string) => cellGroups(placedCells(WARDROBE.find((w) => w.id === id) ?? { length: 1 }, { row: 0, col: 0 }, 0)).length;
+    expect(groups('sash')).toBe(1);
+    expect(groups('earrings')).toBe(2);
+    expect(groups('bikini')).toBe(3);
     for (const outfit of Object.values(OUTFITS)) for (const id of outfit) expect(ids).toContain(id);
+  });
+});
+
+describe('shape validation', () => {
+  it('accepts any well-formed cell set and rejects malformed ones', async () => {
+    const { newGame } = await import('./game.ts');
+    const seats = [
+      { id: 'a' as never, kind: 'human' as const, fleet: ['p' as ShipId] },
+      { id: 'b' as never, kind: 'human' as const, fleet: ['p' as ShipId] },
+    ];
+    const rules = (shape: [number, number][], length: number): Rules => ({
+      rows: 5,
+      cols: 5,
+      shipyard: [{ id: 'p' as ShipId, kind: 'p' as ShipKindId, number: 1, length, shape }],
+      allowTouching: true,
+      selfFire: true,
+      announceShipOnHit: true,
+      nuclear: true,
+    });
+    expect(newGame(rules([[0, 0], [2, 2], [4, 0]], 3), seats, 1).ok).toBe(true);
+    expect(newGame(rules([[0, 0], [0, 0]], 2), seats, 1)).toEqual({ ok: false, error: 'badRules' });
+    expect(newGame(rules([[0, 0], [1, 1]], 3), seats, 1)).toEqual({ ok: false, error: 'badRules' });
+    expect(newGame(rules([[0, 0], [0, 6]], 2), seats, 1)).toEqual({ ok: false, error: 'badRules' });
   });
 });

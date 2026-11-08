@@ -109,6 +109,30 @@ export function placementsFor(rules: Pick<Rules, 'rows' | 'cols'>, ship: Pick<Sh
   return out;
 }
 
+/** The parts of a set of cells that touch, edges or corners (8-connectivity), each in row order. */
+export function cellGroups(cells: readonly Coord[]): Coord[][] {
+  const left = [...cells];
+  const groups: Coord[][] = [];
+  while (left.length > 0) {
+    const first = left.shift();
+    if (!first) break;
+    const group = [first];
+    for (let i = 0; i < group.length; i++) {
+      const g = group[i];
+      if (!g) continue;
+      for (let j = left.length - 1; j >= 0; j--) {
+        const c = left[j];
+        if (c && Math.abs(c.row - g.row) <= 1 && Math.abs(c.col - g.col) <= 1) {
+          group.push(c);
+          left.splice(j, 1);
+        }
+      }
+    }
+    groups.push(group.sort((a, b) => a.row - b.row || a.col - b.col));
+  }
+  return groups;
+}
+
 /**
  * Build the occupancy grid for a layout (shipyard index per cell, -1 for
  * water), or return null if the layout breaks the rules: off the board,

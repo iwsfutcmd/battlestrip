@@ -1,4 +1,4 @@
-import { bombCells, cellsOf, coordOf, inBounds, indexOf, occupancy } from './board.ts';
+import { bombCells, cellsOf, coordOf, inBounds, indexOf, occupancy, shapeOf } from './board.ts';
 import { MAX_SIDE, MIN_SIDE } from './presets.ts';
 import { randomLayout } from './placement.ts';
 import { err, ok, type Result } from './result.ts';
@@ -72,7 +72,23 @@ function validateRules(rules: Rules): boolean {
   if (!sideOk(rules.rows) || !sideOk(rules.cols)) return false;
   const ids = rules.shipyard.map((s) => s.id);
   if (hasDuplicates(ids) || rules.shipyard.length === 0) return false;
-  return rules.shipyard.every((s) => Number.isInteger(s.length) && s.length >= 1 && s.length <= Math.max(rules.rows, rules.cols));
+  return rules.shipyard.every((s) => shapeOk(rules, s));
+}
+
+/**
+ * A piece may be any non-empty set of cells: edge-connected, joined only at
+ * corners (a sash), or in separate parts (earrings). Its length must count
+ * its cells, and it must fit on the board in some orientation.
+ */
+function shapeOk(rules: Rules, s: Rules['shipyard'][number]): boolean {
+  if (!Number.isInteger(s.length) || s.length < 1) return false;
+  const shape = shapeOf(s);
+  const keys = shape.map(([r, c]) => `${r},${c}`);
+  if (shape.length !== s.length || hasDuplicates(keys)) return false;
+  if (!shape.every(([r, c]) => Number.isInteger(r) && Number.isInteger(c))) return false;
+  const height = Math.max(...shape.map(([r]) => r)) - Math.min(...shape.map(([r]) => r)) + 1;
+  const width = Math.max(...shape.map(([, c]) => c)) - Math.min(...shape.map(([, c]) => c)) + 1;
+  return (height <= rules.rows && width <= rules.cols) || (width <= rules.rows && height <= rules.cols);
 }
 
 function validateSeats(rules: Rules, seats: readonly Seat[]): RuleViolation | null {
