@@ -28,3 +28,15 @@ export function formatList(
 ): string {
   return new Intl.ListFormat(locale, { type, style: 'long' }).format(items.map(isolate));
 }
+
+const RTL_LETTER =
+  /[\p{Script=Arabic}\p{Script=Hebrew}\p{Script=Syriac}\p{Script=Thaana}\p{Script=Nko}\p{Script=Adlam}\p{Script=Hanifi_Rohingya}\p{Script=Mandaic}\p{Script=Samaritan}]/u;
+
+/** The direction of the first strong letter, as UAX #9's P2–P3 would find it (approximated by script). */
+export function firstStrongDirection(text: string): 'ltr' | 'rtl' | null {
+  for (const ch of text) {
+    if (!/\p{L}/u.test(ch)) continue;
+    return RTL_LETTER.test(ch) ? 'rtl' : 'ltr';
+  }
+  return null;
+}

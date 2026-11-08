@@ -11,6 +11,16 @@
   --bs-accent: #56b4e9;
   --bs-focus: #f0e442;
   --bs-radius: 0.5rem;
+  --bs-surface-strong: #1f2833;
+  --bs-grid: #3a4656;
+  --bs-hit: #ffc29a;
+  --bs-hit-bg: #3d2416;
+  --bs-sunk: #d55e00;
+  --bs-sunk-bg: #4d1f0c;
+  --bs-sunk-text: #ff9a6b;
+  --bs-bomb: #f0e442;
+  --bs-warning: #f0e442;
+  --bs-error: #ff9a80;
 
   color-scheme: dark;
   background: var(--bs-bg);
@@ -78,6 +88,120 @@ p {
   margin-block: 0 0.5em;
 }
 
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+  padding-block: 0.35em;
+  padding-inline: 0.75em;
+  border: 1px solid #4b5869;
+  border-radius: var(--bs-radius);
+  background: var(--bs-surface);
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+button.primary {
+  font-weight: 700;
+  border-color: var(--bs-accent);
+  background: #0072b2;
+}
+
+button.big {
+  padding-block: 0.6em;
+  padding-inline: 1.4em;
+  font-size: 1.25em;
+}
+
+button.subtle {
+  border-color: transparent;
+  background: transparent;
+  text-decoration: underline;
+}
+
+input[type="checkbox"] {
+  inline-size: 1.2em;
+  block-size: 1.2em;
+  padding: 0;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.check {
+  display: inline-flex;
+  gap: 0.4em;
+  align-items: center;
+}
+
+.muted {
+  color: var(--bs-muted);
+}
+
+.small {
+  font-size: 0.875rem;
+}
+
+.warning {
+  color: var(--bs-warning);
+}
+
+.error {
+  color: var(--bs-error);
+}
+
+.info {
+  color: var(--bs-accent);
+}
+
+.banner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem;
+  border: 1px solid var(--bs-accent);
+  border-radius: var(--bs-radius);
+}
+
+.code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+}
+
+.visually-hidden {
+  position: absolute;
+  overflow: hidden;
+  inline-size: 1px;
+  block-size: 1px;
+  white-space: nowrap;
+  clip-path: inset(50%);
+}
+
+.hold-button {
+  inline-size: 100%;
+  padding-block: 1.2em;
+  font-size: 1.15em;
+  user-select: none;
+  touch-action: none;
+}
+
+.hold-content[hidden] {
+  display: none;
+}
+
 .language-picker {
   display: flex;
   flex-wrap: wrap;
@@ -85,12 +209,4 @@ p {
   align-items: center;
 }
 
-.language-picker select {
-  font: inherit;
-  color: var(--bs-fg);
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-muted);
-  padding-block: 0.25em;
-  padding-inline: 0.5em;
-  border-radius: var(--bs-radius);
-}
+

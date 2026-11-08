@@ -129,7 +129,7 @@ describe('random placement', () => {
       ok: false,
       error: 'noLegalLayout',
     });
-  });
+  }, 20_000); // a million rejected attempts: about 2 s, longer on a busy machine
 
   it('rerolls change the layout version and (almost always) the layout', () => {
     const rules = presetRules('classic');

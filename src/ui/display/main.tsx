@@ -1,68 +1,48 @@
+import { effect, signal } from '@preact/signals';
 import { render } from 'preact';
-import { formatList } from '../../i18n/index.ts';
 import '../common/base.css';
-import { NAME_FIXTURES } from '../common/fixtures.ts';
-import { activateLocale, requestedLocales, translator, useTranslator } from '../common/locale-state.ts';
+import '../table/table.css';
+import { activateLocale, requestedLocales, translator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
+import { openChannel } from '../table/channel.ts';
+import { TableDisplay } from '../table/TableDisplay.tsx';
+import type { PublicTable } from '../table/types.ts';
 import './display.css';
 
-/** M0 placeholder for the TV: proves locale, direction, isolation and plurals. */
-function DisplayHello() {
-  const t = useTranslator();
-  return (
-    <main class="tv">
-      <header>
+/** The TV window: renders whatever public table the control window posts. */
+const table = signal<PublicTable | null>(null);
+
+function App() {
+  const t = translator.value;
+  if (!t) return null;
+  const current = table.value;
+  if (!current) {
+    return (
+      <main class="tv tv-waiting-screen">
         <h1 class="tv-title">
           <Msg id="app.title" />
         </h1>
-        <p class="tv-tagline">
-          <Msg id="app.tagline" />
+        <p class="tv-waiting">
+          <Msg id="route.display.waiting" />
         </p>
-      </header>
-      <section aria-labelledby="sample-table">
-        <h2 id="sample-table">
-          <Msg id="hello.sampleTable" />
-        </h2>
-        <p>
-          <Msg id="hello.playerCount" values={{ count: NAME_FIXTURES.length }} />
-        </p>
-        <ol class="tv-roster">
-          {NAME_FIXTURES.map((name, i) => (
-            <li class="tv-seat" key={name}>
-              <span class="tv-seat-number">
-                <Msg id="hello.seat" values={{ seat: i + 1 }} />
-              </span>
-              <bdi class="tv-seat-name">{name}</bdi>
-              {i === 0 && (
-                <span class="tv-seat-status">
-                  <Msg id="roster.calling" values={{ name }} />
-                </span>
-              )}
-              {i === 1 && (
-                <span class="tv-seat-status">
-                  <Msg id="roster.bombing" values={{ name }} />
-                </span>
-              )}
-            </li>
-          ))}
-        </ol>
-        <p>
-          <Msg id="hello.atTheTable" values={{ players: formatList(t.locale, NAME_FIXTURES) }} />
-        </p>
-      </section>
-      <p class="tv-waiting" aria-live="polite">
-        <Msg id="route.display.waiting" />
-      </p>
-    </main>
-  );
-}
-
-function App() {
-  return translator.value ? <DisplayHello /> : null;
+      </main>
+    );
+  }
+  return <TableDisplay table={current} speak showHousekeeping />;
 }
 
 const root = document.getElementById('app');
 if (root) {
+  const channel = openChannel((m) => {
+    if (m.type === 'table') table.value = m.table;
+  });
+  channel.post({ type: 'hello' });
+  addEventListener('pagehide', () => channel.post({ type: 'bye' }));
+  // The game language comes from the control window once it speaks.
+  effect(() => {
+    const locale = table.value?.settings.locale;
+    if (locale && locale !== translator.value?.locale) void activateLocale([locale], 'title.display');
+  });
   render(<App />, root);
   void activateLocale(requestedLocales(location.search, navigator.languages), 'title.display');
 }

@@ -6,9 +6,9 @@ import { strictTranslator, stripBidi } from './test-helpers.ts';
 describe('translator', () => {
   it('formats English plurals', () => {
     const t = strictTranslator('en');
-    expect(t.format('hello.playerCount', { count: 1 })).toBe('1 player');
-    expect(t.format('hello.playerCount', { count: 6 })).toBe('6 players');
-    expect(t.format('hello.playerCount', { count: 0 })).toBe('0 players');
+    expect(t.format('lobby.playerCount', { count: 1 })).toBe('1 player');
+    expect(t.format('lobby.playerCount', { count: 6 })).toBe('6 players');
+    expect(t.format('lobby.playerCount', { count: 0 })).toBe('0 players');
   });
 
   it('isolates player names in plain strings (FSI…PDI)', () => {
@@ -34,9 +34,9 @@ describe('translator', () => {
 
   it('uses the locale’s default digits, and honours -u-nu-', () => {
     const arab = new Intl.NumberFormat('ar').format(3);
-    expect(stripBidi(strictTranslator('ar').format('hello.seat', { seat: 3 }))).toBe(`المقعد ${arab}`);
-    expect(stripBidi(strictTranslator('ar', 'ar-u-nu-latn').format('hello.seat', { seat: 3 }))).toBe('المقعد 3');
-    expect(stripBidi(strictTranslator('zh-Hant', 'zh-Hant-TW-u-nu-hanidec').format('hello.seat', { seat: 3 }))).toBe(
+    expect(stripBidi(strictTranslator('ar').format('lobby.seatNumber', { seat: 3 }))).toBe(`المقعد ${arab}`);
+    expect(stripBidi(strictTranslator('ar', 'ar-u-nu-latn').format('lobby.seatNumber', { seat: 3 }))).toBe('المقعد 3');
+    expect(stripBidi(strictTranslator('zh-Hant', 'zh-Hant-TW-u-nu-hanidec').format('lobby.seatNumber', { seat: 3 }))).toBe(
       '三號座',
     );
   });
@@ -55,7 +55,7 @@ describe('translator', () => {
     ] as const;
     for (const [n, category, text] of cases) {
       expect(pr.select(n)).toBe(category);
-      expect(stripBidi(t.format('hello.playerCount', { count: n }))).toBe(text);
+      expect(stripBidi(t.format('lobby.playerCount', { count: n }))).toBe(text);
     }
   });
 

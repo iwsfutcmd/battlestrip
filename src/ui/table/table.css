@@ -1,0 +1,427 @@
+/* Boards, roster, last call and game over: shared by the TV, the laptop and the phone. */
+
+.board {
+  --cell: 2.4rem;
+  --label: calc(var(--cell) * 0.9);
+  --glyph: calc(var(--cell) * 0.4);
+
+  display: grid;
+  grid-template-columns: var(--label) repeat(var(--cols), var(--cell)) var(--label);
+  grid-template-rows: var(--label) repeat(var(--rows), var(--cell)) var(--label);
+  inline-size: max-content;
+  margin-inline: auto;
+}
+
+.board-row {
+  display: contents;
+}
+
+.board-label {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  font-size: calc(var(--cell) * 0.42);
+  line-height: 1;
+  color: var(--bs-muted);
+}
+
+.board-label-second {
+  font-size: 0.55em;
+  opacity: 0.85;
+}
+
+.board[data-wm^="vertical"] .board-label {
+  text-orientation: upright;
+}
+
+/* Column numbers of up to two digits sit horizontally inside a vertical line. */
+.board[data-wm^="vertical"] .board-col-label span {
+  text-combine-upright: all;
+}
+
+.board-cell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--bs-grid);
+}
+
+.board-cell[role="gridcell"] {
+  cursor: pointer;
+}
+
+.board-cell.is-focused {
+  outline: 0.18em dashed var(--bs-accent);
+  outline-offset: -0.18em;
+}
+
+.board-cell:focus-visible {
+  outline: 0.2em solid var(--bs-focus);
+  outline-offset: -0.2em;
+}
+
+.miss-mark {
+  inline-size: 26%;
+  block-size: 26%;
+  border-radius: 50%;
+  background: var(--bs-muted);
+}
+
+.board-cell.is-hit {
+  background: var(--bs-hit-bg);
+}
+
+.board-cell.is-sunk {
+  background: var(--bs-sunk-bg);
+  box-shadow: inset 0 0 0 0.18em var(--bs-sunk);
+}
+
+.board-cell.is-last {
+  z-index: 1;
+  outline: 0.22em solid var(--bs-focus);
+  outline-offset: -0.22em;
+}
+
+.board-cell.is-noop {
+  background-image: repeating-linear-gradient(45deg, transparent 0 0.25em, rgb(255 255 255 / 14%) 0.25em 0.38em);
+}
+
+.hit-glyphs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1px;
+  place-content: center;
+  padding: 2px;
+}
+
+.glyph {
+  flex: none;
+  vertical-align: -0.15em;
+}
+
+.ship-outline {
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  margin: 0.2em;
+  border: 0.18em solid;
+  border-radius: 0.45em;
+  background: rgb(86 180 233 / 16%);
+}
+
+.ship-number {
+  font-size: calc(var(--cell) * 0.45);
+  font-weight: 700;
+  color: var(--bs-fg);
+}
+
+.fleet-board .board-cell.is-hit {
+  background: rgb(213 94 0 / 40%);
+}
+
+.board.is-small {
+  --cell: 1.15rem;
+}
+
+/* ---- TV layout ------------------------------------------------------------ */
+
+.tv {
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: clamp(0.5rem, 2vmin, 2rem);
+  block-size: 100dvb;
+  padding-block: clamp(0.5rem, 2vmin, 2rem);
+  padding-inline: clamp(0.75rem, 3vmin, 3rem);
+  font-size: clamp(1rem, 0.55rem + 1.5vmin, 2.4rem);
+}
+
+.tv-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1.5em;
+  align-items: baseline;
+}
+
+.tv-title {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+.tv-code {
+  margin: 0;
+  color: var(--bs-muted);
+}
+
+.tv-fullscreen {
+  margin-inline-start: auto;
+  font-size: 0.7em;
+}
+
+.tv-note {
+  margin: 0;
+  color: var(--bs-warning);
+}
+
+.tv-main {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(14em, 2fr);
+  gap: clamp(0.75rem, 3vmin, 3rem);
+  min-block-size: 0;
+}
+
+.tv-board-wrap {
+  container-type: size;
+  display: grid;
+  place-items: center;
+  min-block-size: 0;
+}
+
+.tv-board-wrap .board {
+  --cell: min(calc(100cqi / (var(--cols) + 2)), calc(100cqb / (var(--rows) + 2)));
+}
+
+.tv-board-wrap .board[data-wm^="vertical"] {
+  --cell: min(calc(100cqb / (var(--cols) + 2)), calc(100cqi / (var(--rows) + 2)));
+}
+
+.tv-side {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  min-block-size: 0;
+  overflow: auto;
+}
+
+.tv-waiting {
+  font-size: 1.3em;
+  color: var(--bs-muted);
+}
+
+.tv-over {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(14em, 1fr);
+  gap: 2em;
+  min-block-size: 0;
+  overflow: auto;
+}
+
+/* ---- Last call ------------------------------------------------------------ */
+
+.last-call {
+  padding-block: 0.6em;
+  padding-inline: 0.9em;
+  border-radius: var(--bs-radius);
+  background: var(--bs-surface);
+}
+
+.last-call-by {
+  margin: 0;
+  color: var(--bs-muted);
+}
+
+.last-call-coord {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  align-items: center;
+  margin-block: 0.1em 0.3em;
+}
+
+.coord-big {
+  font-size: 3em;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.bomb-tag {
+  display: inline-flex;
+  gap: 0.3em;
+  align-items: center;
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--bs-bomb);
+}
+
+.bomb-mini {
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.08em;
+  inline-size: 1em;
+  block-size: 1em;
+}
+
+.bomb-mini span {
+  background: currentcolor;
+}
+
+.results {
+  display: grid;
+  gap: 0.15em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.result-hit {
+  color: var(--bs-hit);
+}
+
+.result-sunk {
+  font-weight: 700;
+  color: var(--bs-sunk-text);
+}
+
+.result-none {
+  color: var(--bs-muted);
+}
+
+.result-nuclear {
+  margin: 0;
+  font-size: 1.15em;
+  font-weight: 800;
+  color: var(--bs-bomb);
+}
+
+/* ---- Roster --------------------------------------------------------------- */
+
+.roster-list {
+  display: grid;
+  gap: 0.35em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roster-row {
+  display: flex;
+  gap: 0.6em;
+  align-items: flex-start;
+  padding-block: 0.35em;
+  padding-inline: 0.6em;
+  border-inline-start: 0.3em solid transparent;
+  border-radius: var(--bs-radius);
+  background: var(--bs-surface);
+}
+
+.roster-row.is-current {
+  border-inline-start-color: var(--bs-focus);
+  background: var(--bs-surface-strong);
+}
+
+/* Nuclear players are not greyed out: they get a badge and a different row style. */
+.roster-row.is-nuclear {
+  background: repeating-linear-gradient(135deg, #221f0c 0 0.6em, #2b2710 0.6em 1.2em);
+}
+
+.roster-main {
+  display: grid;
+  gap: 0.15em;
+  min-inline-size: 0;
+}
+
+.roster-name-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  align-items: baseline;
+}
+
+.roster-name {
+  font-weight: 700;
+}
+
+.roster-status {
+  color: var(--bs-focus);
+}
+
+.badge {
+  padding-inline: 0.5em;
+  border-radius: 1em;
+  font-size: 0.7em;
+  background: #2a3442;
+}
+
+.badge-nuclear {
+  font-weight: 700;
+  color: #000;
+  background: var(--bs-bomb);
+}
+
+.badge-ready {
+  color: #000;
+  background: #009e73;
+}
+
+.fleet-pics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 0.7em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ship-pic {
+  display: inline-flex;
+  gap: 0.25em;
+  align-items: center;
+  font-size: 0.75em;
+}
+
+.ship-pic-number {
+  font-weight: 700;
+  color: var(--bs-muted);
+}
+
+.ship-pic-hull {
+  display: inline-flex;
+  gap: 0.12em;
+}
+
+.ship-seg {
+  inline-size: 0.7em;
+  block-size: 0.7em;
+  border: 0.08em solid var(--bs-muted);
+  border-radius: 0.12em;
+}
+
+.ship-seg.is-hit {
+  border-color: var(--bs-sunk);
+  background: var(--bs-sunk);
+}
+
+.ship-pic.is-sunk .ship-pic-hull {
+  background: linear-gradient(transparent 42%, var(--bs-fg) 42% 58%, transparent 58%);
+  opacity: 0.75;
+}
+
+/* ---- Game over -------------------------------------------------------------- */
+
+.game-over h2 {
+  font-size: 1.6em;
+}
+
+.over-result {
+  font-size: 1.4em;
+  font-weight: 800;
+  color: var(--bs-bomb);
+}
+
+.awards {
+  display: grid;
+  gap: 0.3em;
+  padding-inline-start: 1.2em;
+}
+
+.revealed-fleets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
+  gap: 1em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.revealed-name {
+  margin-block: 0 0.3em;
+}

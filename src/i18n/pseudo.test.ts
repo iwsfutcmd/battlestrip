@@ -21,8 +21,8 @@ describe('en-XA (accented, longer)', () => {
 
   it('keeps plural selection working', () => {
     const t = strictTranslator('en-XA');
-    expect(t.format('hello.playerCount', { count: 1 })).not.toBe(t.format('hello.playerCount', { count: 2 }));
-    expect(t.format('hello.playerCount', { count: 1 })).toMatch(/^\[1 þļåýéŕ/u);
+    expect(t.format('lobby.playerCount', { count: 1 })).not.toBe(t.format('lobby.playerCount', { count: 2 }));
+    expect(t.format('lobby.playerCount', { count: 1 })).toMatch(/^\[1 þļåýéŕ/u);
   });
 
   it('leaves placeholder values untouched', () => {

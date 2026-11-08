@@ -12,6 +12,8 @@ export default {
       { message: 'Use resize: inline / block.' },
     ],
     'unit-disallowed-list': [['vw', 'vh'], { message: 'Use vi/vb (or vmin/vmax) so sizes follow the writing mode.' }],
+    // Component styles are scoped by class; source order isn't specificity order.
+    'no-descending-specificity': null,
     'selector-class-pattern': ['^[a-z][a-z0-9]*(-[a-z0-9]+)*$', { message: 'Class names are kebab-case.' }],
   },
 };

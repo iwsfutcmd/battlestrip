@@ -10,8 +10,8 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 |---|---|
 | **M0 Scaffold**: Vite, strict TS, Preact, Vitest, lint guardrails, i18n plumbing, hello-world routes | ✅ done |
 | **M1 Engine**: rules, uniform placement, nuclear bombs, views, stats, replay, undo | ✅ done |
-| M2 The table | not started |
-| M3 Bots and simulation | not started |
+| **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, speech, autosave, two-window sync | ✅ done |
+| **M3 Bots and simulation**: RandomBot, DensityBot, `npm run sim`, pacing table | ✅ done |
 | M4 Vertical modes | not started |
 | M5 Players place their own ships | designed, not started |
 
@@ -24,11 +24,11 @@ npm install
 npm run dev          # vite --host: also reachable from phones on the LAN
 ```
 
-| Route | What it is (M0: a placeholder) |
+| Route | What it is |
 |---|---|
-| `/` | Control panel (the laptop). Picks the game language. |
-| `/display/` | The shared screen (the TV). |
-| `/fleet/` | The phone page. The QR will point here, with the fleet in the `#fragment`. |
+| `/` | The control panel (the laptop): lobby, fleet handout, call entry, undo, private peek. In one-window mode it also shows the table. |
+| `/display/` | The shared screen (the TV), in its own window. It mirrors the control window over `BroadcastChannel`. |
+| `/fleet/#…` | The phone page. Each player's QR code points here, with their fleet packed into the `#fragment`. |
 
 Add `?lang=<tag>` to any route to override the browser's language, e.g. `/display/?lang=ar-u-nu-latn` or `/fleet/?lang=zh-TW`. The pseudolocales are listed in the language pickers in dev builds, or with `?pseudo`.
 
@@ -41,19 +41,33 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 | `npm run e2e` | Playwright: builds, serves the build, and tests every route in every required locale |
 | `npm run build` / `npm run preview` | the static site, in `dist/` |
 
+## Playing
+
+1. Open `/` on the laptop. Choose the game language, the players (each in any script; human or bot) and each player's fleet.
+2. Press **Deal the fleets**. For each human in seat order, the laptop shows a privacy screen, then a QR code. The player scans it with their phone's ordinary camera, checks that the three-character fleet check matches, and presses **Got it** (or **Reroll**).
+3. **Open the TV window** and drag it to the TV. Two-window mode keeps the QR code off the TV; the TV window only ever receives the public table. In one-window mode, the table and the docked controls share the laptop's screen. Don't mirror the laptop to the TV during the handout.
+4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat, then reveals every result at once and reads it aloud where a voice exists. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
+5. **Show a fleet privately** covers players without a phone and lost images. It can also show the QR code again.
+
+The game autosaves to `localStorage` after every action, and a reload offers to resume.
+
 ## Layout
 
 ```
 src/
   engine/   pure TS: no DOM, no i18n, no Math.random, no Date
-  bots/     (M3)
-  share/    (M2) fleet-image payload
+  bots/     RandomBot, DensityBot (see only viewFor + legalCalls)
+  share/    fleet-image payload (QR), game code, fleet check
   i18n/     negotiation, direction, writing modes, MF2 catalogs, pseudolocales, isolation helpers
   ui/
-    common/   Msg (renders catalog messages with <bdi>), LanguagePicker, locale state, base CSS
-    control/  the laptop
-    display/  the TV
-    phone/    the phone page
+    common/   Msg (catalog messages with <bdi>), LanguagePicker, HoldToReveal, player glyphs, locale state
+    table/    the shared screen: Grid, SharedBoard, Roster, LastCall, GameOver, FleetBoard, channel
+    control/  the laptop: store (state + actions + autosave + bot driver), Lobby, PlayPanel
+      handout/  the private QR handout   (may build fleet images)
+      peek/     the private peek          (may build fleet images)
+    display/  the TV window
+    phone/    the phone page and its PNG export
+    speech/   voice choice and spoken callouts
 build/      Vite pseudolocale plugin, local ESLint plugin
 e2e/        Playwright
 test/       guardrail tests (the lint rules themselves are tested)
@@ -133,14 +147,39 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
 - **Small head start on M1:** `engine/result.ts` and `engine/rng.ts` (sfc32 as immutable, JSON-serialisable state, cross-checked against the reference closure) exist so that the engine project and its guardrails have something real to check.
 - **zh-Hant spacing:** `text-autospace` is on for `zh`/`ja`, which spaces Latin and digits from Han where browsers support it. Chromium doesn't add space next to Arabic or Hebrew names (`輪到لينا投彈`). See open questions.
 
+## The table (M2)
+
+- **One shared grid.** Each called square shows a miss mark, or the glyph of everyone hit there, plus a sunk marker. The latest call is outlined. For bombs, the squares that were already called are hatched as no-ops. Which ship was hit appears in the last-call card and the roster, not in the cells.
+- **The beat.** The TV shows the call, waits (1.5 s by default, none under `prefers-reduced-motion`), then reveals every result at once. Results go to an `aria-live="polite"` region, and going nuclear goes to an `assertive` one.
+- **The roster.** Each player's glyph (one of 8 Okabe–Ito colours plus one of 8 SVG shapes, so identity never rests on colour alone), name, and chosen fleet as numbered pictograms with one segment per square. Nuclear players get a badge and a striped row, not a grey one.
+- **The game-over screen** celebrates: the last fleet standing (or "everyone went nuclear"), the earned awards, and every fleet revealed.
+- **Labels.** Coordinate labels (`src/i18n/labels.ts`) implement the CSS Counter Styles `alphabetic` and `fixed` algorithms for 13 systems. The heh in the Arabic systems is always written هـ. If a fixed system is too short for the board, the rows switch to the next system that fits (天干 → 地支), or to numerals for the whole axis; systems are never mixed. An optional second system is drawn smaller beside the first.
+- **Typed calls** (`src/i18n/parse.ts`) are read with NFKC normalisation and accept any `\p{Nd}` digit, as well as hanidec digits. They can be row-first or column-first. Arabic keyboard variants are smoothed over (أ/ا, tatweel, ي/ی, ك/ک). Latin letters typed under Cyrillic or Greek are read as their homoglyphs. A property test checks that `parse(format(c))` round-trips for every system, several digit scripts and every board size.
+- **The phone page** reads everything from the URL fragment, so there's no network after load and no storage.
+  - The board uses the game's labels, direction and writing mode, so it matches the TV. The legend is in the phone's own language, and there's a picker.
+  - It's hidden until you press and hold, unless you tick "always show". A text alternative lists each ship's squares while it's shown.
+  - **Save image** draws a PNG with Canvas 2D. Each text run gets its own `ctx.direction`, and labels stay upright in vertical modes. The phone shares it where the share sheet allows, and downloads it otherwise.
+- **The QR payload** (`src/share/payload.ts`) is version-tagged packed bytes in base64url. Classic fleets come to about 100 characters of URL. A long name is cut at a grapheme boundary at 160 UTF-8 bytes, which keeps the worst case (24 emoji ZWJ sequences, 10 ships, 20×20) under 400 characters. `decode(encode(x))` is property-tested.
+- **QR library:** [`uqr`](https://github.com/unjs/uqr) (unjs, zero dependencies, TypeScript). It returns a boolean matrix, which `Qr.tsx` draws as SVG.
+- **Speech:** `speechSynthesis`, with the voice chosen by BCP 47 lookup on matching language *and script*. A `zh-Hant` table never gets a Simplified voice, and no table ever gets a voice for another language. With no matching voice, it stays silent and says so once. Spoken text has its own messages (`spoken.*`).
+- **Keyboard:** the control grid follows the ARIA grid pattern with a roving tabindex. Arrows move visually: `src/ui/keyboard.ts` holds one table for ltr/rtl × the three writing modes, and all six combinations are tested. Undo is bound to `KeyboardEvent.code === 'KeyZ'`.
+- **The TV window** offers a fullscreen toggle and takes a Screen Wake Lock where the browser allows it.
+- **End-to-end tests** (`e2e/game.spec.ts`):
+  - The spec's exit test: four phones each scan exactly once, a TV window syncs, the game is played to game over, and no QR code or fleet ever reaches the TV.
+  - Bots, undo, autosave, and the private peek.
+  - An Arabic table: mirrored grid, abjad labels on the TV and the phones, and an English phone with Arabic labels.
+  - A Chinese table: 天干 labels, and typing `甲７`.
+
 ## Hidden information
 
 The laptop's state holds every fleet. Anyone with devtools could peek. That's fine for a game among friends, and it's the price of having no server.
 
 ## Open questions for review
 
-1. **The name in other languages.** Every catalog uses "Battlestrip" (Latin). Should `ar` and `zh-Hant` get localised titles? The spec offered 因陀羅網 for *Indra's Net*.
-2. **zh-Hant spacing around names.** Leave it to `text-autospace`, or add explicit spaces around `{$name}` (which would also space Han names)?
+1. **The name in other languages.** Every catalog uses "Battlestrip" (Latin). I kept the default; localised titles are a one-line catalog change.
+2. **zh-Hant spacing around names.** This is left to `text-autospace`, which Chromium doesn't apply next to Arabic or Hebrew names.
+3. **Translations.** The `ar` and `zh-Hant` catalogs are quick drafts. The Arabic avoids gendered verbs next to player names, using masdar constructions such as «غرق: …» and «تم إغراق …».
+4. **Two-player games** usually end with no last fleet: see the M3 findings below.
 
 ## Bots and simulation (M3)
 

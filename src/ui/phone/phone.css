@@ -7,12 +7,67 @@
   max-inline-size: 40rem;
   min-block-size: 100dvb;
   margin-inline: auto;
-  padding-block: 1.5rem;
-  padding-inline: 1rem;
+  padding-block: 1rem 2rem;
+  padding-inline: 0.75rem;
   font-size: 1.125rem;
 }
 
-.phone-footer {
+.phone-header {
+  display: flex;
+  gap: 0.6rem;
+  align-items: center;
+}
+
+.phone-name {
+  margin: 0;
+  font-size: 1.6rem;
+}
+
+.phone-board {
+  --cell: min(calc((100vi - 2rem) / (var(--cols) + 2)), 2.6rem);
+}
+
+.phone-board[data-wm^="vertical"] {
+  --cell: min(calc((100vi - 2rem) / (var(--rows) + 2)), 2.6rem);
+}
+
+.phone-legend ul {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.phone-legend h2 {
+  margin-block: 0.5rem 0.25rem;
+  font-size: 1.1rem;
+}
+
+.legend-number {
+  display: inline-block;
+  min-inline-size: 1.6em;
+  font-weight: 800;
+  text-align: center;
+}
+
+.phone-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.phone-codes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin: 0;
   color: var(--bs-muted);
+}
+
+.phone-footer {
   font-size: 0.875rem;
+  color: var(--bs-muted);
 }

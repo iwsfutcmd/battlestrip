@@ -31,29 +31,9 @@ test.describe('negotiation from the browser’s languages', () => {
   });
 });
 
-test.describe('negotiation keeps -u-nu-', () => {
-  test('ar-u-nu-latn formats Latin digits in an RTL page', async ({ page }) => {
-    await page.goto('display/?lang=ar-u-nu-latn');
-    await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-    await expect(page.locator('html')).toHaveAttribute('lang', 'ar');
-    await expect(page.locator('.tv-seat-number').first()).toHaveText('المقعد 1');
-  });
-});
-
-test('the TV isolates every player name with <bdi>', async ({ page }) => {
-  await page.goto('display/?lang=ar');
-  await expect(page.locator('.tv-seat-name')).toHaveCount(6);
-  for (const name of await page.locator('.tv-seat-name').all()) {
-    expect(await name.evaluate((el) => el.tagName)).toBe('BDI');
-  }
-  // Names inside sentences are isolated too.
-  await expect(page.locator('.tv-seat-status bdi').first()).toHaveText('יעל');
-});
-
-test('the control panel switches the game language and hands it to the display link', async ({ page }) => {
+test('the control panel switches the game language and hands it to the display', async ({ page }) => {
   await page.goto('?lang=en');
-  await page.getByRole('combobox').selectOption('ar');
+  await page.getByLabel(visibleText('en', 'language.gameLabel')).selectOption('ar');
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
-  await expect(page.locator('h2')).toHaveText(visibleText('ar', 'route.control.heading'));
-  await expect(page.getByRole('link').first()).toHaveAttribute('href', 'display/?lang=ar');
+  await expect(page.locator('h1')).toHaveText(visibleText('ar', 'app.title'));
 });

@@ -3,7 +3,7 @@ import { useTranslator } from './locale-state.ts';
 
 export interface MsgProps {
   readonly id: MessageKey;
-  readonly values?: MessageValues;
+  readonly values?: MessageValues | undefined;
 }
 
 /**

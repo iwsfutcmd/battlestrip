@@ -1,66 +1,71 @@
+import { effect, signal } from '@preact/signals';
 import { render } from 'preact';
-import type { CatalogId } from '../../i18n/index.ts';
 import '../common/base.css';
-import { LanguagePicker, pseudoRequested } from '../common/LanguagePicker.tsx';
-import { activateLocale, requestedLocales, translator, useTranslator } from '../common/locale-state.ts';
+import '../table/table.css';
+import { pseudoRequested } from '../common/LanguagePicker.tsx';
+import { activateLocale, requestedLocales, translator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
+import { openChannel } from '../table/channel.ts';
+import { TableDisplay } from '../table/TableDisplay.tsx';
 import './control.css';
+import { Handout } from './handout/Handout.tsx';
+import { Lobby } from './Lobby.tsx';
+import { PlayPanel, useGridInteraction } from './PlayPanel.tsx';
+import { lobby, publicTable, stage, startAutosave, startBotDriver, updateLobby } from './store.ts';
+import { defaultLabelSystem } from '../../i18n/labels.ts';
+import { writingModesFor } from '../../i18n/index.ts';
 
-const TITLE = 'title.control';
+const displayConnected = signal(false);
+const tableHere = signal(true);
 
-/** M0 placeholder for the laptop: game-language picker and links to the other routes. */
-function ControlHello() {
-  const t = useTranslator();
-  const choose = (id: CatalogId): void => {
-    void activateLocale([id, ...navigator.languages], TITLE);
-  };
-  const displayHref = `display/?${new URLSearchParams({ lang: t.locale }).toString()}`;
-  return (
-    <main class="control">
-      <header>
-        <h1>
-          <Msg id="app.title" />
-        </h1>
-        <p class="control-tagline">
-          <Msg id="app.tagline" />
+function App() {
+  const t = translator.value;
+  const table = publicTable.value;
+  const interaction = useGridInteraction();
+  if (!t || !table) return null;
+  if (stage.value === 'lobby') return <Lobby showPseudo={pseudoRequested(location.search)} />;
+  if (stage.value === 'handout') {
+    return (
+      <main class="control-handout">
+        <Handout />
+        <p class="muted small">
+          <button type="button" class="subtle" onClick={() => window.open('display/', 'battlestrip-display', 'popup')}>
+            <Msg id="play.openDisplay" />
+          </button>
         </p>
-      </header>
-      <h2>
-        <Msg id="route.control.heading" />
-      </h2>
-      <p>
-        <Msg id="route.control.intro" />
-      </p>
-      <LanguagePicker
-        labelKey="language.gameLabel"
-        value={t.catalog}
-        onChange={choose}
-        showPseudo={pseudoRequested(location.search)}
-      />
-      <nav>
-        <ul class="control-links">
-          <li>
-            <a href={displayHref} target="_blank" rel="noopener">
-              <Msg id="route.control.openDisplay" />
-            </a>
-          </li>
-          <li>
-            <a href="fleet/" target="_blank" rel="noopener">
-              <Msg id="route.control.openPhone" />
-            </a>
-          </li>
-        </ul>
-      </nav>
+      </main>
+    );
+  }
+  const showTable = tableHere.value || !displayConnected.value;
+  return (
+    <main class={`control-play ${showTable ? '' : 'is-controls-only'}`}>
+      {showTable && <TableDisplay table={table} speak={!displayConnected.value} interaction={interaction} showHousekeeping={false} />}
+      <PlayPanel displayConnected={displayConnected.value} tableHere={tableHere.value} onToggleTable={() => (tableHere.value = !tableHere.value)} />
     </main>
   );
 }
 
-function App() {
-  return translator.value ? <ControlHello /> : null;
-}
-
 const root = document.getElementById('app');
 if (root) {
+  const channel = openChannel((m) => {
+    if (m.type === 'hello') {
+      displayConnected.value = true;
+      const table = publicTable.value;
+      if (table) channel.post({ type: 'table', table });
+    } else if (m.type === 'bye') {
+      displayConnected.value = false;
+    }
+  });
+  effect(() => {
+    const table = publicTable.value;
+    if (table) channel.post({ type: 'table', table });
+  });
+  startBotDriver();
+  startAutosave();
   render(<App />, root);
-  void activateLocale(requestedLocales(location.search, navigator.languages), TITLE);
+  void activateLocale(requestedLocales(location.search, navigator.languages), 'title.control').then((t) => {
+    if (t && lobby.value.seats.every((s) => s.name === '')) {
+      updateLobby({ labels: defaultLabelSystem(t.locale), writingMode: writingModesFor(t.locale).default });
+    }
+  });
 }

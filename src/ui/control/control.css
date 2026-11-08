@@ -1,24 +1,265 @@
-/* The laptop control panel. */
+/* The laptop: lobby, handout and the docked play panel. */
 
-.control {
+.lobby {
   display: grid;
-  gap: 1rem;
-  align-content: start;
-  max-inline-size: 60rem;
+  gap: 1.25rem;
+  max-inline-size: 64rem;
   margin-inline: auto;
-  padding-block: 2rem;
-  padding-inline: 1.5rem;
+  padding-block: 1.5rem 4rem;
+  padding-inline: 1.25rem;
 }
 
-.control-tagline {
-  color: var(--bs-muted);
+.lobby-header h1 {
+  margin: 0;
+  font-size: 2.4rem;
 }
 
-.control-links {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
+.lobby-section {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.seat-list {
+  display: grid;
+  gap: 0.75rem;
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+.seat {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: var(--bs-radius);
+  background: var(--bs-surface);
+}
+
+.seat-head,
+.seat-bot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.seat-name {
+  flex: 1 1 12rem;
+  font-size: 1.15rem;
+}
+
+.seat-move {
+  display: inline-flex;
+  gap: 0.2rem;
+}
+
+.fleet-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0.5rem;
+  border: 1px solid var(--bs-grid);
+  border-radius: var(--bs-radius);
+}
+
+.ship-toggle {
+  display: inline-flex;
+  gap: 0.4em;
+  align-items: center;
+  opacity: 0.6;
+}
+
+.ship-toggle.is-on {
+  border-color: var(--bs-accent);
+  background: #0d3550;
+  opacity: 1;
+}
+
+.ship-toggle-number {
+  font-weight: 700;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
+  gap: 0.75rem 1.25rem;
+  align-items: end;
+}
+
+.field {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.control-handout {
+  display: grid;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.handout {
+  display: grid;
+  gap: 1rem;
+  justify-items: center;
+  max-inline-size: 56rem;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.handout-pass {
+  font-size: 2rem;
+}
+
+.private-fleet {
+  display: grid;
+  gap: 0.75rem;
+  justify-items: center;
+}
+
+.private-name {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.private-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.private-qr {
+  display: grid;
+  gap: 0.5rem;
+  justify-items: center;
+  margin: 0;
+}
+
+.qr {
+  inline-size: min(60vmin, 24rem);
+  block-size: auto;
+}
+
+.private-check {
+  font-size: 1.3rem;
+}
+
+.control-play {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  block-size: 100dvb;
+}
+
+.control-play.is-controls-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.control-play .tv {
+  block-size: 100dvb;
+  font-size: clamp(0.9rem, 0.5rem + 1.2vmin, 1.8rem);
+}
+
+.play-panel {
+  overflow: auto;
+  inline-size: 21rem;
+  max-block-size: 100dvb;
+  padding: 1rem;
+  border-inline-start: 1px solid var(--bs-grid);
+  background: var(--bs-surface);
+}
+
+.control-play.is-controls-only .play-panel {
+  inline-size: auto;
+  max-inline-size: 40rem;
+  margin-inline: auto;
+  border-inline-start: 0;
+}
+
+.play-panel.is-collapsed {
+  inline-size: auto;
+}
+
+.play-panel-head {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.play-panel-head h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.play-panel-body {
+  display: grid;
+  gap: 0.75rem;
+  margin-block-start: 0.75rem;
+}
+
+.play-who {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.call-form {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.call-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.call-input {
+  inline-size: 7ch;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.overlay {
+  position: fixed;
+  z-index: 10;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgb(0 0 0 / 88%);
+}
+
+.peek {
+  display: grid;
+  gap: 1rem;
+  overflow: auto;
+  max-inline-size: min(56rem, 96vi);
+  max-block-size: 94dvb;
+  padding: 1.5rem;
+  border-radius: var(--bs-radius);
+  background: var(--bs-bg);
+}
+
+.peek-players {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (width < 60rem) {
+  .control-play {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto;
+  }
+
+  .play-panel {
+    inline-size: auto;
+    border-block-start: 1px solid var(--bs-grid);
+    border-inline-start: 0;
+  }
 }
