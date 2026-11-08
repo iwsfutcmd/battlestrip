@@ -1,8 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { deal, handOut } from './table.ts';
 
-test.use({ reducedMotion: 'reduce' });
-
 const strip = (s: string | null): string => (s ?? '').replaceAll(/[\u2066-\u2069]/gu, '');
 const lastCall = async (page: Page): Promise<string> =>
   (await page.locator('.last-call-coord').count()) ? strip(await page.locator('.last-call-coord').textContent()) : '';
@@ -19,9 +17,10 @@ test('a click picks a square, a second click on it calls it, and Enter calls the
   await expect(cell(page, '2-3')).toHaveAttribute('aria-selected', 'true');
   await expect(page.locator('.call-input')).toHaveValue('C4');
   expect(await lastCall(page)).toBe('');
-  // Clicking the picked square calls it.
+  // Clicking the picked square calls it, and the results are there straight away.
   await cell(page, '2-3').click();
-  await expect.poll(() => lastCall(page)).toContain('C4');
+  expect(await lastCall(page)).toContain('C4');
+  await expect(page.locator('.last-call-results .results')).toBeVisible({ timeout: 200 });
 
   // A call clears the pick: the next caller's single click on that square only picks it.
   await expect(cell(page, '2-3')).toHaveAttribute('aria-selected', 'false');

@@ -39,16 +39,24 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
   }, [speak, table.settings.speech, t.locale]);
 
   const spokenKey = last ? `${last.turn}:${String(revealed)}` : '';
+  /** The last turn whose call (the square) has been read out. */
+  const spokenCall = useRef(-1);
   useEffect(() => {
     const s = speaker.current;
     if (!s || !last || !view) return;
     const name = (id: string): string => table.seats.find((x) => x.id === id)?.name ?? id;
+    const callLine = (): string => t.format(last.shape === 'bomb' ? 'spoken.bomb' : 'spoken.call', { coord: coordSpoken(t, labels, last.at) });
     if (!revealed) {
-      const coord = coordSpoken(t, labels, last.at);
-      s.speak([t.format(last.shape === 'bomb' ? 'spoken.bomb' : 'spoken.call', { coord })]);
+      spokenCall.current = last.turn;
+      s.speak([callLine()]);
       return;
     }
     const lines: string[] = [];
+    // With no pause before results, the call and its results arrive together: say the square first.
+    if (spokenCall.current !== last.turn) {
+      spokenCall.current = last.turn;
+      lines.push(callLine());
+    }
     if (last.hits.length === 0) lines.push(t.format('spoken.noHits'));
     for (const h of last.hits) lines.push(t.format('spoken.hit', { player: name(h.board), ship: h.ship ? shipNameIn(t, view.rules, h.ship) : '' }));
     for (const x of last.sunk) lines.push(t.format('spoken.sunk', { player: name(x.board), ship: shipNameIn(t, view.rules, x.ship) }));

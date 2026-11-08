@@ -13,6 +13,10 @@ export interface DealOptions {
   readonly writingMode?: 'horizontal-tb' | 'vertical-rl';
   readonly placement?: 'random' | 'phones';
   readonly seed?: number;
+  /** Pause before results, in seconds (default 0 so tests run fast). */
+  readonly beat?: number;
+  /** Tick "Read calls aloud". */
+  readonly speech?: boolean;
 }
 
 /** Fill the lobby and deal. Beat and bot delay go to 0 so tests run fast. */
@@ -40,9 +44,11 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
     await numbers.nth(0).fill(String(o.rows ?? 10));
     await numbers.nth(1).fill(String(o.cols ?? 10));
   }
-  await numbers.nth(2).fill('0');
+  await numbers.nth(2).fill(String(o.beat ?? 0));
   await numbers.nth(3).fill('0');
   await numbers.nth(3).blur();
+  // Settings checkboxes, in order: auto size, touching, play on, read aloud.
+  if (o.speech) await page.locator('.settings-grid label.check input[type=checkbox]').nth(3).check();
   if (o.seed !== undefined) await page.locator('.settings-grid input[type=text]').fill(String(o.seed));
   // Settings selects, found by an option only they have (row labels before second labels).
   const select = (value: string) => page.locator(`.settings-grid select:has(option[value="${value}"])`).first();
