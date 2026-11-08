@@ -1,3 +1,9 @@
-// The engine's public surface. M0 only has the foundations; the rules arrive in M1.
+// The engine's public surface: pure, deterministic, JSON in and out.
+export * from './board.ts';
+export * from './game.ts';
+export * from './presets.ts';
 export * from './result.ts';
 export * from './rng.ts';
+export * from './stats.ts';
+export * from './types.ts';
+export * from './view.ts';

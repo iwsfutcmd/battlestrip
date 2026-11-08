@@ -8,8 +8,8 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 
 | Milestone | State |
 |---|---|
-| **M0 Scaffold**: Vite, strict TS, Preact, Vitest, lint guardrails, i18n plumbing, hello-world routes | ✅ done, awaiting review |
-| M1 Engine | not started |
+| **M0 Scaffold**: Vite, strict TS, Preact, Vitest, lint guardrails, i18n plumbing, hello-world routes | ✅ done |
+| **M1 Engine**: rules, uniform placement, nuclear bombs, views, stats, replay, undo | ✅ done |
 | M2 The table | not started |
 | M3 Bots and simulation | not started |
 | M4 Vertical modes | not started |
@@ -45,7 +45,7 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 
 ```
 src/
-  engine/   pure TS: no DOM, no i18n, no Math.random, no Date. M0: Result type and the seeded sfc32 PRNG.
+  engine/   pure TS: no DOM, no i18n, no Math.random, no Date
   bots/     (M3)
   share/    (M2) fleet-image payload
   i18n/     negotiation, direction, writing modes, MF2 catalogs, pseudolocales, isolation helpers
@@ -61,6 +61,31 @@ docs/       the spec
 ```
 
 `index.html`, `display/index.html` and `fleet/index.html` are separate entry points, so the phone page is small and needs no host rewrites. The build uses relative URLs and works from any static host and sub-path.
+
+## Engine
+
+`src/engine/` is pure and deterministic. Everything in and out is plain JSON. The seeded sfc32 PRNG state lives inside `GameState`, so the same seed and the same actions always give an identical state and event log.
+
+| Function | |
+|---|---|
+| `newGame(rules, seats, seed)` | validates, then places every fleet at random; phase `setup` |
+| `reduce(state, action)` | `reroll` / `place` (setup), `start`, `call` → `{ state, events }` or a violation code |
+| `legalCalls(state, player)` | squares (or bomb corners) the current player may call |
+| `viewFor(state, viewer)` | the public projection; a player also gets their own fleet. What the TV, laptop and bots see. |
+| `fleetOf(state, player)` | a hidden layout: only the handout and peek screens and `share/` (lint-enforced) |
+| `gameStats(state)` | per-player numbers and the earned awards |
+| `replay(rules, seats, seed, actions)`, `undoLastCall(state)` | undo replays the log without the last call |
+
+- **Placement** is uniform over all legal layouts. Each ship's placement is drawn independently, and the *whole* layout is rejected on any overlap (or touch). The test compares the empirical occupancy of every cell with an exact enumeration on 5×5 boards, and shows that a naive one-ship-at-a-time placer fails the same test. Classic fleets take about 0.07 ms. Морской бой on 10×10 takes about 13 ms. An impossible setup returns `noLegalLayout` after a million attempts, in about 2 s.
+- **Bombs:** a nuclear player's call is a 2×2 bomb. The called square is the first corner (D4 covers D4, D5, E4, E5). Squares already called on every target board are skipped.
+- **Additions to the spec's API:**
+  - a `place` action (a player's own layout: needed for M5, and used by tests)
+  - a `knockedOut` event: with `nuclear: false` (simulation only), a sunk player is out and loses their turns, which is the classic rule the simulation compares against
+  - violations `badRules`, `tooFewPlayers`, `duplicatePlayer`, `badLayout`, `nothingToUndo`
+- **Tests:**
+  - the §2.4 examples, verbatim
+  - property tests (fast-check) for every M1 property in the spec: termination, identical shot sets, nuclear timing and no skipped turns, bomb order, sinking, no leaks in the spectator view, determinism/replay/undo, and `legalCalls` ⇔ `reduce`
+- **Reading of the spec's end-of-game example:** its first sentence puts both last squares on G7, which contradicts the sentence after it. The test reads it as "Bo's last square is G7".
 
 ## Internationalisation
 
