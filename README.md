@@ -2,6 +2,8 @@
 
 N-player, simultaneous-fire Battleship for one shared screen. Every call lands on every board, including the caller's own. A player whose last ship sinks keeps playing as a bomber. The app places every fleet and resolves every call. Each player scans one QR code at the start, which shows a static picture of their own fleet on their phone. There's no server.
 
+**Play it:** <https://iwsfutcmd.github.io/battlestrip/>. Open it on the laptop that drives the TV; phones only ever scan a QR code.
+
 The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its working title. This README tracks what's built.
 
 ## Status
@@ -51,6 +53,14 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 5. **Show a fleet privately** covers players without a phone and lost images. It can also show the QR code again.
 
 The game autosaves to `localStorage` after every action, and a reload offers to resume.
+
+## Deployment
+
+`.github/workflows/pages.yml` runs on every push to the default branch. It runs `npm run check`, builds the site, and force-pushes `dist/` to the `gh-pages` branch, which GitHub Pages serves at <https://iwsfutcmd.github.io/battlestrip/>.
+
+The build uses relative URLs, so it works under that sub-path or on any other static HTTPS host; copy `dist/` anywhere. There's no server: fleets travel only in URL fragments, which browsers never send to the host.
+
+HTTPS matters for the webcam, the screen wake lock and the Web Share API. GitHub Pages provides it.
 
 ## Layout
 
@@ -307,3 +317,7 @@ Named hits and self-fire, with bombs on, 1,000 games per cell (`--players 3,4,6,
 - **Two players is a different game.** Each player avoids their own ship squares, so the last squares left are the ones that hold ships on *both* boards. One call then sinks both fleets: 88% of 2-player full-fleet games (39% with random fleets) end with no last fleet. That supports the spec's 3–8 target; a 2-player variant would need a rule of its own.
 - **Turn order doesn't matter.** The last-fleet rate by position in turn order is flat within noise at every player count.
 - **Self-hits** are rare with DensityBot (0.1–3.4% of turns), because it only hits itself when that sinks someone. Humans will do it more.
+
+## License
+
+[MIT](LICENSE).

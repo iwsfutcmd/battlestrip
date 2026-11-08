@@ -3,6 +3,12 @@
   "version": "0.0.0",
   "private": true,
   "description": "Battlestrip: N-player simultaneous-fire Battleship around one shared screen.",
+  "license": "MIT",
+  "homepage": "https://iwsfutcmd.github.io/battlestrip/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iwsfutcmd/battlestrip.git"
+  },
   "type": "module",
   "engines": {
     "node": ">=22.18"

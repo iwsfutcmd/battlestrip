@@ -18,6 +18,10 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   await page.waitForSelector('.lobby');
   const addHuman = page.locator('.lobby-section .actions button').first();
   const addBot = page.locator('.lobby-section .actions button').nth(1);
+  // The lobby starts with three seats: remove any the test doesn't name.
+  while ((await page.locator('.seat').count()) > o.names.length) {
+    await page.locator('.seat').last().locator('.seat-head > button').last().click();
+  }
   while ((await page.locator('.seat').count()) < o.names.length) {
     if ((o.bots ?? []).includes(await page.locator('.seat').count())) await addBot.click();
     else await addHuman.click();

@@ -32,7 +32,7 @@ async function noOverflow(page: Page): Promise<void> {
 
 for (const c of CASES) {
   test(`screenshots: ${c.id}`, async ({ page, context, browser }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(240_000); // plays a whole game in each locale
     await deal(page, { lang: c.lang, names: [...c.names, 'Robo'], bots: [2], ...('writingMode' in c ? { writingMode: c.writingMode } : {}) });
     const tv = await context.newPage();
     await tv.goto('display/');
@@ -48,11 +48,11 @@ for (const c of CASES) {
     await noOverflow(tv);
     await shot(tv, `tv-${c.id}-mid`);
     // Let the rest of the game play itself: turn the humans' seats over to the grid in order.
-    for (let i = 0; i < 400 && !(await page.locator('.game-over').count()); i++) {
+    for (let i = 0; i < 2000 && !(await page.locator('.game-over').count()); i++) {
       if (await page.locator('.call-input').isEnabled()) await page.locator('.board-cell[role=gridcell]').nth(i % 100).dblclick();
       else await page.waitForTimeout(10);
     }
-    await expect(tv.locator('.game-over')).toBeVisible();
+    await expect(tv.locator('.game-over')).toBeVisible({ timeout: 15_000 });
     await shot(tv, `tv-${c.id}-over`);
 
     const phoneLocales = c.id === 'en' ? ['en', 'ar'] : [c.lang];
