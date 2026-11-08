@@ -141,6 +141,10 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
             <input type="checkbox" checked={c.allowTouching} onChange={(e) => updateLobby({ allowTouching: e.currentTarget.checked })} />{' '}
             <Msg id="lobby.touching" />
           </label>
+          <label class="check">
+            <input type="checkbox" checked={c.playOut ?? true} onChange={(e) => updateLobby({ playOut: e.currentTarget.checked })} />{' '}
+            <Msg id="lobby.playOut" />
+          </label>
           <Field labelId="lobby.labels">
             {(id) => (
               <select id={id} value={c.labels} onChange={(e) => updateLobby({ labels: e.currentTarget.value as LabelSystemId })}>

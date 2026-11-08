@@ -53,6 +53,7 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
     for (const h of last.hits) lines.push(t.format('spoken.hit', { player: name(h.board), ship: h.ship ? shipNameIn(t, view.rules, h.ship) : '' }));
     for (const x of last.sunk) lines.push(t.format('spoken.sunk', { player: name(x.board), ship: shipNameIn(t, view.rules, x.ship) }));
     for (const p of last.nuclear) lines.push(t.format('spoken.nuclear', { player: name(p) }));
+    if (last.lastFleet) lines.push(t.format('spoken.lastFleetStanding', { player: name(last.lastFleet) }));
     if (view.result?.kind === 'lastFleet') lines.push(t.format('spoken.lastFleet', { player: name(view.result.player) }));
     else if (view.result) lines.push(t.format('spoken.allNuclear'));
     s.speak(lines);

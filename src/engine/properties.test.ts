@@ -22,12 +22,13 @@ const setupArb: fc.Arbitrary<Setup> = fc
     selfFire: fc.boolean(),
     announceShipOnHit: fc.boolean(),
     nuclear: fc.boolean(),
+    playOut: fc.boolean(),
     fleets: fc.array(fc.subarray([0, 1, 2, 3, 4], { minLength: 1, maxLength: 3 }), { minLength: 2, maxLength: 5 }),
     seed: fc.nat(),
     playSeed: fc.nat(),
   })
-  .map(({ rows, cols, selfFire, announceShipOnHit, nuclear, fleets, seed, playSeed }) => ({
-    rules: { rows, cols, shipyard: CLASSIC_SHIPYARD, allowTouching: true, selfFire, announceShipOnHit, nuclear },
+  .map(({ rows, cols, selfFire, announceShipOnHit, nuclear, playOut, fleets, seed, playSeed }) => ({
+    rules: { rows, cols, shipyard: CLASSIC_SHIPYARD, allowTouching: true, selfFire, announceShipOnHit, nuclear, playOut },
     seats: fleets.map((picks, i) => ({
       id: pid(`p${i}`),
       kind: 'bot' as const,
@@ -84,6 +85,26 @@ describe('engine properties', () => {
         const last = steps.at(-1);
         expect(last?.after.phase).toBe('over');
         if (setup.rules.selfFire) expect(steps.length).toBeLessThanOrEqual(setup.rules.rows * setup.rules.cols);
+      }),
+      RUNS,
+    );
+  });
+
+  it('ends exactly when no fleet is afloat, or (without playOut) when at most one is', () => {
+    fc.assert(
+      fc.property(setupArb, (setup) => {
+        for (const { after, events } of playOut(setup).steps) {
+          const afloat = after.seats.filter((_, i) => isAfloat(after, i)).length;
+          const playingOut = setup.rules.playOut === true && setup.rules.nuclear && setup.rules.selfFire;
+          const shouldEnd = afloat === 0 || (!playingOut && afloat <= 1);
+          expect(after.phase === 'over').toBe(shouldEnd);
+          const standing = events.find((e) => e.kind === 'lastFleetStanding');
+          if (standing) expect(playingOut && afloat === 1).toBe(true);
+          const over = events.find((e) => e.kind === 'gameOver');
+          if (over?.kind === 'gameOver' && over.result.kind === 'playedOut') {
+            expect(after.standing?.player).toBe(over.result.player);
+          }
+        }
       }),
       RUNS,
     );

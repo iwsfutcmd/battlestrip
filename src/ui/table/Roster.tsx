@@ -32,6 +32,12 @@ export function Roster({ table, view }: { readonly table: PublicTable; readonly 
                       <Msg id="roster.bot" />
                     </span>
                   )}
+                  {view?.standing?.player === seat.id && (
+                    <span class="badge badge-last">
+                      <span aria-hidden="true">★ </span>
+                      <Msg id="roster.lastFleet" />
+                    </span>
+                  )}
                   {nuclear && (
                     <span class="badge badge-nuclear">
                       <span aria-hidden="true">☢ </span>

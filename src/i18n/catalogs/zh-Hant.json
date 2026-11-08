@@ -227,5 +227,17 @@
     "wrongFleet {{這個代碼和這位玩家的艦隊不符。}}",
     "badLayout {{這些船艦重疊或相鄰了。}}",
     "* {{這個代碼無法使用。}}"
+  ],
+  "lobby.playOut": "只剩一支艦隊時繼續玩，直到它也被擊沉",
+  "roster.lastFleet": "最後的艦隊",
+  "result.lastFleet": "{$player}是最後倖存的艦隊！其他人，擊沉它！",
+  "spoken.lastFleetStanding": "{$player}是最後倖存的艦隊。其他人，擊沉它。",
+  "play.lastFleetBanner": "{$player}是最後倖存的艦隊。可以繼續玩到它沉沒，或在這裡結束遊戲。",
+  "play.endHere": "在這裡結束遊戲",
+  "over.playedOut": [
+    ".input {$turns :number}",
+    ".match $turns",
+    "0 {{{$player}是最後倖存的艦隊，但下一發就被擊沉了！}}",
+    "* {{{$player}是最後倖存的艦隊，又撐了 {$turns} 回合！}}"
   ]
 }

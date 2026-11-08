@@ -263,5 +263,18 @@
     "wrongFleet {{That code doesn’t match this player’s fleet.}}",
     "badLayout {{Those ships overlap or touch.}}",
     "* {{That code doesn’t work.}}"
+  ],
+  "lobby.playOut": "Play on after one fleet is left, until it sinks too",
+  "roster.lastFleet": "Last fleet",
+  "result.lastFleet": "{$player} is the last fleet standing! Everyone else, sink it.",
+  "spoken.lastFleetStanding": "{$player} is the last fleet standing. Everyone else, sink it.",
+  "play.lastFleetBanner": "{$player} is the last fleet standing. Play on until it sinks, or end the game here.",
+  "play.endHere": "End the game here",
+  "over.playedOut": [
+    ".input {$turns :number}",
+    ".match $turns",
+    "0 {{{$player} was the last fleet standing, and went down on the very next call!}}",
+    "one {{{$player} was the last fleet standing, and held out for {$turns} more turn!}}",
+    "* {{{$player} was the last fleet standing, and held out for {$turns} more turns!}}"
   ]
 }

@@ -55,6 +55,8 @@ export interface LobbyConfig {
   readonly speech: boolean;
   /** M5: random layouts handed out by QR, or players place their own on their phones. */
   readonly placement: 'random' | 'phones';
+  /** Keep playing after one fleet is left, until it sinks too (the table can still end it early). */
+  readonly playOut: boolean;
   readonly seats: readonly SeatConfig[];
 }
 
@@ -80,7 +82,8 @@ let seatCounter = 0;
 const newKey = (): string => `s${Date.now().toString(36)}${(seatCounter++).toString(36)}`;
 
 export function rulesForLobby(c: LobbyConfig): Rules {
-  return presetRules(c.preset, { rows: c.rows, cols: c.cols, allowTouching: c.allowTouching });
+  // Saves from before playOut existed read as "play on" (the lobby default).
+  return presetRules(c.preset, { rows: c.rows, cols: c.cols, allowTouching: c.allowTouching, playOut: c.playOut ?? true });
 }
 
 function defaultSeat(kind: 'human' | 'bot', preset: PresetId): SeatConfig {
@@ -101,6 +104,7 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     botSeconds: 1.2,
     speech: true,
     placement: 'random',
+    playOut: true,
     seats: [defaultSeat('human', 'classic'), defaultSeat('human', 'classic'), defaultSeat('human', 'classic')],
   };
 }
@@ -346,6 +350,19 @@ export function submitCall(at: Coord): boolean {
   if (ms === 0) finish();
   else beatTimer = setTimeout(finish, ms);
   return true;
+}
+
+/** With play-out: stop now, and the last fleet standing wins as if the game had ended there. */
+export function endHere(): void {
+  const g = game.value;
+  if (!g?.standing || g.phase !== 'playing' || revealing()) return;
+  if (apply({ kind: 'endGame' })) {
+    batch(() => {
+      stage.value = 'over';
+      canUndo.value = false;
+      notice.value = null;
+    });
+  }
 }
 
 export function undo(): void {

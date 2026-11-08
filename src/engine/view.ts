@@ -64,6 +64,8 @@ export interface PlayerView {
   readonly revealed: readonly (readonly PlacedShip[])[] | null;
   readonly events: readonly GameEvent[];
   readonly result: GameResult | null;
+  /** With `playOut`: the last fleet standing, once there is one (public). */
+  readonly standing: { readonly player: PlayerId; readonly turn: number } | null;
 }
 
 /**
@@ -117,6 +119,7 @@ export function viewFor(s: GameState, viewer: PlayerId | 'spectator'): PlayerVie
     revealed: s.phase === 'over' ? s.fleets : null,
     events: s.events,
     result: s.result,
+    standing: s.standing ?? null,
   };
 }
 

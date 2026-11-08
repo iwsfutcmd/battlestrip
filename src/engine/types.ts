@@ -27,6 +27,17 @@ export interface Rules {
   readonly selfFire: boolean;
   readonly announceShipOnHit: boolean;
   readonly nuclear: boolean;
+  /**
+   * Keep playing after only one fleet is left, until it sinks too. The table
+   * can still stop early with an `endGame` action. Off (or absent) means the
+   * game ends as soon as at most one fleet is afloat (A10).
+   *
+   * Only takes effect with `nuclear` and `selfFire` both on (the table's
+   * rules): then the sunk players keep bombing the last fleet and its owner
+   * keeps calling on their own board. Without them, nobody could have a
+   * legal call, so the game ends as before.
+   */
+  readonly playOut?: boolean;
 }
 
 export interface Seat {
@@ -52,12 +63,16 @@ export type Action =
   /** Ends setup; the seeded RNG picks who goes first. */
   | { readonly kind: 'start' }
   /** A single square while afloat, a 2×2 bomb (the square is its first corner) once nuclear. */
-  | { readonly kind: 'call'; readonly player: PlayerId; readonly at: Coord };
+  | { readonly kind: 'call'; readonly player: PlayerId; readonly at: Coord }
+  /** With `playOut`: stop once a last fleet is standing, instead of playing on until it sinks. */
+  | { readonly kind: 'endGame' };
 
 export type ShotOutcome = 'miss' | 'hit' | 'alreadyShot';
 
 export type GameResult =
   | { readonly kind: 'lastFleet'; readonly player: PlayerId }
+  /** With `playOut`: `player` was the last fleet standing from `standingFrom`, and was then sunk too. */
+  | { readonly kind: 'playedOut'; readonly player: PlayerId; readonly standingFrom: number }
   /** One call sank every remaining fleet. */
   | { readonly kind: 'allNuclear'; readonly lastToSink: readonly PlayerId[] };
 
@@ -89,6 +104,8 @@ export type GameEvent =
       readonly cells?: readonly Coord[];
     }
   | { readonly kind: 'wentNuclear'; readonly turn: number; readonly player: PlayerId }
+  /** With `playOut`: only this fleet is afloat now; play goes on until it sinks or the table ends the game. */
+  | { readonly kind: 'lastFleetStanding'; readonly turn: number; readonly player: PlayerId }
   /** Only with `nuclear: false` (simulation): a sunk player is out of the game. */
   | { readonly kind: 'knockedOut'; readonly turn: number; readonly player: PlayerId }
   | { readonly kind: 'gameOver'; readonly turn: number; readonly result: GameResult };
@@ -158,4 +175,6 @@ export interface GameState {
   /** Every event so far. All events are public. */
   readonly events: readonly GameEvent[];
   readonly result: GameResult | null;
+  /** With `playOut`: the last fleet standing, once there is one. */
+  readonly standing?: { readonly player: PlayerId; readonly turn: number } | null;
 }

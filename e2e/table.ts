@@ -10,6 +10,7 @@ export interface DealOptions {
   readonly cols?: number;
   readonly writingMode?: 'horizontal-tb' | 'vertical-rl';
   readonly placement?: 'random' | 'phones';
+  readonly seed?: number;
 }
 
 /** Fill the lobby and deal. Beat and bot delay go to 0 so tests run fast. */
@@ -34,6 +35,7 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   await numbers.nth(2).fill('0');
   await numbers.nth(3).fill('0');
   await numbers.nth(3).blur();
+  if (o.seed !== undefined) await page.locator('.settings-grid input[type=text]').fill(String(o.seed));
   // Settings selects, in order: shipyard, placement, row labels, second labels, writing mode.
   if (o.placement) await page.locator('.settings-grid select').nth(1).selectOption(o.placement);
   if (o.labels) await page.locator('.settings-grid select').nth(2).selectOption(o.labels);

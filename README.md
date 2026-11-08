@@ -51,12 +51,13 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 3. **Open the TV window** and drag it to the TV. Two-window mode keeps the QR code off the TV; the TV window only ever receives the public table. In one-window mode, the table and the docked controls share the laptop's screen. Don't mirror the laptop to the TV during the handout.
 4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat, then reveals every result at once and reads it aloud where a voice exists. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
 5. **Show a fleet privately** covers players without a phone and lost images. It can also show the QR code again.
+6. **When only one fleet is left**, the TV announces the last fleet standing. By default, play goes on: everyone else bombs it until it sinks, and its owner keeps calling squares on their own board. The game-over screen then says how long it held out. **End the game here** on the laptop stops at that moment instead. To always stop there, untick "Play on after one fleet is left" in the lobby.
 
 The game autosaves to `localStorage` after every action, and a reload offers to resume.
 
 ## Deployment
 
-`.github/workflows/pages.yml` runs on every push to the default branch. It runs `npm run check`, builds the site, and force-pushes `dist/` to the `gh-pages` branch, which GitHub Pages serves at <https://iwsfutcmd.github.io/battlestrip/>.
+`.github/workflows/pages.yml` runs on every push to `main`, which is also the default branch. It runs `npm run check`, builds the site, and force-pushes `dist/` to the `gh-pages` branch, which GitHub Pages serves at <https://iwsfutcmd.github.io/battlestrip/>.
 
 The build uses relative URLs, so it works under that sub-path or on any other static HTTPS host; copy `dist/` anywhere. There's no server: fleets travel only in URL fragments, which browsers never send to the host.
 
@@ -106,6 +107,14 @@ docs/       the spec
 - **Additions to the spec's API:**
   - a `place` action (a player's own layout: needed for M5, and used by tests)
   - a `knockedOut` event: with `nuclear: false` (simulation only), a sunk player is out and loses their turns, which is the classic rule the simulation compares against
+  - playing on after the last fleet:
+    - the `Rules.playOut` flag, which only takes effect with `nuclear` and `selfFire` on, so that someone always has a legal call
+    - the `lastFleetStanding` event
+    - the `endGame` action, to stop early
+    - the `playedOut` result
+    - `standing` in the state and view
+
+    A property test checks that the game ends exactly when no fleet is afloat, or, without play-out, as soon as at most one is.
   - violations `badRules`, `tooFewPlayers`, `duplicatePlayer`, `badLayout`, `nothingToUndo`
 - **Tests:**
   - the §2.4 examples, verbatim
@@ -224,7 +233,7 @@ The laptop's state holds every fleet. Anyone with devtools could peek. That's fi
 1. **The name in other languages.** Every catalog uses "Battlestrip" (Latin). I kept the default; localised titles are a one-line catalog change.
 2. **zh-Hant spacing around names.** This is left to `text-autospace`, which Chromium doesn't apply next to Arabic or Hebrew names.
 3. **Translations.** The `ar` and `zh-Hant` catalogs are quick drafts. The Arabic avoids gendered verbs next to player names, using masdar constructions such as «غرق: …» and «تم إغراق …».
-4. **Two-player games** usually end with no last fleet: see the M3 findings below.
+4. **Two-player games** usually end with no last fleet: see the M3 findings below. Playing on doesn't change that. When one call sinks both fleets, there's nothing left to play out.
 
 ## Bots and simulation (M3)
 

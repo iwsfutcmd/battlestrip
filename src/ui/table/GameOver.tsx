@@ -36,7 +36,14 @@ export function GameOver({
         <Msg id="over.heading" />
       </h2>
       <p class="over-result" aria-live="assertive">
-        {result?.kind === 'lastFleet' ? <Msg id="over.lastFleet" values={{ player: name(result.player) }} /> : <Msg id="over.allNuclear" />}
+        {result?.kind === 'lastFleet' ? (
+          <Msg id="over.lastFleet" values={{ player: name(result.player) }} />
+        ) : result?.kind === 'playedOut' ? (
+          // Turns after the one that made them the last fleet, up to the call that sank them.
+          <Msg id="over.playedOut" values={{ player: name(result.player), turns: Math.max(0, view.turn - result.standingFrom - 1) }} />
+        ) : (
+          <Msg id="over.allNuclear" />
+        )}
       </p>
       {stats && stats.awards.length > 0 && (
         <>

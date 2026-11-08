@@ -80,6 +80,12 @@ export function LastCall({
               <Msg id="result.nuclear" values={{ player: nameOf(seats, p) }} />
             </p>
           ))}
+        {revealed && last.lastFleet && (
+          <p class="result-last-fleet">
+            <span aria-hidden="true">★ </span>
+            <Msg id="result.lastFleet" values={{ player: nameOf(seats, last.lastFleet) }} />
+          </p>
+        )}
       </div>
     </section>
   );

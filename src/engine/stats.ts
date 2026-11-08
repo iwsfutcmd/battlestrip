@@ -117,6 +117,7 @@ export function gameStats(s: GameState): GameStats {
         break;
       }
       case 'gameOver':
+      case 'lastFleetStanding':
         break;
     }
   }

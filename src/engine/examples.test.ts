@@ -124,6 +124,69 @@ describe('§2.4 end of the game', () => {
   });
 });
 
+describe('playing it out (playOut)', () => {
+  const endSeats = [seat('Amani', ['destroyer']), seat('Bo', ['destroyer']), seat('Chen', ['destroyer'])];
+  const rules = presetRules('classic', { playOut: true });
+
+  /** Same game as above: after turn 7 Amani (last square A1) is the last fleet standing. */
+  function toLastFleet() {
+    let s = startedGame(
+      endSeats,
+      {
+        Amani: [ship('destroyer', 'A1', 'alongRow')],
+        Bo: [ship('destroyer', 'G6', 'alongRow')],
+        Chen: [ship('destroyer', 'J9', 'alongRow')],
+      },
+      'Amani',
+      rules,
+    );
+    for (const [who, sq] of [['Amani', 'J9'], ['Bo', 'J10'], ['Chen', 'C2'], ['Amani', 'A2'], ['Bo', 'G6'], ['Chen', 'E1']] as const) {
+      s = call(s, who, sq).state;
+    }
+    return call(s, 'Amani', 'G7');
+  }
+
+  it('announces the last fleet standing and keeps playing', () => {
+    const t7 = toLastFleet();
+    expect(t7.events).toContainEqual({ kind: 'lastFleetStanding', turn: 7, player: 'Amani' });
+    expect(t7.events.some((e) => e.kind === 'gameOver')).toBe(false);
+    expect(t7.state.phase).toBe('playing');
+    expect(t7.state.standing).toEqual({ player: 'Amani', turn: 7 });
+    // Everyone keeps their turn: Bo (now nuclear) bombs next.
+    expect(t7.state.seats[t7.state.current]?.id).toBe('Bo');
+  });
+
+  it('the last fleet can only call squares on its own board', () => {
+    let s = toLastFleet().state;
+    s = call(s, 'Bo', 'E5').state;
+    s = call(s, 'Chen', 'F5').state;
+    const legal = legalCalls(s, pid('Amani'));
+    expect(legal).toContainEqual(at('A1'));
+    expect(legal).not.toContainEqual(at('A2'));
+  });
+
+  it('ends when the last fleet sinks, crediting how long it held out', () => {
+    let s = toLastFleet().state;
+    const end = call(s, 'Bo', 'A1'); // Bo's bomb covers A1: Amani's last square
+    expect(end.events).toContainEqual({ kind: 'wentNuclear', turn: 8, player: 'Amani' });
+    expect(end.events.at(-1)).toEqual({ kind: 'gameOver', turn: 8, result: { kind: 'playedOut', player: 'Amani', standingFrom: 7 } });
+    s = end.state;
+    expect(s.phase).toBe('over');
+  });
+
+  it('the table can end it early: the last fleet standing wins as before', () => {
+    const r = reduce(toLastFleet().state, { kind: 'endGame' });
+    if (!r.ok) throw new Error(r.error);
+    expect(r.value.events).toEqual([{ kind: 'gameOver', turn: 7, result: { kind: 'lastFleet', player: 'Amani' } }]);
+    expect(r.value.state.phase).toBe('over');
+  });
+
+  it('endGame is only allowed once a last fleet is standing', () => {
+    const s0 = startedGame(endSeats, {}, 'Amani', rules);
+    expect(reduce(s0, { kind: 'endGame' })).toEqual({ ok: false, error: 'wrongPhase' });
+  });
+});
+
 describe('§2.4 selfFire: false (engine and simulation only)', () => {
   const rules = presetRules('classic', { selfFire: false });
   const s0 = startedGame(seats, layouts, 'Amani', rules);

@@ -379,6 +379,19 @@
   background: var(--bs-bomb);
 }
 
+.badge-last {
+  font-weight: 700;
+  color: #000;
+  background: var(--bs-accent);
+}
+
+.result-last-fleet {
+  margin: 0;
+  font-size: 1.15em;
+  font-weight: 800;
+  color: var(--bs-accent);
+}
+
 .badge-ready {
   color: #000;
   background: #009e73;

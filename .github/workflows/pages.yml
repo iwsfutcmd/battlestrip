@@ -1,6 +1,6 @@
 name: Deploy to GitHub Pages
 
-# Every push to the default branch rebuilds the static site and publishes it
+# Every push to main (or the default branch) rebuilds the static site and publishes it
 # to the gh-pages branch, which GitHub Pages serves at
 # https://<owner>.github.io/<repo>/. The build uses relative URLs, so it works
 # under that sub-path (and on any other static host).
@@ -17,7 +17,7 @@ concurrency:
 
 jobs:
   deploy:
-    if: github.ref_name == github.event.repository.default_branch
+    if: github.ref_name == 'main' || github.ref_name == github.event.repository.default_branch
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -41,6 +41,8 @@ export interface CallSummary {
   readonly hits: readonly { readonly board: PlayerId; readonly ship: ShipId | null; readonly at: Coord }[];
   readonly sunk: readonly { readonly board: PlayerId; readonly ship: ShipId }[];
   readonly nuclear: readonly PlayerId[];
+  /** With play-out: the player who became the last fleet standing on this call. */
+  readonly lastFleet: PlayerId | null;
   readonly gameOver: boolean;
 }
 
@@ -59,6 +61,7 @@ export function summarizeTurn(events: readonly GameEvent[], turn: number): CallS
     hits: mine.flatMap((e) => (e.kind === 'shotResolved' && e.outcome === 'hit' ? [{ board: e.board, ship: e.ship ?? null, at: e.at }] : [])),
     sunk: mine.flatMap((e) => (e.kind === 'shipSunk' ? [{ board: e.board, ship: e.ship }] : [])),
     nuclear: mine.flatMap((e) => (e.kind === 'wentNuclear' || e.kind === 'knockedOut' ? [e.player] : [])),
+    lastFleet: mine.flatMap((e) => (e.kind === 'lastFleetStanding' ? [e.player] : []))[0] ?? null,
     gameOver: mine.some((e) => e.kind === 'gameOver'),
   };
 }

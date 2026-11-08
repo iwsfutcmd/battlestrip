@@ -14,6 +14,7 @@ import {
   backToLobby,
   canUndo,
   choosing,
+  endHere,
   focusCell,
   game,
   notice,
@@ -119,6 +120,14 @@ export function PlayPanel({ displayConnected, tableHere, onToggleTable }: { read
       </div>
       {!collapsed && (
         <div class="play-panel-body">
+          {stage.value === 'playing' && g.standing && (
+            <div class="banner last-fleet-banner" role="status">
+              <Msg id="play.lastFleetBanner" values={{ player: s.names[s.seats.findIndex((x) => x.id === g.standing?.player)] ?? '' }} />
+              <button type="button" class="primary" disabled={revealing()} onClick={endHere}>
+                <Msg id="play.endHere" />
+              </button>
+            </div>
+          )}
           {stage.value === 'playing' && (
             <>
               <p class="play-who">

@@ -136,6 +136,7 @@ export function newGame(rules: Rules, seats: readonly Seat[], seed: number): Res
     actions: [],
     events: [],
     result: null,
+    standing: null,
   });
 }
 
@@ -274,12 +275,22 @@ function applyCall(s: GameState, a: Extract<Action, { kind: 'call' }>): Result<{
   const afloat = status.flatMap((st, i) => (st.sunkOnTurn === null ? [i] : []));
   let phase: GameState['phase'] = 'playing';
   let result: GameResult | null = null;
-  if (afloat.length <= 1) {
+  let standing = s.standing ?? null;
+  const last = afloat[0] !== undefined ? s.seats[afloat[0]] : undefined;
+  if (afloat.length === 0) {
+    // Every fleet is sunk: either this call sank the last fleet standing, or it sank several at once.
     phase = 'over';
-    const winner = afloat[0] !== undefined ? s.seats[afloat[0]] : undefined;
-    result = winner ? { kind: 'lastFleet', player: winner.id } : { kind: 'allNuclear', lastToSink: newlySunk };
-    events.push({ kind: 'gameOver', turn, result });
+    result = standing ? { kind: 'playedOut', player: standing.player, standingFrom: standing.turn } : { kind: 'allNuclear', lastToSink: newlySunk };
+  } else if (afloat.length === 1 && last && !standing) {
+    if (s.rules.playOut && s.rules.nuclear && s.rules.selfFire) {
+      standing = { player: last.id, turn };
+      events.push({ kind: 'lastFleetStanding', turn, player: last.id });
+    } else {
+      phase = 'over';
+      result = { kind: 'lastFleet', player: last.id };
+    }
   }
+  if (result) events.push({ kind: 'gameOver', turn, result });
 
   let current = s.current;
   if (phase === 'playing') {
@@ -297,6 +308,7 @@ function applyCall(s: GameState, a: Extract<Action, { kind: 'call' }>): Result<{
       turn,
       current,
       result,
+      standing,
       actions: [...s.actions, a],
       events: [...s.events, ...events],
     },
@@ -336,6 +348,13 @@ export function reduce(s: GameState, a: Action): Result<{ state: GameState; even
     }
     case 'call':
       return applyCall(s, a);
+    case 'endGame': {
+      // Only once a last fleet is standing (with playOut): the table chose not to play it out.
+      if (s.phase !== 'playing' || !s.standing) return err('wrongPhase');
+      const result: GameResult = { kind: 'lastFleet', player: s.standing.player };
+      const events: GameEvent[] = [{ kind: 'gameOver', turn: s.turn, result }];
+      return ok({ state: { ...s, phase: 'over', result, actions: [...s.actions, a], events: [...s.events, ...events] }, events });
+    }
   }
 }
 
