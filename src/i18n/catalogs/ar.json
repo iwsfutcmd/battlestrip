@@ -66,6 +66,8 @@
     "suspenders {{حمالات بنطال}}",
     "bikini {{بيكيني}}",
     "legWarmers {{مدفئات ساق}}",
+    "leftSock {{الجورب الأيسر}}",
+    "rightSock {{الجورب الأيمن}}",
     "* {{قطعة}}"
   ],
   "ship.withCopy": "{$name} {$copy :integer}",

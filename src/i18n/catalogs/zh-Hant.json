@@ -66,6 +66,8 @@
     "suspenders {{吊帶}}",
     "bikini {{比基尼}}",
     "legWarmers {{襪套}}",
+    "leftSock {{左腳襪子}}",
+    "rightSock {{右腳襪子}}",
     "* {{衣物}}"
   ],
   "ship.withCopy": "{$name}{$copy :integer}號",

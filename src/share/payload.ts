@@ -44,8 +44,11 @@ export interface FleetImage {
   readonly ships: readonly FleetImageShip[];
 }
 
-/** 2: clothing kinds replaced ship kinds. 3: wardrobe pieces with shapes and orientations. */
-export const PAYLOAD_VERSION = 3;
+/**
+ * 2: clothing kinds replaced ship kinds. 3: wardrobe pieces with shapes and orientations.
+ * 4: one-square underwear, two-square bra, left and right socks (wardrobe renumbered).
+ */
+export const PAYLOAD_VERSION = 4;
 /** Keeps the worst-case URL under ~400 characters (24 emoji ZWJ sequences would be ~600 bytes). */
 export const MAX_NAME_BYTES = 160;
 

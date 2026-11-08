@@ -28,8 +28,8 @@ export interface PlacementInvite {
   readonly seats: readonly InviteSeat[];
 }
 
-/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. */
-const VERSION = 2;
+/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. 3: wardrobe renumbered (socks). */
+const VERSION = 3;
 const NAME_BYTES = 48;
 const MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 

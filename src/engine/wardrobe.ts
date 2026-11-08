@@ -6,9 +6,12 @@ import type { Rules, ShipId, ShipKindId, ShipyardShip } from './types.ts';
  * The wardrobe: every piece of clothing a player can wear, with its shape.
  * Shapes are drawn as rows of "#" separated by "/", and may be anything:
  * edge-connected, joined only at corners (the sash), or in separate parts
- * (earrings). They're whimsical, not to scale. Numbers are fixed (a piece's number is the same at
- * every table), so append new pieces at the end of their list and never
- * reorder: numbers and indices travel in QR codes and fleet codes.
+ * (earrings). They're whimsical, not to scale. Numbers are fixed (a
+ * piece's number is the same at every table). Numbers and list positions
+ * travel in QR codes, invites and outfit codes: whenever a piece is
+ * inserted, removed or reshaped, bump PAYLOAD_VERSION (share/payload.ts) and
+ * the invite VERSION (share/invite.ts), so codes made before the change are
+ * refused.
  *
  * Ids double as kinds and as message keys (ship.name) and icon keys.
  */
@@ -33,12 +36,13 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['swimsuit', 'swimwear', '#.#/###/.#.'],
   ['robe', 'onePieces', '###/.#./###'],
   ['jumpsuit', 'onePieces', '.#./###/#.#'],
-  ['underwear', 'underwear', '###/.#.'],
+  ['underwear', 'underwear', '#'],
   ['boxers', 'underwear', '##/##'],
-  ['bra', 'underwear', '#.#/###'],
+  ['bra', 'underwear', '##'],
   ['undershirt', 'underwear', '##/##/##'],
   ['tights', 'underwear', '##/#./#.'],
-  ['socks', 'footwear', '#./##'],
+  ['leftSock', 'footwear', '#'],
+  ['rightSock', 'footwear', '#'],
   ['shoes', 'footwear', '##'],
   ['boots', 'footwear', '#./#./##'],
   ['sandals', 'footwear', '#'],
@@ -75,7 +79,7 @@ export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art],
 
 /** Ready-made outfits for the lobby. */
 export const OUTFITS = {
-  everyday: ['tShirt', 'jeans', 'underwear', 'socks', 'shoes'],
+  everyday: ['tShirt', 'jeans', 'underwear', 'leftSock', 'rightSock'],
   bundledUp: ['coat', 'sweater', 'pants', 'scarf', 'gloves', 'beanie', 'boots'],
   beachDay: ['bikini', 'sunglasses', 'sandals', 'cap', 'necklace'],
   dressedUp: ['shirt', 'blazer', 'pants', 'bowTie', 'suspenders', 'shoes', 'watch'],

@@ -66,6 +66,8 @@
     "suspenders {{suspenders}}",
     "bikini {{bikini}}",
     "legWarmers {{leg warmers}}",
+    "leftSock {{left sock}}",
+    "rightSock {{right sock}}",
     "* {{item}}"
   ],
   "ship.withCopy": "{$name} {$copy :integer}",

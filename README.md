@@ -1,6 +1,6 @@
 # Battlestrip
 
-Strip battleship for the whole table, on one shared screen. Instead of ships, each player hides an outfit on their board: pants, shirt, underwear, socks, shoes. Every call lands on every board, including the caller's own. When a piece of clothing is hit on every square, it's off. A player with nothing left on keeps playing, and drops 2×2 bombs. The app places every outfit and resolves every call. Each player scans one QR code at the start, which shows a static picture of their own outfit on their phone. There's no server.
+Strip battleship for the whole table, on one shared screen. Instead of ships, each player hides an outfit on their board: a T-shirt, jeans, underwear, and a sock on each foot. Every call lands on every board, including the caller's own. When a piece of clothing is hit on every square, it's off. A player with nothing left on keeps playing, and drops 2×2 bombs. The app places every outfit and resolves every call. Each player scans one QR code at the start, which shows a static picture of their own outfit on their phone. There's no server.
 
 **Play it:** <https://iwsfutcmd.github.io/battlestrip/>. Open it on the laptop that drives the TV; phones only ever scan a QR code.
 
@@ -11,20 +11,20 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 Battlestrip is played like Battleship, but every piece is a piece of clothing, and a piece can be any shape at all, not just a line.
 
 - **The wardrobe** (`src/engine/wardrobe.ts`) has 49 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
-  - Each piece has a fixed number (1 T-shirt … 49 leg warmers) and a shape of 1 to 8 squares. The shapes are whimsical, not to scale: a T-shirt is a T, pants are an upside-down U with legs, socks are a small L, a scarf is a long line, a ring is one square.
+  - Each piece has a fixed number (1 T-shirt … 50 leg warmers) and a shape of 1 to 8 squares. The shapes are whimsical, not to scale: a T-shirt is a T, pants are an upside-down U with legs, a bra is two squares side by side, a scarf is a long line. Underwear, a ring, and each sock are a single square; the left and right socks are separate pieces, so each comes off on its own.
   - **Shapes can be anything.** A shape is any set of squares, so a piece can be edge-connected, joined only at corners, or in separate parts. The sash is a diagonal line, the bow tie an X and the necklace a V; earrings are two squares apart, and a bikini comes in three parts.
   - On boards and in saved images, squares that touch only at a corner get a small diamond "bridge" on that corner. Each separate part shows the piece's number, so a scattered piece still reads as one.
   - Shapes may be turned and mirrored: up to 8 orientations each.
   - New pieces are appended at the end of the list. Numbers and list positions travel in QR codes and outfit codes, so existing pieces are never reordered.
-- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, socks, shoes: 19 squares, the default), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie and suspenders) and Night in.
+- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, left sock, right sock: 13 squares, no shoes, the default), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie and suspenders) and Night in.
 - **Search.** Each seat's picker has a search box and a category filter. It matches the piece's name in the game language, its English name, its category and its number, ignoring case and accents. Search keys are lower-cased in the game's locale before accents are dropped, so Turkish İ still finds i.
 - **Pickers show each piece's shape**, as a small icon next to its number, decorative emoji and name.
 
 - **Wording on screen.** A hit item is still "hit". A fully hit item is "off" ("Off: Bo, shirt"). A player with nothing left on goes nuclear. The last player still dressed is announced, and by default the table plays on until they're down to nothing too.
 - **Clothes are optional.** The app only tracks the game. Whether anyone actually takes anything off is up to the table.
 - **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. Only the wardrobe and presets (`src/engine/wardrobe.ts`, `presets.ts`), the catalogs (`ship.name`, `category.name`, `outfit.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
-- **The QR payload is at version 3.** Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
-- **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has 19 squares in shapes, so games should run a little longer. The simulation hasn't been rerun with shapes.
+- **The QR payload is at version 4** (and the TV invite at version 3), bumped whenever the wardrobe is renumbered or reshaped. Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
+- **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has only 13 squares, so games should run a little shorter. The simulation hasn't been rerun with shapes.
 
 ## Status
 

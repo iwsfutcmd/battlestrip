@@ -33,7 +33,7 @@ test('M5: players place their own ships on their phones and bring back fleet cod
   await expect(page.locator('.placement-seats li.is-ready')).toHaveCount(1);
   await expect(tv.locator('.badge-ready')).toHaveCount(2); // Amani and the bot
 
-  // Bo: places the everyday outfit piece by piece by tapping (T-shirt, jeans, underwear, socks, shoes),
+  // Bo: places the everyday outfit piece by piece by tapping (T-shirt, jeans, underwear, left sock, right sock),
   // each piece's first square on a spot where its shape fits without overlapping.
   const b = await phoneCtx.newPage();
   await b.goto(invite ?? '');

@@ -27,6 +27,8 @@ const ICONS: Readonly<Record<string, string>> = {
   undershirt: '🎽',
   tights: '🧦',
   socks: '🧦',
+  leftSock: '🧦',
+  rightSock: '🧦',
   shoes: '👟',
   boots: '🥾',
   sandals: '🩴',
