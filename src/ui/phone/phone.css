@@ -78,3 +78,54 @@
   font-size: 0.875rem;
   color: var(--bs-muted);
 }
+
+.place-seats,
+.place-ships {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.place-seats button {
+  font-size: 1.2rem;
+}
+
+.ship-outline.is-selected {
+  border-style: dashed;
+  background: rgb(240 228 66 / 18%);
+}
+
+.ship-toggle.is-placed {
+  opacity: 1;
+}
+
+.fleet-code {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.place .qr {
+  justify-self: center;
+  inline-size: min(80cqw, 20rem);
+}
+
+a.button {
+  display: inline-block;
+  padding-block: 0.35em;
+  padding-inline: 0.75em;
+  border: 1px solid #4b5869;
+  border-radius: var(--bs-radius);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.button.primary {
+  font-weight: 700;
+  border-color: var(--bs-accent);
+  background: #0072b2;
+}

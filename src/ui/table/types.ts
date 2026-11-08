@@ -23,7 +23,7 @@ export interface PublicSeat {
   readonly kind: 'human' | 'bot';
 }
 
-export type TableStage = 'lobby' | 'handout' | 'playing' | 'over';
+export type TableStage = 'lobby' | 'handout' | 'placement' | 'playing' | 'over';
 
 /**
  * Everything the shared screen may know. It is built from
@@ -43,4 +43,6 @@ export interface PublicTable {
   /** A bot that is "choosing…". */
   readonly choosing: PlayerId | null;
   readonly stats: GameStats | null;
+  /** M5: the placement page URL the TV shows as a QR code (public: game parameters only). */
+  readonly invite: string | null;
 }

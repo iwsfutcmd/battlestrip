@@ -457,3 +457,16 @@
 .revealed-name {
   margin-block: 0 0.3em;
 }
+
+.tv-invite {
+  display: grid;
+  gap: 0.5em;
+  justify-items: center;
+  margin: 0;
+  font-size: 1.3em;
+}
+
+.tv-invite .qr {
+  inline-size: min(70cqi, 70cqb, 30rem);
+  block-size: auto;
+}

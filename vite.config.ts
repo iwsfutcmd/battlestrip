@@ -16,6 +16,7 @@ export default defineConfig({
         control: page('./index.html'),
         display: page('./display/index.html'),
         fleet: page('./fleet/index.html'),
+        place: page('./place/index.html'),
       },
     },
   },

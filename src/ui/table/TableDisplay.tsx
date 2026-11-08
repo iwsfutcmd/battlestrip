@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'preact/hooks';
 import { numberingSystemOf } from '../../i18n/labels.ts';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
+import { Qr } from '../common/Qr.tsx';
 import { createSpeaker, type Speaker } from '../speech/speaker.ts';
 import { summarizeTurn } from './derive.ts';
 import { coordSpoken, labelsFor, shipNameIn } from './format.ts';
@@ -95,6 +96,13 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
                 revealed={revealed}
                 interaction={interaction}
               />
+            ) : table.stage === 'placement' && table.invite ? (
+              <figure class="tv-invite">
+                <Qr text={table.invite} label={t.format('display.placementQr')} />
+                <figcaption>
+                  <Msg id="display.placementQr" />
+                </figcaption>
+              </figure>
             ) : (
               <p class="tv-waiting">
                 <Msg id={table.stage === 'handout' ? 'display.setup' : 'display.lobby'} />

@@ -13,7 +13,7 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 | **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, speech, autosave, two-window sync | ✅ done |
 | **M3 Bots and simulation**: RandomBot, DensityBot, `npm run sim`, pacing table | ✅ done |
 | **M4 Vertical modes**: `vertical-rl` for zh-Hant/ja tables on the TV and every phone image | ✅ done |
-| M5 Players place their own ships | designed, not started |
+| **M5 Players place their own ships**: placement page, fleet codes, typed or webcam entry | ✅ done (no WASM QR fallback; see below) |
 
 ## Quick start
 
@@ -29,6 +29,7 @@ npm run dev          # vite --host: also reachable from phones on the LAN
 | `/` | The control panel (the laptop): lobby, fleet handout, call entry, undo, private peek. In one-window mode it also shows the table. |
 | `/display/` | The shared screen (the TV), in its own window. It mirrors the control window over `BroadcastChannel`. |
 | `/fleet/#…` | The phone page. Each player's QR code points here, with their fleet packed into the `#fragment`. |
+| `/place/#…` | M5: the phone placement page. The TV's QR code points here, with the game parameters in the fragment. |
 
 Add `?lang=<tag>` to any route to override the browser's language, e.g. `/display/?lang=ar-u-nu-latn` or `/fleet/?lang=zh-TW`. The pseudolocales are listed in the language pickers in dev builds, or with `?pseudo`.
 
@@ -184,6 +185,25 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
   - the vertical TV is pinned with `position: fixed; inset: 0`
   - the phone board is sized by its container's physical width (`cqw`), the one physical unit in the CSS, with a comment saying why
 - **Screenshots** (`e2e/screenshots.spec.ts`) cover the TV at setup, mid-game and game over, and the phone, in `en`, `ar`, `ar-XB`, `en-XA`, `zh-Hant` and vertical `zh-Hant`, plus an Arabic phone showing a Latin-labelled game. They go to `test-results/screenshots/` for review, and each asserts there's no overflow. They aren't pixel baselines, because fonts differ between machines.
+
+## Players place their own ships (M5)
+
+Choose **Ship placement → Players place their own on their phones** in the lobby. After **Deal the fleets**, the TV shows a single QR code. It's public, carrying only the game parameters, the seat names and the public fleets (`src/share/invite.ts`).
+
+1. **On the phone** (`/place/`, in the phone's own language, with the game's labels, direction and writing mode):
+   - Pick your name.
+   - Place your ships: pick a ship and tap its starting square, rotate the selected ship, or press Random (the engine's uniform placer).
+   - Overlap and touching are checked with the engine's own `occupancy` rules.
+2. **The fleet code.** The phone shows it as a QR code and as text, grouped 4-4-4-1 in an LTR isolate (`src/share/fleet-code.ts`).
+   - It's mixed radix, low digits first: a 10-bit game check, the seat, the fleet subset, and each ship's index into `placementsFor(rules, length)`. The digits are obfuscated with a keystream keyed by the game code, then written in Crockford Base32 with Crockford's mod-37 check symbol.
+   - Classic fleets need 12 characters. Morskoy boy fleets on 10×10 need 20, since a code is as long as the largest fleet the shipyard allows.
+3. **Back on the laptop**, the code is typed or shown to the webcam.
+   - Decoding applies NFKC, accepts any `\p{Nd}` digit, ignores case, hyphens and spaces, and maps I/L → 1 and O → 0.
+   - A typo, a code from another game, or a code that doesn't match the player's lobby fleet is rejected with a localised message.
+   - Property tests show that every single substitution and every adjacent transposition is caught: 37 is prime and larger than 32.
+4. **The phone then links to the same static fleet image as M2.** Its fleet check matches the laptop's private peek: both sides compute checks for phone-placed layouts as version 0.
+
+**Not done:** webcam scanning uses `BarcodeDetector`, which Chromium supports on macOS, ChromeOS and Android but not on Windows or Linux desktops. The spec's WASM decoder fallback would need another dependency. Typing the code always works.
 
 ## Hidden information
 

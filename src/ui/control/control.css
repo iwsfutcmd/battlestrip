@@ -263,3 +263,23 @@
     border-inline-start: 0;
   }
 }
+
+.placement-seats {
+  display: grid;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: start;
+}
+
+.code-input {
+  inline-size: 18ch;
+  font-size: 1.4rem;
+  text-transform: uppercase;
+}
+
+.scanner {
+  inline-size: min(28rem, 90%);
+  border-radius: var(--bs-radius);
+}

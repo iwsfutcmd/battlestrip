@@ -5,6 +5,7 @@ const ROUTES = [
   { path: '', title: 'title.control', heading: 'app.title' },
   { path: 'display/', title: 'title.display', heading: 'app.title' },
   { path: 'fleet/', title: 'title.fleet', heading: 'route.fleet.heading' },
+  { path: 'place/', title: 'title.place', heading: 'place.heading' },
 ] as const;
 
 for (const route of ROUTES) {

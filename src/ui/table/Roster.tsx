@@ -38,7 +38,7 @@ export function Roster({ table, view }: { readonly table: PublicTable; readonly 
                       <Msg id="roster.nuclear" />
                     </span>
                   )}
-                  {table.stage === 'handout' && ready && (
+                  {(table.stage === 'handout' || table.stage === 'placement') && ready && (
                     <span class="badge badge-ready">
                       <span aria-hidden="true">✓ </span>
                       <Msg id="roster.ready" />

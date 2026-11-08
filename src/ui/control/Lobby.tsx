@@ -123,6 +123,14 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
               </select>
             )}
           </Field>
+          <Field labelId="lobby.placement">
+            {(id) => (
+              <select id={id} value={c.placement} onChange={(e) => updateLobby({ placement: e.currentTarget.value === 'phones' ? 'phones' : 'random' })}>
+                <option value="random">{t.format('placement.random')}</option>
+                <option value="phones">{t.format('placement.phones')}</option>
+              </select>
+            )}
+          </Field>
           <Field labelId="lobby.rows">
             {(id) => <NumberInput id={id} value={c.rows} min={5} max={20} onChange={(rows) => updateLobby({ rows })} />}
           </Field>

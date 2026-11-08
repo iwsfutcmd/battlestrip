@@ -6,7 +6,7 @@ import { FleetBoard } from '../../table/FleetBoard.tsx';
 import { labelsFor } from '../../table/format.ts';
 import type { Session } from '../store.ts';
 import { fleetImage, fleetUrl } from './fleet-url.ts';
-import { Qr } from './Qr.tsx';
+import { Qr } from '../../common/Qr.tsx';
 
 /** A player's QR code, preview board and fleet check. Private: never on the TV. */
 export function PrivateFleet({ g, s, player, showQr, showBoard }: { readonly g: GameState; readonly s: Session; readonly player: PlayerId; readonly showQr: boolean; readonly showBoard: boolean }) {

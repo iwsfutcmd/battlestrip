@@ -20,9 +20,12 @@ import {
   type ShipId,
 } from '../../engine/index.ts';
 import type { WritingMode } from '../../i18n/direction.ts';
-import { defaultLabelSystem, systemForRows, type LabelSystemId } from '../../i18n/labels.ts';
+import { defaultLabelSystem, numberingSystemOf, systemForRows, type LabelSystemId } from '../../i18n/labels.ts';
 import type { MessageKey, MessageValues } from '../../i18n/index.ts';
 import { gameCode } from '../../share/codes.ts';
+import { decodeFleetCode } from '../../share/fleet-code.ts';
+import { encodeInvite, type PlacementInvite } from '../../share/invite.ts';
+import { directionOf } from '../../i18n/direction.ts';
 import { translator } from '../common/locale-state.ts';
 import type { PublicSeat, PublicTable, TableSettings, TableStage } from '../table/types.ts';
 
@@ -50,6 +53,8 @@ export interface LobbyConfig {
   readonly beatSeconds: number;
   readonly botSeconds: number;
   readonly speech: boolean;
+  /** M5: random layouts handed out by QR, or players place their own on their phones. */
+  readonly placement: 'random' | 'phones';
   readonly seats: readonly SeatConfig[];
 }
 
@@ -95,6 +100,7 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     beatSeconds: 1.5,
     botSeconds: 1.2,
     speech: true,
+    placement: 'random',
     seats: [defaultSeat('human', 'classic'), defaultSeat('human', 'classic'), defaultSeat('human', 'classic')],
   };
 }
@@ -109,6 +115,8 @@ export const choosing = signal<PlayerId | null>(null);
 export const canUndo = signal(false);
 export const notice = signal<Notice | null>(null);
 export const focusCell = signal<Coord>({ row: 0, col: 0 });
+/** Seats whose layout came from a fleet code (M5). */
+export const placedOnPhone = signal<readonly PlayerId[]>([]);
 
 // ---- Lobby edits -------------------------------------------------------------
 
@@ -208,14 +216,75 @@ export function deal(names: readonly string[], locale: string): boolean {
       botMs: Math.max(0, c.botSeconds * 1000),
     };
     game.value = created.value;
-    stage.value = 'handout';
+    stage.value = c.placement === 'phones' ? 'placement' : 'handout';
     ready.value = seats.filter((s) => s.kind === 'bot').map((s) => s.id);
+    placedOnPhone.value = [];
     reveal.value = null;
     canUndo.value = false;
     notice.value = null;
   });
   return true;
 }
+
+/** M5: accept a fleet code from a phone (typed or scanned). Returns the seat it placed, if any. */
+export function acceptFleetCode(input: string): PlayerId | null {
+  const g = game.value;
+  const s = session.value;
+  if (!g || !s || g.phase !== 'setup') return null;
+  const r = decodeFleetCode({ gameCode: gameCode(s.seed), rules: s.rules }, input);
+  if (!r.ok) {
+    notice.value = { key: 'code.error', values: { code: r.error.replace('code.', '') }, tone: 'error' };
+    return null;
+  }
+  const seat = s.seats[r.value.seat];
+  if (!seat || seat.kind !== 'human') {
+    notice.value = { key: 'code.error', values: { code: 'corrupt' }, tone: 'error' };
+    return null;
+  }
+  const wanted = seat.fleet.map((id) => s.rules.shipyard.findIndex((x) => x.id === id)).sort((a, b) => a - b);
+  const got = r.value.ships.map((x) => x.ship);
+  if (wanted.join(',') !== got.join(',')) {
+    notice.value = { key: 'code.error', values: { code: 'wrongFleet' }, tone: 'error' };
+    return null;
+  }
+  const fleet = r.value.ships.map((x) => ({ ship: s.rules.shipyard[x.ship]?.id ?? seat.fleet[0] ?? ('' as ShipId), origin: x.origin, axis: x.axis }));
+  const placed = reduce(g, { kind: 'place', player: seat.id, fleet });
+  if (!placed.ok) {
+    notice.value = { key: 'code.error', values: { code: 'badLayout' }, tone: 'error' };
+    return null;
+  }
+  batch(() => {
+    game.value = placed.value.state;
+    if (!placedOnPhone.value.includes(seat.id)) placedOnPhone.value = [...placedOnPhone.value, seat.id];
+    confirmReady(seat.id);
+    notice.value = { key: 'placement.accepted', values: { name: s.names[r.value.seat] ?? '' }, tone: 'info' };
+  });
+  return seat.id;
+}
+
+/** M5: the placement page URL for the TV's QR code. */
+export const inviteUrl = computed<string | null>(() => {
+  const s = session.value;
+  if (!s || stage.value !== 'placement') return null;
+  const invite: PlacementInvite = {
+    gameCode: gameCode(s.seed),
+    preset: lobby.value.preset,
+    rows: s.rules.rows,
+    cols: s.rules.cols,
+    allowTouching: s.rules.allowTouching,
+    labels: s.settings.labels,
+    labels2: s.settings.labels2,
+    numbering: numberingSystemOf(s.settings.locale),
+    dir: directionOf(s.settings.locale),
+    writingMode: s.settings.writingMode,
+    seats: s.seats.map((seat, i) => ({
+      name: s.names[i] ?? '',
+      human: seat.kind === 'human',
+      fleet: seat.fleet.map((id) => s.rules.shipyard.findIndex((x) => x.id === id)).filter((k) => k >= 0),
+    })),
+  };
+  return new URL(`place/#${encodeInvite(invite)}`, location.href).toString();
+});
 
 function apply(a: Action): boolean {
   const g = game.value;
@@ -375,11 +444,12 @@ export const publicTable = computed<PublicTable | null>(() => {
     settings,
     seats,
     gameCode: s ? gameCode(s.seed) : '',
-    view: g && stage.value !== 'handout' ? viewFor(g, 'spectator') : null,
+    view: g && stage.value !== 'handout' && stage.value !== 'placement' ? viewFor(g, 'spectator') : null,
     ready: ready.value,
     reveal: reveal.value,
     choosing: choosing.value,
     stats: g?.phase === 'over' ? gameStats(g) : null,
+    invite: inviteUrl.value,
   };
 });
 
@@ -393,6 +463,7 @@ interface SaveFile {
   readonly session: Session;
   readonly actions: readonly Action[];
   readonly ready: readonly PlayerId[];
+  readonly placedOnPhone?: readonly PlayerId[];
 }
 
 export function startAutosave(): () => void {
@@ -400,7 +471,7 @@ export function startAutosave(): () => void {
     const s = session.value;
     const g = game.value;
     if (!s || !g) return;
-    const file: SaveFile = { v: 1, lobby: lobby.value, session: s, actions: g.actions, ready: ready.value };
+    const file: SaveFile = { v: 1, lobby: lobby.value, session: s, actions: g.actions, ready: ready.value, placedOnPhone: placedOnPhone.value };
     try {
       localStorage.setItem(SAVE_KEY, JSON.stringify(file));
     } catch {
@@ -437,7 +508,8 @@ export function resume(file: SaveFile): boolean {
     session.value = file.session;
     game.value = g;
     ready.value = file.ready;
-    stage.value = g.phase === 'over' ? 'over' : g.phase === 'playing' ? 'playing' : 'handout';
+    placedOnPhone.value = file.placedOnPhone ?? [];
+    stage.value = g.phase === 'over' ? 'over' : g.phase === 'playing' ? 'playing' : file.lobby.placement === 'phones' ? 'placement' : 'handout';
     reveal.value = g.turn > 0 ? { turn: g.turn, revealed: true } : null;
     canUndo.value = false;
   });

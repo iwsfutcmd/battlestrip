@@ -10,6 +10,7 @@ import { TableDisplay } from '../table/TableDisplay.tsx';
 import './control.css';
 import { Handout } from './handout/Handout.tsx';
 import { Lobby } from './Lobby.tsx';
+import { Placement } from './placement/Placement.tsx';
 import { PlayPanel, useGridInteraction } from './PlayPanel.tsx';
 import { lobby, publicTable, stage, startAutosave, startBotDriver, updateLobby } from './store.ts';
 import { defaultLabelSystem } from '../../i18n/labels.ts';
@@ -24,10 +25,10 @@ function App() {
   const interaction = useGridInteraction();
   if (!t || !table) return null;
   if (stage.value === 'lobby') return <Lobby showPseudo={pseudoRequested(location.search)} />;
-  if (stage.value === 'handout') {
+  if (stage.value === 'handout' || stage.value === 'placement') {
     return (
       <main class="control-handout">
-        <Handout />
+        {stage.value === 'handout' ? <Handout /> : <Placement />}
         <p class="muted small">
           <button type="button" class="subtle" onClick={() => window.open('display/', 'battlestrip-display', 'popup')}>
             <Msg id="play.openDisplay" />
