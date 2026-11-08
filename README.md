@@ -141,3 +141,95 @@ The laptop's state holds every fleet. Anyone with devtools could peek. That's fi
 
 1. **The name in other languages.** Every catalog uses "Battlestrip" (Latin). Should `ar` and `zh-Hant` get localised titles? The spec offered 因陀羅網 for *Indra's Net*.
 2. **zh-Hant spacing around names.** Leave it to `text-autospace`, or add explicit spaces around `{$name}` (which would also space Han names)?
+
+## Bots and simulation (M3)
+
+### Bots
+
+`src/bots/` is pure and deterministic. Bots get `viewFor(state, botId)` (public information plus their own fleet) and the legal calls, nothing else. ESLint restricts `src/bots/` to the engine's public `index.ts`: no engine internals, no `fleetOf`, no `ui/`/`i18n/`/`share/`, no packages, no `Math.random`. `test/guardrails/lint.test.ts` proves it.
+
+```ts
+chooseCall(kind: 'density' | 'random', view, legal, seed): Coord   // same inputs → same call
+chooseFleet({ kind: 'full' } | { kind: 'random' } | { kind: 'fixed', ships }, rules, seed): ShipId[]
+playBotGame({ rules, seats, seed, bots }): GameState                // a whole all-bot game
+```
+
+- **RandomBot:** uniform over legal calls. While afloat it avoids its own unhit ship squares, unless nothing else is legal.
+- **DensityBot** (the default), per §6.1:
+  - For each target board, it counts every placement of each unsunk ship that fits the public information. A placement must cover *all* of that ship's named hits, and may not cover a miss or another ship's hit (nor touch one, when ships may not touch).
+  - Each ship is normalised on its own, giving an expected number of hits per square.
+  - A single call scores Σ (expected hits on others) − 1 if the square is one of its own unhit ship squares.
+  - A bomb scores the expected hits over its four squares.
+  - Ties are broken by the seed.
+  - With hit-only reporting (`announceShipOnHit: false`), placements covering unattributed hits are weighted ×30 per hit.
+  - Speed: about 10 ms for a whole 8-player game.
+
+### Simulation
+
+```sh
+npm run sim -- --players 2..8 --games 5000 --bots density --fleets full,random --nuclear both --selfFire both --announce both --seed 1
+```
+
+- **Options:** `--players` takes `2..8`, `2,4,6` or `5`. Every other list option takes a comma list. The switches take `on`, `off` or `both`. Also `--preset classic|morskoyBoy`, `--rows`, `--cols`, `--locale` (all numbers go through `Intl.NumberFormat`), `--out` (default `sim-out/`), and `--markdown`.
+- **Output:** a table, a breakdown by fleet size, and last-fleet rate by turn-order position. It writes `pacing.json` and `pacing.csv`.
+- **Seeding:** game seeds depend on the player count, fleet policy, bot and game number, but not on the rule switches. Bombs on/off, self-fire on/off and named hits on/off therefore replay the *same* fleets and starting layouts, so the comparisons are paired.
+- **Definitions:**
+  - *Endgame*: turns from the moment at most two fleets are afloat until the end.
+  - *Game spent without a fleet*: the mean over players of the share of the game's turns after their last ship sank, spent nuclear (or knocked out, without bombs).
+  - *Self-hit turns*: turns on which the caller hit their own board.
+
+### Pacing table
+
+DensityBot in every seat, classic shipyard, 10×10, self-fire on, named hits on, **2,000 games per row** (`--players 2..8 --games 2000 --fleets full,random --nuclear both --seed 1`, about 4 minutes). "Random" fleets are uniform over non-empty subsets of the five classic ships.
+
+| Players | Fleets | Bombs | Turns: mean · median · p95 | Calls per player | Endgame (≤2 afloat → end): mean · p95 | Game spent without a fleet | Self-hit turns | No last fleet |
+|---:|---|---|---|---:|---|---:|---:|---:|
+| 2 | full | on | 85.6 · 89 · 100 | 42.8 | 85.6 · 100 | 0% | 3.4% | 87.6% |
+| 2 | full | off | 85.6 · 89 · 100 | 42.8 | 85.6 · 100 | 0% | 3.4% | 87.6% |
+| 2 | random | on | 53.0 · 46 · 97 | 26.5 | 53.0 · 97 | 0% | 1.6% | 39.3% |
+| 2 | random | off | 53.0 · 46 · 97 | 26.5 | 53.0 · 97 | 0% | 1.6% | 39.3% |
+| 3 | full | on | 56.9 · 57 · 67 | 19.0 | 5.5 · 14 | 3% | 1.0% | 8.7% |
+| 3 | full | off | 66.6 · 63 · 96 | 22.2 | 15.2 · 48 | 7% | 1.4% | 23.3% |
+| 3 | random | on | 37.0 · 37 · 53 | 12.3 | 8.3 · 20 | 8% | 0.2% | 3.9% |
+| 3 | random | off | 50.5 · 47 · 93 | 16.8 | 21.9 · 68 | 13% | 0.9% | 18.6% |
+| 4 | full | on | 59.7 · 60 · 69 | 14.9 | 3.7 · 9 | 5% | 0.4% | 5.3% |
+| 4 | full | off | 69.5 · 67 · 94 | 17.4 | 11.1 · 37 | 10% | 0.8% | 17.3% |
+| 4 | random | on | 39.5 · 40 · 53 | 9.9 | 5.3 · 13 | 13% | 0.1% | 3.9% |
+| 4 | random | off | 54.5 · 52 · 93 | 13.6 | 16.3 · 56 | 19% | 0.6% | 15.5% |
+| 5 | full | on | 63.6 · 64 · 72 | 12.7 | 2.7 · 7 | 6% | 0.3% | 5.7% |
+| 5 | full | off | 73.4 · 72 · 95 | 14.7 | 8.7 · 30 | 12% | 0.6% | 15.9% |
+| 5 | random | on | 42.0 · 42 · 55 | 8.4 | 3.9 · 10 | 15% | 0.1% | 3.9% |
+| 5 | random | off | 57.9 · 56 · 89 | 11.6 | 13.1 · 46 | 22% | 0.5% | 13.6% |
+| 6 | full | on | 67.4 · 67 · 76 | 11.2 | 2.2 · 5 | 7% | 0.3% | 4.3% |
+| 6 | full | off | 76.4 · 75 · 95 | 12.7 | 6.8 · 25 | 12% | 0.6% | 13.4% |
+| 6 | random | on | 44.3 · 44 · 57 | 7.4 | 3.2 · 8 | 16% | 0.1% | 4.5% |
+| 6 | random | off | 61.6 · 60 · 91 | 10.3 | 11.7 · 41 | 25% | 0.5% | 13.7% |
+| 7 | full | on | 70.6 · 71 · 78 | 10.1 | 1.8 · 4 | 8% | 0.3% | 4.7% |
+| 7 | full | off | 79.5 · 78 · 96 | 11.4 | 6.1 · 23 | 12% | 0.6% | 14.2% |
+| 7 | random | on | 46.7 · 47 · 60 | 6.7 | 2.7 · 7 | 17% | 0.1% | 5.1% |
+| 7 | random | off | 64.3 · 63 · 91 | 9.2 | 10.1 · 37 | 26% | 0.5% | 12.8% |
+| 8 | full | on | 73.9 · 74 · 82 | 9.2 | 1.6 · 4 | 8% | 0.3% | 3.5% |
+| 8 | full | off | 82.0 · 81 · 95 | 10.3 | 4.9 · 18 | 12% | 0.5% | 12.9% |
+| 8 | random | on | 49.0 · 49 · 61 | 6.1 | 2.3 · 6 | 18% | 0.1% | 5.0% |
+| 8 | random | off | 67.1 · 65 · 93 | 8.4 | 9.3 · 34 | 27% | 0.4% | 13.5% |
+
+Named hits and self-fire, with bombs on, 1,000 games per cell (`--players 3,4,6,8 --games 1000 --nuclear on --announce both --selfFire both`). Mean turns:
+
+| Players | Fleets | Named hits, self-fire (the game) | Hit-only reporting | No self-fire | Neither |
+|---:|---|---:|---:|---:|---:|
+| 3 | full | 56.9 | 73.5 | 71.5 | 93.3 |
+| 4 | full | 59.8 | 74.2 | 71.4 | 94.8 |
+| 6 | full | 67.4 | 79.4 | 75.8 | 97.1 |
+| 8 | full | 74.0 | 82.7 | 81.7 | 99.2 |
+| 4 | random | 39.1 | 47.5 | 45.1 | 55.1 |
+| 8 | random | 49.1 | 58.5 | 52.5 | 64.2 |
+
+### Findings
+
+- **Game length.** With bombs, a full-fleet game takes 57–74 turns from 3 to 8 players. That's 19 calls each at 3 players and 9 at 8, so turns come round quickly at a big table. Random fleets are about a third shorter (37–49 turns). The p95 is within 8–16 turns of the median: games rarely run long.
+- **Time spent nuclear.** With full fleets, players spend 3–8% of the game nuclear; with random fleets, 8–18%. Fleet size dominates. With bombs, a one-ship fleet spends 24–38% of the game bombing and a five-ship fleet 1–5%. Bigger fleets are also the last fleet standing far more often: 46% vs 9% at 4 players. That's fine for a game about fun, not winning, but don't expect small fleets to be a winning strategy, at least against these bots.
+- **The endgame doesn't drag with bombs.** From two fleets afloat to the end takes 2–8 turns on average with bombs (p95 4–20), against 5–22 without (p95 18–68). Without bombs, the p95 game uses 89–96 of the 100 squares. Bombs also cut games that end with no last fleet from 13–23% to 3–9%.
+- **Named hits** shorten games by 11–23% (fewer blind shots once a ship's line is known). **Self-fire** shortens them by 6–20%. Together they are why the game takes about 60 turns rather than about 95 at 4 players.
+- **Two players is a different game.** Each player avoids their own ship squares, so the last squares left are the ones that hold ships on *both* boards. One call then sinks both fleets: 88% of 2-player full-fleet games (39% with random fleets) end with no last fleet. That supports the spec's 3–8 target; a 2-player variant would need a rule of its own.
+- **Turn order doesn't matter.** The last-fleet rate by position in turn order is flat within noise at every player count.
+- **Self-hits** are rare with DensityBot (0.1–3.4% of turns), because it only hits itself when that sinks someone. Humans will do it more.

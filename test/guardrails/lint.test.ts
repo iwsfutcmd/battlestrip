@@ -172,3 +172,29 @@ describe('logical CSS only (§7.3, §8)', () => {
     expect(results[0]?.warnings).toEqual([]);
   });
 });
+
+describe('bots see only the engine’s public surface (§6.1)', () => {
+  const file = 'src/bots/probe.ts';
+  it.each([
+    ['engine internals (game.ts)', "import { resolveCells } from '../engine/game.ts'; export const r = resolveCells;"],
+    ['engine internals (placement.ts)', "import { randomLayout } from '../engine/placement.ts'; export const r = randomLayout;"],
+    ['fleetOf from the public index', "import { fleetOf } from '../engine/index.ts'; export const f = fleetOf;"],
+    ['the whole engine as a namespace (it contains fleetOf)', "import * as engine from '../engine/index.ts'; export const e = engine;"],
+    ['ui/', "import { translator } from '../ui/common/locale-state.ts'; export const t = translator;"],
+    ['i18n/', "import { isolate } from '../i18n/isolate.ts'; export const i = isolate;"],
+    ['share/', "import { encode } from '../share/payload.ts'; export const e = encode;"],
+    ['a package', "import fc from 'fast-check'; export const f = fc;"],
+  ])('rejects importing %s', async (_label, code) => {
+    expect(await rulesFor(file, code)).toContain('no-restricted-imports');
+  });
+
+  it('rejects Math.random', async () => {
+    expect(await rulesFor(file, 'export const r = Math.random();')).toContain('no-restricted-properties');
+  });
+
+  it('accepts named imports from the engine’s public index', async () => {
+    expect(
+      await rulesFor(file, "import { viewFor, legalCalls } from '../engine/index.ts'; export const v = [viewFor, legalCalls];"),
+    ).toEqual([]);
+  });
+});
