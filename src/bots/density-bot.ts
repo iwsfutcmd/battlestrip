@@ -1,4 +1,4 @@
-import { placementsFor, shapeOf, VIEW_HIT, VIEW_UNSHOT, type Coord, type PlayerView, type ShipyardShip } from '../engine/index.ts';
+import { bombFootprint, placementsFor, shapeOf, VIEW_HIT, VIEW_UNSHOT, type Coord, type PlayerView, type ShipyardShip } from '../engine/index.ts';
 import { coordIndex, ownUnhitSquares, pick, targetSeats, viewerSeat } from './common.ts';
 
 /** Weight per unattributed hit a placement covers (classic hit-only reporting; simulation only). */
@@ -121,10 +121,8 @@ export function densityBotCall(view: PlayerView, legal: readonly Coord[], seed: 
 
   let scoreOf: (c: Coord) => number;
   if (view.currentShape === 'bomb') {
-    scoreOf = (c) => {
-      const i = coordIndex(view, c);
-      return (expected[i] ?? 0) + (expected[i + 1] ?? 0) + (expected[i + cols] ?? 0) + (expected[i + cols + 1] ?? 0);
-    };
+    // Score the squares the bomb really covers (it moves back on near the edges).
+    scoreOf = (c) => bombFootprint(view.rules, c).reduce((sum, x) => sum + (expected[coordIndex(view, x)] ?? 0), 0);
   } else {
     const selfTarget = me >= 0 && view.rules.selfFire && view.players[me]?.afloat === true;
     const own = selfTarget ? ownUnhitSquares(view, me) : new Uint8Array(size);

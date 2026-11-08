@@ -82,6 +82,15 @@ export function bombCells(at: Coord): Coord[] {
   return [at, { row: at.row, col: at.col + 1 }, { row: at.row + 1, col: at.col }, { row: at.row + 1, col: at.col + 1 }];
 }
 
+/**
+ * The 2×2 bomb a call at `at` drops: `at` is its first corner, moved back
+ * onto the board where it would run off. A call in the last row or column
+ * still covers the called square (J10 covers I9, I10, J9 and J10).
+ */
+export function bombFootprint(rules: Pick<Rules, 'rows' | 'cols'>, at: Coord): Coord[] {
+  return bombCells({ row: Math.max(0, Math.min(at.row, rules.rows - 2)), col: Math.max(0, Math.min(at.col, rules.cols - 2)) });
+}
+
 export interface Placement {
   readonly origin: Coord;
   readonly orientation: Orientation;

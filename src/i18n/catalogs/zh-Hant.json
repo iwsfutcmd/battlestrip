@@ -186,7 +186,7 @@
   "handout.skip": "跳過（沒有手機）",
   "play.callLabel": "呼叫",
   "play.callHint": "輸入格子（例如 {$example}），或在棋盤上點選，然後按 Enter。",
-  "play.bombHint": "{$name}已經脫光：這一格是 2×2 炸彈的第一個角。",
+  "play.bombHint": "{$name}已經脫光：這一發是從那一格開始的 2×2 炸彈，靠近邊緣時會自動移回棋盤內。",
   "play.submit": "發射",
   "play.undo": "撤銷上一發",
   "play.undoNote": "撤銷只用來修正打錯：大家都已看到結果。",

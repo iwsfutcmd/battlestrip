@@ -79,7 +79,10 @@ export type Action =
   | { readonly kind: 'place'; readonly player: PlayerId; readonly fleet: readonly PlacedShip[] }
   /** Ends setup; the seeded RNG picks who goes first. */
   | { readonly kind: 'start' }
-  /** A single square while afloat, a 2×2 bomb (the square is its first corner) once nuclear. */
+  /**
+   * A single square while afloat; a 2×2 bomb once nuclear, with the square as
+   * its first corner, moved back onto the board if it would run off.
+   */
   | { readonly kind: 'call'; readonly player: PlayerId; readonly at: Coord }
   /** With `playOut`: stop once a last fleet is standing, instead of playing on until it sinks. */
   | { readonly kind: 'endGame' };
@@ -132,6 +135,7 @@ export type RuleViolation =
   | 'notYourTurn'
   | 'outOfBounds'
   | 'noUnshotTarget'
+  /** No longer produced: bombs that would run off the board move back on. Kept for older logs. */
   | 'bombOffBoard'
   | 'unknownPlayer'
   | 'emptyFleet'

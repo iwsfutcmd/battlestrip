@@ -48,10 +48,22 @@ describe('§2.4 worked examples', () => {
     expect(t2.state.phase).toBe('playing');
   });
 
-  it('turn 3: Chen’s bomb at J10 is illegal (off the board) and does not use the turn', () => {
-    const r = reduce(t2.state, { kind: 'call', player: pid('Chen'), at: at('J10') });
-    expect(r).toEqual({ ok: false, error: 'bombOffBoard' });
-    expect(t2.state.seats[t2.state.current]?.id).toBe('Chen');
+  it('turn 3 variant: a bomb at J10 no longer fails; it moves back onto the board (I9, I10, J9, J10)', () => {
+    // The spec's §2.4 has this call rejected (bombOffBoard). Changed on request:
+    // a bomb that would run off the board is moved back on and still covers J10.
+    const t3 = call(t2.state, 'Chen', 'J10');
+    expect(t3.events[0]).toEqual({
+      kind: 'shotCalled',
+      turn: 3,
+      by: 'Chen',
+      at: at('J10'),
+      shape: 'bomb',
+      cells: [at('I9'), at('I10'), at('J9'), at('J10')],
+    });
+    expect(resolved(t3.events)).toEqual([
+      'Amani:I10:miss', 'Amani:I9:miss', 'Amani:J10:miss', 'Amani:J9:miss',
+      'Bo:I10:miss', 'Bo:I9:miss', 'Bo:J10:miss', 'Bo:J9:miss',
+    ]);
   });
 
   it('turn 3 (retry): Chen bombs D4; D4 and D5 were called, so only E4 and E5 resolve; Chen’s board is no target', () => {
@@ -68,11 +80,11 @@ describe('§2.4 worked examples', () => {
     expect(t3.state.seats[t3.state.current]?.id).toBe('Amani');
   });
 
-  it('a nuclear player’s legal calls are bomb corners that fit on the board', () => {
-    const corners = legalCalls(t2.state, pid('Chen'));
-    expect(corners.every((c) => c.row <= 8 && c.col <= 8)).toBe(true);
-    expect(corners).toContainEqual(at('D4'));
-    expect(corners).not.toContainEqual(at('J10'));
+  it('a nuclear player may bomb any square, including the last row and column', () => {
+    const squares = legalCalls(t2.state, pid('Chen'));
+    expect(squares).toContainEqual(at('D4'));
+    expect(squares).toContainEqual(at('J10'));
+    expect(squares).toHaveLength(100);
   });
 });
 

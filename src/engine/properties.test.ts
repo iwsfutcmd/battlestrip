@@ -155,6 +155,8 @@ describe('engine properties', () => {
           const call = events[0];
           if (call?.kind !== 'shotCalled' || call.shape !== 'bomb') continue;
           expect(call.cells.every((c) => inBounds(before.rules, c))).toBe(true);
+          // The called square is always under the bomb, even when it moved back onto the board.
+          expect(call.cells).toContainEqual(call.at);
           const turn = before.turn + 1;
           const a = resolveCells(before, before.current, call.cells, turn);
           const shuffled = [...call.cells].sort((x, y) => ((x.row * 31 + x.col + permSeed) % 7) - ((y.row * 31 + y.col + permSeed) % 7));
@@ -267,7 +269,7 @@ describe('engine properties', () => {
         // Every legal call shoots at least one new square.
         const firstLegal = legalCalls(s, player)[0];
         if (firstLegal) {
-          const cells = callCells(isAfloat(s, s.current) || !s.rules.nuclear ? 'single' : 'bomb', firstLegal);
+          const cells = callCells(s.rules, isAfloat(s, s.current) || !s.rules.nuclear ? 'single' : 'bomb', firstLegal);
           const targets = targetSeats(s, s.current);
           expect(cells.some((c) => targets.some((t) => s.boards[t]?.cells[indexOf(s.rules, c)] === CELL_UNSHOT))).toBe(true);
         }

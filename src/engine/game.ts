@@ -1,4 +1,4 @@
-import { bombCells, cellsOf, coordOf, inBounds, indexOf, occupancy, shapeOf } from './board.ts';
+import { bombFootprint, cellsOf, coordOf, inBounds, indexOf, occupancy, shapeOf } from './board.ts';
 import { MAX_SIDE, MIN_SIDE } from './presets.ts';
 import { randomLayout } from './placement.ts';
 import { err, ok, type Result } from './result.ts';
@@ -55,8 +55,8 @@ export function callShape(s: GameState, caller: number): 'single' | 'bomb' {
 }
 
 /** The squares a call covers, including any that were already called. */
-export function callCells(shape: 'single' | 'bomb', at: Coord): Coord[] {
-  return shape === 'bomb' ? bombCells(at) : [at];
+export function callCells(rules: Pick<Rules, 'rows' | 'cols'>, shape: 'single' | 'bomb', at: Coord): Coord[] {
+  return shape === 'bomb' ? bombFootprint(rules, at) : [at];
 }
 
 function liveOn(s: GameState, targets: readonly number[], i: number): boolean {
@@ -165,14 +165,14 @@ function checkCall(s: GameState, a: Extract<Action, { kind: 'call' }>): Result<{
   if (caller !== s.current) return err('notYourTurn');
   if (!inBounds(s.rules, a.at)) return err('outOfBounds');
   const shape = callShape(s, caller);
-  const cells = callCells(shape, a.at);
-  if (!cells.every((c) => inBounds(s.rules, c))) return err('bombOffBoard');
+  // A bomb that would run off the board moves back on; it never fails for that.
+  const cells = callCells(s.rules, shape, a.at);
   const targets = targetSeats(s, caller);
   if (!cells.some((c) => liveOn(s, targets, indexOf(s.rules, c)))) return err('noUnshotTarget');
   return ok({ caller, shape, cells });
 }
 
-/** Every call `p` may make now (the first corner, for bombs). Empty when it isn't their turn. */
+/** Every call `p` may make now (any square whose single shot or bomb footprint hits something unshot). Empty when it isn't their turn. */
 export function legalCalls(s: GameState, p: PlayerId): readonly Coord[] {
   if (s.phase !== 'playing') return [];
   const caller = seatIndex(s, p);
@@ -186,11 +186,10 @@ export function legalCalls(s: GameState, p: PlayerId): readonly Coord[] {
   if (shape === 'single') {
     for (let i = 0; i < rows * cols; i++) if (live[i]) out.push(coordOf(s.rules, i));
   } else {
-    for (let row = 0; row < rows - 1; row++) {
-      for (let col = 0; col < cols - 1; col++) {
-        const i = row * cols + col;
-        if (live[i] || live[i + 1] || live[i + cols] || live[i + cols + 1]) out.push({ row, col });
-      }
+    // Any square: a bomb in the last row or column moves back onto the board.
+    for (let i = 0; i < rows * cols; i++) {
+      const at = coordOf(s.rules, i);
+      if (bombFootprint(s.rules, at).some((c) => live[indexOf(s.rules, c)])) out.push(at);
     }
   }
   return out;
