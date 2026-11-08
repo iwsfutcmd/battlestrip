@@ -19,12 +19,14 @@ export const MAX_LAYOUT_ATTEMPTS = 1_000_000;
  * Ships are drawn longest first so that most rejections happen early; that
  * changes nothing about which draws are accepted.
  *
- * Returns `null` (with the advanced RNG) if no layout was found.
+ * Returns `null` (with the advanced RNG) if no layout was found within
+ * `maxAttempts` draws.
  */
 export function randomLayout(
   rules: Rules,
   fleet: readonly ShipId[],
   rng: RngState,
+  maxAttempts: number = MAX_LAYOUT_ATTEMPTS,
 ): readonly [PlacedShip[] | null, RngState] {
   const ships = fleet.map((id) => {
     const ship = rules.shipyard.find((s) => s.id === id);
@@ -40,7 +42,7 @@ export function randomLayout(
   const chosen = new Array<Placement | undefined>(ships.length);
   let state = rng;
 
-  for (let attempt = 1; attempt <= MAX_LAYOUT_ATTEMPTS; attempt++) {
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     let ok = true;
     for (const k of order) {
       const ship = ships[k];

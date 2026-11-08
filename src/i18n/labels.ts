@@ -2,7 +2,7 @@
  * Coordinate labels (§7.4). Rows get an enumerative label system; columns get
  * locale digits from 1. The CSS Counter Styles Level 3 `alphabetic` and
  * `fixed` algorithms are implemented here because the strings are needed in
- * JS (TV, phone, speech, parsing), where CSS counter() can't reach.
+ * JS (TV, phone, parsing), where CSS counter() can't reach.
  */
 
 export type LabelSystemId =

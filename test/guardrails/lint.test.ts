@@ -56,7 +56,7 @@ describe('hidden fleets (§4.4, §8)', () => {
   it.each([
     ['src/ui/display/probe.tsx', 2],
     ['src/ui/control/lobby/probe.tsx', 3],
-    ['src/ui/speech/probe.ts', 2],
+    ['src/ui/table/probe.ts', 2],
     ['src/bots/probe.ts', 1],
   ])('forbids fleetOf in %s', async (path, depth) => {
     expect(await rulesFor(path, importFleetOf(depth))).toContain('no-restricted-imports');

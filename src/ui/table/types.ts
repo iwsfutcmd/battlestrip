@@ -12,7 +12,6 @@ export interface TableSettings {
   readonly writingMode: WritingMode;
   /** The dramatic pause between a call and its results. */
   readonly beatMs: number;
-  readonly speech: boolean;
 }
 
 export interface PublicSeat {

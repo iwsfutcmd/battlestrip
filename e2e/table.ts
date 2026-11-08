@@ -6,6 +6,8 @@ export interface DealOptions {
   /** Seat indices that are bots. */
   readonly bots?: readonly number[];
   readonly labels?: string;
+  /** Let the lobby size the board from the outfits. Off by default, so tests get a fixed 10×10 (or `rows`×`cols`). */
+  readonly autoSize?: boolean;
   readonly rows?: number;
   readonly cols?: number;
   readonly writingMode?: 'horizontal-tb' | 'vertical-rl';
@@ -30,8 +32,14 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   for (const [i, name] of o.names.entries()) await page.locator('.seat-name').nth(i).fill(name);
   for (const i of o.bots ?? []) await page.locator('.seat').nth(i).locator('select').first().selectOption('bot');
   const numbers = page.locator('.settings-grid input[type=number]');
-  if (o.rows) await numbers.nth(0).fill(String(o.rows));
-  if (o.cols) await numbers.nth(1).fill(String(o.cols));
+  // The first settings checkbox is "size the board to the outfits".
+  const auto = page.locator('.settings-grid label.check input[type=checkbox]').first();
+  if (o.autoSize) await auto.check();
+  else {
+    await auto.uncheck();
+    await numbers.nth(0).fill(String(o.rows ?? 10));
+    await numbers.nth(1).fill(String(o.cols ?? 10));
+  }
   await numbers.nth(2).fill('0');
   await numbers.nth(3).fill('0');
   await numbers.nth(3).blur();

@@ -12,6 +12,9 @@ import {
   clearSave,
   deal,
   lobby,
+  lobbyAutoSize,
+  lobbyBoard,
+  lobbyHitChance,
   MAX_SEATS,
   moveSeat,
   notice,
@@ -33,7 +36,10 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
   const names = c.seats.map((s, i) => s.name.trim() || t.format('lobby.defaultName', { n: i + 1 }));
   const duplicate = names.some((n, i) => names.some((m, j) => j > i && sameName(n, m, t.locale)));
   const emptyFleet = c.seats.some((s) => (s.kind === 'human' || s.policy === 'fixed') && s.fleet.length === 0);
-  const usedLabels = systemForRows(c.labels, c.rows);
+  const auto = c.autoSize ?? true;
+  const board = lobbyBoard(c);
+  const autoFits = !auto || lobbyAutoSize(c).fits;
+  const usedLabels = systemForRows(c.labels, board.rows);
   const modes = writingModesFor(t.locale);
 
   const chooseLanguage = (id: CatalogId): void => {
@@ -118,12 +124,29 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
               </select>
             )}
           </Field>
+          <label class="check">
+            <input
+              type="checkbox"
+              checked={auto}
+              // Turning auto off starts from the size it had picked.
+              onChange={(e) => updateLobby(e.currentTarget.checked ? { autoSize: true } : { autoSize: false, rows: board.rows, cols: board.cols })}
+            />{' '}
+            <Msg id="lobby.autoSize" />
+          </label>
           <Field labelId="lobby.rows">
-            {(id) => <NumberInput id={id} value={c.rows} min={5} max={20} onChange={(rows) => updateLobby({ rows })} />}
+            {(id) => <NumberInput id={id} value={board.rows} min={5} max={20} disabled={auto} onChange={(rows) => updateLobby({ rows })} />}
           </Field>
           <Field labelId="lobby.cols">
-            {(id) => <NumberInput id={id} value={c.cols} min={5} max={20} onChange={(cols) => updateLobby({ cols })} />}
+            {(id) => <NumberInput id={id} value={board.cols} min={5} max={20} disabled={auto} onChange={(cols) => updateLobby({ cols })} />}
           </Field>
+          <p class="muted settings-note">
+            <Msg id="lobby.hitChance" values={{ chance: lobbyHitChance(c) }} />
+          </p>
+          {!autoFits && (
+            <p class="warning">
+              <Msg id="lobby.noLayout" />
+            </p>
+          )}
           <label class="check">
             <input type="checkbox" checked={c.allowTouching} onChange={(e) => updateLobby({ allowTouching: e.currentTarget.checked })} />{' '}
             <Msg id="lobby.touching" />
@@ -159,7 +182,7 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
               </select>
             )}
           </Field>
-          {!fits(c.labels, c.rows) && (
+          {!fits(c.labels, board.rows) && (
             <p class="warning">
               <Msg id="lobby.labelsFallback" values={{ used: t.format('labels.system', { id: usedLabels }) }} />
             </p>
@@ -183,9 +206,6 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
           <Field labelId="lobby.botDelay">
             {(id) => <NumberInput id={id} value={c.botSeconds} min={0} max={5} step={0.1} onChange={(botSeconds) => updateLobby({ botSeconds })} />}
           </Field>
-          <label class="check">
-            <input type="checkbox" checked={c.speech} onChange={(e) => updateLobby({ speech: e.currentTarget.checked })} /> <Msg id="lobby.speech" />
-          </label>
           <Field labelId="lobby.seed">
             {(id) => <input id={id} type="text" inputMode="numeric" value={c.seed} dir="ltr" onInput={(e) => updateLobby({ seed: e.currentTarget.value })} />}
           </Field>
@@ -223,7 +243,23 @@ function Field({ labelId, children }: { readonly labelId: Parameters<typeof Msg>
   );
 }
 
-function NumberInput({ id, value, min, max, step = 1, onChange }: { readonly id: string; readonly value: number; readonly min: number; readonly max: number; readonly step?: number; readonly onChange: (n: number) => void }) {
+function NumberInput({
+  id,
+  value,
+  min,
+  max,
+  step = 1,
+  disabled = false,
+  onChange,
+}: {
+  readonly id: string;
+  readonly value: number;
+  readonly min: number;
+  readonly max: number;
+  readonly step?: number;
+  readonly disabled?: boolean;
+  readonly onChange: (n: number) => void;
+}) {
   return (
     <input
       id={id}
@@ -232,6 +268,7 @@ function NumberInput({ id, value, min, max, step = 1, onChange }: { readonly id:
       min={min}
       max={max}
       step={step}
+      disabled={disabled}
       onChange={(e) => {
         const n = Number(e.currentTarget.value);
         if (Number.isFinite(n)) onChange(Math.min(max, Math.max(min, n)));

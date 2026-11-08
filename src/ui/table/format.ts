@@ -24,11 +24,6 @@ export function coordText(t: Translator, l: BoardLabels, c: Coord): string {
   return t.format(key, { row: rowText(l, c.row), col: colText(l, c.col) });
 }
 
-/** What speech says for a coordinate ("D 4"). */
-export function coordSpoken(t: Translator, l: BoardLabels, c: Coord): string {
-  return t.format('coord.spoken', { row: rowText(l, c.row), col: colText(l, c.col) });
-}
-
 /** "shirt", or "sock 2" when the shipyard repeats the kind. */
 export function shipName(t: Translator, kind: string, copy: number | null): string {
   const name = t.format('ship.name', { kind });

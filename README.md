@@ -43,7 +43,7 @@ Battlestrip is played like Battleship, but every piece is a piece of clothing, a
 |---|---|
 | **M0 Scaffold**: Vite, strict TS, Preact, Vitest, lint guardrails, i18n plumbing, hello-world routes | ✅ done |
 | **M1 Engine**: rules, uniform placement, nuclear bombs, views, stats, replay, undo | ✅ done |
-| **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, speech, autosave, two-window sync | ✅ done |
+| **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, autosave, two-window sync | ✅ done |
 | **M3 Bots and simulation**: RandomBot, DensityBot, `npm run sim`, pacing table | ✅ done |
 | **M4 Vertical modes**: `vertical-rl` for zh-Hant/ja tables on the TV and every phone image | ✅ done |
 | **M5 Players place their own ships**: placement page, fleet codes, typed or webcam entry | ✅ done (no WASM QR fallback; see below) |
@@ -78,9 +78,10 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 ## Playing
 
 1. Open `/` on the laptop. Choose the game language, the wardrobe, the players (each in any script; human or bot) and each player's outfit: any non-empty set of pieces from the wardrobe.
+   The board sizes itself to the outfits: with "Size the board to the outfits" ticked (the default), it's the size at which a first shot at a random square hits someone about half the time. Two players in the everyday outfit (13 squares each) get 6×7; three get 8×8, four 9×9, six 11×11, eight 12×13. Bigger outfits get a bigger board. The lobby shows the size and the hit chance as the outfits change. Untick it to set the rows and columns yourself.
 2. Press **Deal the outfits**. For each human in seat order, the laptop shows a privacy screen, then a QR code. The player scans it with their phone's ordinary camera, checks that the three-character outfit check matches, and presses **Got it** (or **Reroll**).
 3. **Open the TV window** and drag it to the TV. Two-window mode keeps the QR code off the TV; the TV window only ever receives the public table. In one-window mode, the table and the docked controls share the laptop's screen. Don't mirror the laptop to the TV during the handout.
-4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat, then reveals every result at once and reads it aloud where a voice exists. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
+4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat and then reveals every result at once. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
 5. **Show an outfit privately** covers players without a phone and lost images. It can also show the QR code again.
 6. **When only one player is still dressed**, the TV announces them. By default, play goes on: everyone else bombs them until they're down to nothing, and they keep calling squares on their own board. The game-over screen then says how long they held out. **End the game here** on the laptop stops at that moment instead. To always stop there, untick "Play on when only one player is still dressed" in the lobby.
 
@@ -110,7 +111,6 @@ src/
       peek/     the private peek          (may build fleet images)
     display/  the TV window
     phone/    the phone page and its PNG export
-    speech/   voice choice and spoken callouts
 build/      Vite pseudolocale plugin, local ESLint plugin
 e2e/        Playwright
 test/       guardrail tests (the lint rules themselves are tested)
@@ -135,6 +135,7 @@ docs/       the spec
 
 - **Shapes.** `ShipyardShip.shape` is any non-empty set of cells; without one, a piece is a straight line of its `length`. `newGame` checks that a shape has no repeated cells, that `length` counts its cells, and that it fits the board in some orientation. Nothing else assumes connectivity: placement, the no-touching rule, sinking, the bots and codes all work on the covered squares. Fairness of placement is tested for an X with a split pair, and for a diagonal line with a V with no touching. `PlacedShip` has an `orientation` (0–7: quarter turns clockwise, mirrored first when bit 2 is set) instead of the spec's `axis`. For a line, orientation 0 lies along a row and 1 along a column. `placementsFor(rules, piece)` lists each distinct orientation at every origin where it fits, in a fixed order. Everything downstream works on covered squares, so any shape works.
 - **Placement** is uniform over all legal layouts. Each ship's placement is drawn independently, and the *whole* layout is rejected on any overlap (or touch). The test compares the empirical occupancy of every cell with an exact enumeration on 5×5 boards, for lines and for L, T, square and S shapes, and shows that a naive one-ship-at-a-time placer fails the same test. Classic fleets take about 0.07 ms. Морской бой on 10×10 takes about 13 ms. An impossible setup returns `noLegalLayout` after a million attempts, in about 2 s.
+- **Board size** (`src/engine/sizing.ts`). A uniformly random square lies under a fleet of *s* squares with probability *s*/*A* on an *A*-square board, and the fleets are laid out independently, so a first shot hits someone with probability 1 − ∏(1 − *s*ₚ/*A*). (Edges are covered a little less often than the middle, so this is a close estimate rather than an exact figure.) `autoBoardSize` tries square boards and boards one column wider, from 5×5 to 20×20, and picks the one whose chance is closest to 50%. A board that's too tight for an outfit (say, without touching) fails a 5,000-draw `randomLayout` probe with a fixed seed, and the next size up is tried. A bot with a random outfit is counted in the everyday outfit in the lobby's preview, since its outfit isn't drawn until the deal.
 - **Bombs:** a nuclear player's call is a 2×2 bomb. The called square is the first corner (D4 covers D4, D5, E4, E5). A bomb that would run off the board moves back on, so it still covers the called square: J10 covers I9, I10, J9 and J10. This replaces the spec's rule (§2.4) that such a call is illegal; `bombFootprint` in `board.ts` does the moving for the engine, the bots and the TV. Squares already called on every target board are skipped.
 - **Additions to the spec's API:**
   - a `place` action (a player's own layout: needed for M5, and used by tests)
@@ -185,7 +186,7 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
 
 - User text is measured in graphemes (`Intl.Segmenter`), never by slicing or indexing strings.
 - No sentence is assembled in code, and no possessive is built in code. Lists of names use `formatList` (`Intl.ListFormat`, with each item isolated).
-- Player names are `<bdi>` in markup and FSI…PDI in plain strings: `aria-live`, `document.title`, speech, CLI.
+- Player names are `<bdi>` in markup and FSI…PDI in plain strings: `aria-live`, `document.title` and the CLI.
 - Codes and fleet checks are LTR isolates (`<bdi dir="ltr">`, `isolateLtr`).
 - Arrow keys and shortcuts use `KeyboardEvent.code`, and the logical direction table in `ui/keyboard.ts` (M2).
 - Nothing shared reacts to a hidden fleet: no warnings, no timing differences, no disabled cells.
@@ -213,7 +214,6 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
   - **Save image** draws a PNG with Canvas 2D. Each text run gets its own `ctx.direction`, and labels stay upright in vertical modes. The phone shares it where the share sheet allows, and downloads it otherwise.
 - **The QR payload** (`src/share/payload.ts`) is version-tagged packed bytes in base64url. Classic fleets come to about 100 characters of URL. A long name is cut at a grapheme boundary at 160 UTF-8 bytes, which keeps the worst case (24 emoji ZWJ sequences, 10 ships, 20×20) under 400 characters. `decode(encode(x))` is property-tested.
 - **QR library:** [`uqr`](https://github.com/unjs/uqr) (unjs, zero dependencies, TypeScript). It returns a boolean matrix, which `Qr.tsx` draws as SVG.
-- **Speech:** `speechSynthesis`, with the voice chosen by BCP 47 lookup on matching language *and script*. A `zh-Hant` table never gets a Simplified voice, and no table ever gets a voice for another language. With no matching voice, it stays silent and says so once. Spoken text has its own messages (`spoken.*`).
 - **Keyboard:** the control grid follows the ARIA grid pattern with a roving tabindex. Arrows move visually: `src/ui/keyboard.ts` holds one table for ltr/rtl × the three writing modes, and all six combinations are tested. Undo is bound to `KeyboardEvent.code === 'KeyZ'`.
 - **The TV window** offers a fullscreen toggle and takes a Screen Wake Lock where the browser allows it.
 - **End-to-end tests** (`e2e/game.spec.ts`):

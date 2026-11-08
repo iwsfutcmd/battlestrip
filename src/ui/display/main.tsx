@@ -28,7 +28,7 @@ function App() {
       </main>
     );
   }
-  return <TableDisplay table={current} speak showHousekeeping />;
+  return <TableDisplay table={current} showHousekeeping />;
 }
 
 const root = document.getElementById('app');
@@ -38,7 +38,7 @@ if (root) {
   });
   channel.post({ type: 'hello' });
   addEventListener('pagehide', () => channel.post({ type: 'bye' }));
-  // The game language comes from the control window once it speaks.
+  // The game language comes from the control window once it posts the table.
   effect(() => {
     const locale = table.value?.settings.locale;
     if (locale && locale !== translator.value?.locale) void activateLocale([locale], 'title.display');

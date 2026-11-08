@@ -1,7 +1,10 @@
 import { batch, computed, effect, signal } from '@preact/signals';
 import { callSeed, chooseCall, type BotKind } from '../../bots/index.ts';
 import {
+  autoBoardSize,
+  fleetSquares,
   gameStats,
+  hitChance,
   legalCalls,
   newGame,
   OUTFIT_IDS,
@@ -19,6 +22,8 @@ import {
   type RuleViolation,
   type Seat,
   type ShipId,
+  type AutoSize,
+  type BoardSize,
 } from '../../engine/index.ts';
 import type { WritingMode } from '../../i18n/direction.ts';
 import { defaultLabelSystem, numberingSystemOf, systemForRows, type LabelSystemId } from '../../i18n/labels.ts';
@@ -44,6 +49,8 @@ export interface SeatConfig {
 }
 
 export interface LobbyConfig {
+  /** Size the board from the outfits so a first shot hits someone about half the time (rows and cols are then ignored). */
+  readonly autoSize: boolean;
   readonly rows: number;
   readonly cols: number;
   readonly allowTouching: boolean;
@@ -53,7 +60,6 @@ export interface LobbyConfig {
   readonly seed: string;
   readonly beatSeconds: number;
   readonly botSeconds: number;
-  readonly speech: boolean;
   /** M5: random layouts handed out by QR, or players place their own on their phones. */
   readonly placement: 'random' | 'phones';
   /** Keep playing after one fleet is left, until it sinks too (the table can still end it early). */
@@ -93,6 +99,7 @@ function defaultSeat(kind: 'human' | 'bot'): SeatConfig {
 
 export function defaultLobby(locale = 'en'): LobbyConfig {
   return {
+    autoSize: true,
     rows: 10,
     cols: 10,
     allowTouching: true,
@@ -102,7 +109,6 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     seed: '',
     beatSeconds: 1.5,
     botSeconds: 1.2,
-    speech: true,
     placement: 'random',
     playOut: true,
     seats: [defaultSeat('human'), defaultSeat('human'), defaultSeat('human')],
@@ -187,19 +193,65 @@ function botOutfit(s: SeatConfig, seed: number): ShipId[] {
   return outfit('everyday');
 }
 
+/** Every seat's outfit, in seat order, for a game with this seed. */
+function seatFleets(c: LobbyConfig, seed: number): ShipId[][] {
+  return c.seats.map((s, i) => (s.kind === 'bot' ? botOutfit(s, seed + i) : [...s.fleet]));
+}
+
+/** Saves from before auto-sizing existed read as "auto" (the lobby default). */
+const isAuto = (c: LobbyConfig): boolean => c.autoSize ?? true;
+
+const autoCache = new Map<string, AutoSize>();
+
+/**
+ * The auto size for the lobby as it stands. A bot that picks a random outfit
+ * is counted in the everyday outfit unless the seed is set, since its outfit
+ * isn't known until the deal.
+ */
+export function lobbyAutoSize(c: LobbyConfig): AutoSize {
+  return autoSizeFor(rulesForLobby(c), previewFleets(c));
+}
+
+function previewFleets(c: LobbyConfig): ShipId[][] {
+  const seeded = c.seed.trim() !== '';
+  const dealt = seatFleets(c, seeded ? seedFrom(c.seed) : 0);
+  return c.seats.map((s, i) => (s.kind === 'bot' && s.policy === 'random' && !seeded ? outfit('everyday') : (dealt[i] ?? [])));
+}
+
+/** The estimated chance a first shot hits someone, on the board the lobby will deal. */
+export function lobbyHitChance(c: LobbyConfig): number {
+  const rules = rulesForLobby(c);
+  const { rows, cols } = lobbyBoard(c);
+  return hitChance(previewFleets(c).map((f) => fleetSquares(rules, f)), rows * cols);
+}
+
+function autoSizeFor(rules: Rules, fleets: readonly (readonly ShipId[])[]): AutoSize {
+  const key = `${String(rules.allowTouching)}|${fleets.map((f) => f.join(',')).join(';')}`;
+  let size = autoCache.get(key);
+  if (!size) {
+    size = autoBoardSize(rules, fleets);
+    if (autoCache.size > 64) autoCache.clear();
+    autoCache.set(key, size);
+  }
+  return size;
+}
+
+/** The board the lobby will deal: the auto size, or the rows and columns typed in. */
+export function lobbyBoard(c: LobbyConfig): BoardSize {
+  if (!isAuto(c)) return { rows: c.rows, cols: c.cols };
+  const { rows, cols } = lobbyAutoSize(c);
+  return { rows, cols };
+}
+
 /** Validate the lobby, place every fleet, and go to the handout. Names come from the lobby (default "Player n"). */
 export function deal(names: readonly string[], locale: string): boolean {
   const c = lobby.value;
-  const rules = rulesForLobby(c);
   const seed = seedFrom(c.seed);
-  const seats: Seat[] = c.seats.map((s, i) => ({
-    id: s.key as PlayerId,
-    kind: s.kind,
-    fleet:
-      s.kind === 'bot'
-        ? botOutfit(s, seed + i)
-        : [...s.fleet],
-  }));
+  const fleets = seatFleets(c, seed);
+  const manual = rulesForLobby(c);
+  const size = isAuto(c) ? autoSizeFor(manual, fleets) : manual;
+  const rules: Rules = { ...manual, rows: size.rows, cols: size.cols };
+  const seats: Seat[] = c.seats.map((s, i) => ({ id: s.key as PlayerId, kind: s.kind, fleet: fleets[i] ?? [] }));
   const created = newGame(rules, seats, seed);
   if (!created.ok) {
     notice.value = violationNotice(created.error);
@@ -212,7 +264,6 @@ export function deal(names: readonly string[], locale: string): boolean {
     labels2: c.labels2 && c.labels2 !== labels ? systemForRows(c.labels2, rules.rows) : null,
     writingMode: c.writingMode,
     beatMs: Math.max(0, c.beatSeconds * 1000),
-    speech: c.speech,
   };
   batch(() => {
     session.value = {
@@ -415,7 +466,7 @@ export function backToLobby(): void {
 
 let botTimer: ReturnType<typeof setTimeout> | undefined;
 
-/** Bots call after a short "choosing…" delay, shown and spoken like anyone else's call. */
+/** Bots call after a short "choosing…" delay, and their calls are shown like anyone else's. */
 export function startBotDriver(): () => void {
   return effect(() => {
     const g = game.value;
@@ -455,11 +506,10 @@ export const publicTable = computed<PublicTable | null>(() => {
     : c.seats.map((seat, i) => ({ id: seat.key as PlayerId, name: seat.name, identity: i, kind: seat.kind }));
   const settings: TableSettings = s?.settings ?? {
     locale: t.locale,
-    labels: systemForRows(c.labels, c.rows),
+    labels: systemForRows(c.labels, lobbyBoard(c).rows),
     labels2: c.labels2,
     writingMode: c.writingMode,
     beatMs: c.beatSeconds * 1000,
-    speech: c.speech,
   };
   return {
     stage: stage.value,
