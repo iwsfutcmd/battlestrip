@@ -1,6 +1,6 @@
 import { signal } from '@preact/signals';
 import { useEffect, useId, useState } from 'preact/hooks';
-import { VIEW_MISS, VIEW_UNSHOT, type Coord } from '../../engine/index.ts';
+import type { Coord } from '../../engine/index.ts';
 import { numberingSystemOf } from '../../i18n/labels.ts';
 import { parseCoord } from '../../i18n/parse.ts';
 import { formatList } from '../../i18n/index.ts';
@@ -19,7 +19,6 @@ import {
   notice,
   replaySameSeed,
   revealing,
-  reveal,
   session,
   stage,
   submitCall,
@@ -67,9 +66,6 @@ export function useGridInteraction(): GridInteraction | undefined {
     },
   };
 }
-
-// VIEW_* are re-exported for components that read public cells.
-export { VIEW_MISS, VIEW_UNSHOT };
 
 export function PlayPanel({ displayConnected, tableHere, onToggleTable }: { readonly displayConnected: boolean; readonly tableHere: boolean; readonly onToggleTable: () => void }) {
   const t = useTranslator();
@@ -203,7 +199,6 @@ export function PlayPanel({ displayConnected, tableHere, onToggleTable }: { read
         </div>
       )}
       {peeking && <Peek onClose={() => setPeeking(false)} />}
-      {reveal.value && null}
     </aside>
   );
 }
