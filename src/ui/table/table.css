@@ -501,6 +501,37 @@
   color: var(--bs-muted);
 }
 
+/* The shape key: small and muted, after the roster in the side column. */
+.shape-key {
+  font-size: 0.75em;
+  color: var(--bs-muted);
+}
+
+.shape-key-heading {
+  margin-block: 0 0.4em;
+  font-size: 1em;
+  font-weight: 700;
+}
+
+.shape-key-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(8em, 1fr));
+  gap: 0.35em 1em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shape-key-item {
+  display: flex;
+  gap: 0.4em;
+  align-items: center;
+}
+
+.tv[data-wm^="vertical"] .shape-key .ship-pic-number {
+  text-combine-upright: all;
+}
+
 .clothing-icon {
   font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
   line-height: 1;

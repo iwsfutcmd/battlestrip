@@ -80,6 +80,7 @@
   ],
   "ship.sunkStatus": "{$ship}: off",
   "roster.heading": "Players",
+  "shapeKey.heading": "Shapes",
   "roster.calling": "{$name} is calling",
   "roster.bombing": "{$name} is bombing",
   "roster.choosing": "{$name} is choosing…",

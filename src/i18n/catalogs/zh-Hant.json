@@ -74,6 +74,7 @@
   "ship.status": "{$ship}：長 {$length :integer} 格，中彈 {$hits :integer} 次",
   "ship.sunkStatus": "{$ship}：已脫掉",
   "roster.heading": "玩家",
+  "shapeKey.heading": "衣物形狀",
   "roster.calling": "輪到{$name}發射",
   "roster.bombing": "輪到{$name}投彈",
   "roster.choosing": "{$name}正在思考……",

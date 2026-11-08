@@ -74,6 +74,7 @@
   "ship.status": "{$ship}: الطول {$length :integer}، الإصابات {$hits :integer}",
   "ship.sunkStatus": "تم خلع {$ship}",
   "roster.heading": "اللاعبون",
+  "shapeKey.heading": "الأشكال",
   "roster.calling": "دور {$name} في الإطلاق",
   "roster.bombing": "دور {$name} في القصف",
   "roster.choosing": "{$name}: جارٍ الاختيار…",

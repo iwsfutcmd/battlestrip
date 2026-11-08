@@ -10,6 +10,7 @@ import type { GridInteraction } from './Grid.tsx';
 import { GameOver } from './GameOver.tsx';
 import { LastCall } from './LastCall.tsx';
 import { Roster } from './Roster.tsx';
+import { ShapeKey } from './ShapeKey.tsx';
 import { SharedBoard } from './SharedBoard.tsx';
 import type { PublicTable } from './types.ts';
 
@@ -121,6 +122,7 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
               </p>
             )}
             <Roster table={table} view={view} />
+            {view && <ShapeKey view={view} locale={table.settings.locale} />}
           </aside>
         </div>
       )}
