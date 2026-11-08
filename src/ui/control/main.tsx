@@ -40,7 +40,7 @@ function App() {
   const showTable = tableHere.value || !displayConnected.value;
   return (
     <main class={`control-play ${showTable ? '' : 'is-controls-only'}`}>
-      {showTable && <TableDisplay table={table} interaction={interaction} showHousekeeping={false} />}
+      {showTable && <TableDisplay table={table} speak={!displayConnected.value} interaction={interaction} showHousekeeping={false} />}
       <PlayPanel displayConnected={displayConnected.value} tableHere={tableHere.value} onToggleTable={() => (tableHere.value = !tableHere.value)} />
     </main>
   );

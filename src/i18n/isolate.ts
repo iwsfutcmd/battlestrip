@@ -1,5 +1,5 @@
 /**
- * Bidi isolation for plain strings (aria-live text, document.title, the
+ * Bidi isolation for plain strings (aria-live text, document.title, speech,
  * CLI). In markup, use `<bdi>` instead.
  */
 export const FSI = '\u2068';

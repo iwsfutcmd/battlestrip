@@ -60,6 +60,8 @@ export interface LobbyConfig {
   readonly seed: string;
   readonly beatSeconds: number;
   readonly botSeconds: number;
+  /** Read calls and results aloud (off unless the table turns it on). */
+  readonly speech: boolean;
   /** M5: random layouts handed out by QR, or players place their own on their phones. */
   readonly placement: 'random' | 'phones';
   /** Keep playing after one fleet is left, until it sinks too (the table can still end it early). */
@@ -109,6 +111,7 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     seed: '',
     beatSeconds: 1.5,
     botSeconds: 1.2,
+    speech: false,
     placement: 'random',
     playOut: true,
     seats: [defaultSeat('human'), defaultSeat('human'), defaultSeat('human')],
@@ -264,6 +267,7 @@ export function deal(names: readonly string[], locale: string): boolean {
     labels2: c.labels2 && c.labels2 !== labels ? systemForRows(c.labels2, rules.rows) : null,
     writingMode: c.writingMode,
     beatMs: Math.max(0, c.beatSeconds * 1000),
+    speech: c.speech,
   };
   batch(() => {
     session.value = {
@@ -466,7 +470,7 @@ export function backToLobby(): void {
 
 let botTimer: ReturnType<typeof setTimeout> | undefined;
 
-/** Bots call after a short "choosing…" delay, and their calls are shown like anyone else's. */
+/** Bots call after a short "choosing…" delay, shown and spoken like anyone else's call. */
 export function startBotDriver(): () => void {
   return effect(() => {
     const g = game.value;
@@ -510,6 +514,7 @@ export const publicTable = computed<PublicTable | null>(() => {
     labels2: c.labels2,
     writingMode: c.writingMode,
     beatMs: c.beatSeconds * 1000,
+    speech: c.speech,
   };
   return {
     stage: stage.value,

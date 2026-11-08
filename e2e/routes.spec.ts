@@ -38,3 +38,9 @@ test('the control panel switches the game language and hands it to the display',
   await expect(page.locator('html')).toHaveAttribute('dir', 'rtl');
   await expect(page.locator('h1')).toHaveText(visibleText('ar', 'app.title'));
 });
+
+test('lobby defaults: the board sizes itself, and calls are not read aloud', async ({ page }) => {
+  await page.goto('./?lang=en');
+  await expect(page.getByLabel('Size the board to the outfits')).toBeChecked();
+  await expect(page.getByLabel('Read calls aloud')).not.toBeChecked();
+});

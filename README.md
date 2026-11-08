@@ -43,7 +43,7 @@ Battlestrip is played like Battleship, but every piece is a piece of clothing, a
 |---|---|
 | **M0 Scaffold**: Vite, strict TS, Preact, Vitest, lint guardrails, i18n plumbing, hello-world routes | ✅ done |
 | **M1 Engine**: rules, uniform placement, nuclear bombs, views, stats, replay, undo | ✅ done |
-| **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, autosave, two-window sync | ✅ done |
+| **M2 The table**: TV, control panel, lobby, QR handout, phone fleet image, peek, speech, autosave, two-window sync | ✅ done |
 | **M3 Bots and simulation**: RandomBot, DensityBot, `npm run sim`, pacing table | ✅ done |
 | **M4 Vertical modes**: `vertical-rl` for zh-Hant/ja tables on the TV and every phone image | ✅ done |
 | **M5 Players place their own ships**: placement page, fleet codes, typed or webcam entry | ✅ done (no WASM QR fallback; see below) |
@@ -81,7 +81,7 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
    The board sizes itself to the outfits: with "Size the board to the outfits" ticked (the default), it's the size at which a first shot at a random square hits someone about half the time. Two players in the everyday outfit (13 squares each) get 6×7; three get 8×8, four 9×9, six 11×11, eight 12×13. Bigger outfits get a bigger board. The lobby shows the size and the hit chance as the outfits change. Untick it to set the rows and columns yourself.
 2. Press **Deal the outfits**. For each human in seat order, the laptop shows a privacy screen, then a QR code. The player scans it with their phone's ordinary camera, checks that the three-character outfit check matches, and presses **Got it** (or **Reroll**).
 3. **Open the TV window** and drag it to the TV. Two-window mode keeps the QR code off the TV; the TV window only ever receives the public table. In one-window mode, the table and the docked controls share the laptop's screen. Don't mirror the laptop to the TV during the handout.
-4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat and then reveals every result at once. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
+4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) or picks it on the grid and presses Enter. The TV shows the call, pauses for a beat and then reveals every result at once. If "Read calls aloud" is ticked in the lobby (it's off by default), it also reads the call and the results aloud where a voice exists. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.
 5. **Show an outfit privately** covers players without a phone and lost images. It can also show the QR code again.
 6. **When only one player is still dressed**, the TV announces them. By default, play goes on: everyone else bombs them until they're down to nothing, and they keep calling squares on their own board. The game-over screen then says how long they held out. **End the game here** on the laptop stops at that moment instead. To always stop there, untick "Play on when only one player is still dressed" in the lobby.
 
@@ -111,6 +111,7 @@ src/
       peek/     the private peek          (may build fleet images)
     display/  the TV window
     phone/    the phone page and its PNG export
+    speech/   voice choice and spoken callouts
 build/      Vite pseudolocale plugin, local ESLint plugin
 e2e/        Playwright
 test/       guardrail tests (the lint rules themselves are tested)
@@ -186,7 +187,7 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
 
 - User text is measured in graphemes (`Intl.Segmenter`), never by slicing or indexing strings.
 - No sentence is assembled in code, and no possessive is built in code. Lists of names use `formatList` (`Intl.ListFormat`, with each item isolated).
-- Player names are `<bdi>` in markup and FSI…PDI in plain strings: `aria-live`, `document.title` and the CLI.
+- Player names are `<bdi>` in markup and FSI…PDI in plain strings: `aria-live`, `document.title`, speech, CLI.
 - Codes and fleet checks are LTR isolates (`<bdi dir="ltr">`, `isolateLtr`).
 - Arrow keys and shortcuts use `KeyboardEvent.code`, and the logical direction table in `ui/keyboard.ts` (M2).
 - Nothing shared reacts to a hidden fleet: no warnings, no timing differences, no disabled cells.
@@ -214,6 +215,7 @@ Each one is enforced by a tool, and `test/guardrails/` checks that the tool real
   - **Save image** draws a PNG with Canvas 2D. Each text run gets its own `ctx.direction`, and labels stay upright in vertical modes. The phone shares it where the share sheet allows, and downloads it otherwise.
 - **The QR payload** (`src/share/payload.ts`) is version-tagged packed bytes in base64url. Classic fleets come to about 100 characters of URL. A long name is cut at a grapheme boundary at 160 UTF-8 bytes, which keeps the worst case (24 emoji ZWJ sequences, 10 ships, 20×20) under 400 characters. `decode(encode(x))` is property-tested.
 - **QR library:** [`uqr`](https://github.com/unjs/uqr) (unjs, zero dependencies, TypeScript). It returns a boolean matrix, which `Qr.tsx` draws as SVG.
+- **Speech** (off by default; "Read calls aloud" in the lobby): `speechSynthesis`, with the voice chosen by BCP 47 lookup on matching language *and script*. A `zh-Hant` table never gets a Simplified voice, and no table ever gets a voice for another language. With no matching voice, it stays silent and says so once. Spoken text has its own messages (`spoken.*`).
 - **Keyboard:** the control grid follows the ARIA grid pattern with a roving tabindex. Arrows move visually: `src/ui/keyboard.ts` holds one table for ltr/rtl × the three writing modes, and all six combinations are tested. Undo is bound to `KeyboardEvent.code === 'KeyZ'`.
 - **The TV window** offers a fullscreen toggle and takes a Screen Wake Lock where the browser allows it.
 - **End-to-end tests** (`e2e/game.spec.ts`):

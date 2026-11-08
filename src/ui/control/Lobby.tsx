@@ -206,6 +206,9 @@ export function Lobby({ showPseudo }: { readonly showPseudo: boolean }) {
           <Field labelId="lobby.botDelay">
             {(id) => <NumberInput id={id} value={c.botSeconds} min={0} max={5} step={0.1} onChange={(botSeconds) => updateLobby({ botSeconds })} />}
           </Field>
+          <label class="check">
+            <input type="checkbox" checked={c.speech} onChange={(e) => updateLobby({ speech: e.currentTarget.checked })} /> <Msg id="lobby.speech" />
+          </label>
           <Field labelId="lobby.seed">
             {(id) => <input id={id} type="text" inputMode="numeric" value={c.seed} dir="ltr" onInput={(e) => updateLobby({ seed: e.currentTarget.value })} />}
           </Field>
