@@ -368,6 +368,7 @@
     ".match $id",
     "classic {{Classic}}",
     "nautical {{Nautical}}",
+    "boudoir {{Boudoir}}",
     "laundromat {{Laundromat}}",
     "mirrorBall {{Mirror ball}}",
     "grandmasSofa {{Grandma’s sofa}}",

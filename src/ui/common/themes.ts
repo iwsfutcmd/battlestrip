@@ -11,6 +11,7 @@
 export const THEME_IDS = [
   'classic',
   'nautical',
+  'boudoir',
   'laundromat',
   'mirrorBall',
   'grandmasSofa',
