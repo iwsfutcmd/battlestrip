@@ -10,6 +10,7 @@ import { isUndoShortcut } from '../keyboard.ts';
 import { coordText, labelsFor } from '../table/format.ts';
 import type { GridInteraction } from '../table/Grid.tsx';
 import { Peek } from './peek/Peek.tsx';
+import { ThemePicker } from './ThemePicker.tsx';
 import {
   backToLobby,
   canUndo,
@@ -233,6 +234,7 @@ export function PlayPanel({ displayConnected, tableHere, onToggleTable }: { read
               </button>
             )}
           </div>
+          <ThemePicker />
         </div>
       )}
       {peeking && <Peek onClose={() => setPeeking(false)} />}

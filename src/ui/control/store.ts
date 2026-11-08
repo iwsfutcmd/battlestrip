@@ -33,7 +33,7 @@ import { decodeFleetCode } from '../../share/fleet-code.ts';
 import { encodeInvite, type PlacementInvite } from '../../share/invite.ts';
 import { directionOf } from '../../i18n/direction.ts';
 import { translator } from '../common/locale-state.ts';
-import { preferredTheme, type ThemeId } from '../common/themes.ts';
+import { DEFAULT_THEME, preferredTheme, rememberTheme, type ThemeId } from '../common/themes.ts';
 import type { PublicSeat, PublicTable, TableSettings, TableStage } from '../table/types.ts';
 
 export type FleetPolicyKind = 'full' | 'random' | 'fixed';
@@ -148,6 +148,21 @@ export const placedOnPhone = signal<readonly PlayerId[]>([]);
 export function updateLobby(patch: Partial<LobbyConfig>): void {
   const next = { ...lobby.value, ...patch };
   lobby.value = next;
+}
+
+/** The theme on screen: the dealt table's, or the lobby's before the deal. */
+export function currentTheme(): ThemeId {
+  return session.value ? (session.value.settings.theme ?? DEFAULT_THEME) : lobby.value.theme;
+}
+
+/** Change the theme now, mid-game included (it's only a look), and remember it for the next table. */
+export function setTheme(theme: ThemeId): void {
+  rememberTheme(theme);
+  batch(() => {
+    lobby.value = { ...lobby.value, theme };
+    const s = session.value;
+    if (s) session.value = { ...s, settings: { ...s.settings, theme } };
+  });
 }
 
 export function updateSeat(key: string, patch: Partial<SeatConfig>): void {

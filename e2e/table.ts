@@ -54,7 +54,7 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   if (o.seed !== undefined) await page.locator('.settings-grid input[type=text]').fill(String(o.seed));
   // Settings selects, found by an option only they have (row labels before second labels).
   const select = (value: string) => page.locator(`.settings-grid select:has(option[value="${value}"])`).first();
-  if (o.theme) await select('laundromat').selectOption(o.theme);
+  if (o.theme) await page.locator('.lobby-prefs select:has(option[value="laundromat"])').selectOption(o.theme);
   if (o.placement) await select('phones').selectOption(o.placement);
   if (o.labels) await select('arabicAbjad').selectOption(o.labels);
   if (o.writingMode) await select('vertical-rl').selectOption(o.writingMode);

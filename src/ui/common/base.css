@@ -231,4 +231,12 @@ input[type="checkbox"] {
   align-items: center;
 }
 
+/* The lobby's preferences, side by side at the top: game language and theme. */
+.lobby-prefs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75em 2em;
+  align-items: center;
+}
+
 

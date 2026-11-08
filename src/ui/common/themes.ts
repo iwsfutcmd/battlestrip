@@ -10,6 +10,7 @@
  */
 export const THEME_IDS = [
   'classic',
+  'nautical',
   'laundromat',
   'mirrorBall',
   'grandmasSofa',

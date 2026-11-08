@@ -12,6 +12,7 @@ import { TableDisplay } from '../table/TableDisplay.tsx';
 import './control.css';
 import { Handout } from './handout/Handout.tsx';
 import { Lobby } from './Lobby.tsx';
+import { ThemePicker } from './ThemePicker.tsx';
 import { Placement } from './placement/Placement.tsx';
 import { PlayPanel, useGridInteraction } from './PlayPanel.tsx';
 import { lobby, publicTable, stage, startAutosave, startBotDriver, updateLobby } from './store.ts';
@@ -36,6 +37,7 @@ function App() {
             <Msg id="play.openDisplay" />
           </button>
         </p>
+        <ThemePicker />
       </main>
     );
   }

@@ -374,6 +374,7 @@
     ".input {$id :string}",
     ".match $id",
     "classic {{كلاسيكي}}",
+    "nautical {{بحري}}",
     "laundromat {{المغسلة}}",
     "mirrorBall {{كرة الديسكو}}",
     "grandmasSofa {{كنبة الجدة}}",

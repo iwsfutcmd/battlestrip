@@ -325,6 +325,7 @@
     ".input {$id :string}",
     ".match $id",
     "classic {{經典}}",
+    "nautical {{航海}}",
     "laundromat {{自助洗衣店}}",
     "mirrorBall {{迪斯可球}}",
     "grandmasSofa {{阿嬤的沙發}}",

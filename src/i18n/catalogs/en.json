@@ -367,6 +367,7 @@
     ".input {$id :string}",
     ".match $id",
     "classic {{Classic}}",
+    "nautical {{Nautical}}",
     "laundromat {{Laundromat}}",
     "mirrorBall {{Mirror ball}}",
     "grandmasSofa {{Grandma’s sofa}}",

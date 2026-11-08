@@ -10,6 +10,47 @@
  * win for Arabic and Han text.
  */
 
+/* ---- Nautical: it's Battleship after all. A night sea, chart lines, brass and a signal-flag red. */
+:root[data-theme="nautical"] {
+  --bs-bg: #071a33;
+  --bs-surface: #0f2a4d;
+  --bs-surface-strong: #173a66;
+  --bs-fg: #f4f8ff;
+  --bs-muted: #bcd3ee;
+  --bs-accent: #f4c95d;
+  --bs-focus: #ff8a80;
+  --bs-grid: #3d6a99;
+  --bs-hit: #ffc9a8;
+  --bs-hit-bg: #5a2a24;
+  --bs-sunk: #ff4d4d;
+  --bs-sunk-bg: #6b1a1a;
+  --bs-sunk-text: #ffa3a3;
+  --bs-bomb: #f4c95d;
+  --bs-warning: #f4c95d;
+  --bs-error: #ffa3a3;
+  --bs-primary: #f4c95d;
+  --bs-on-primary: #071a33;
+  --bs-selected-bg: #1f4a7a;
+  --bs-badge-bg: #1f4070;
+  --bs-nuclear-a: #33300f;
+  --bs-nuclear-b: #3f3a14;
+  --bs-cell-bg: #0b2747;
+  --bs-radius: 0.4rem;
+  --bs-pattern:
+    radial-gradient(circle at 50% 100%, transparent 0.85rem, rgb(188 211 238 / 9%) 0.9rem 1rem, transparent 1.05rem),
+    radial-gradient(circle at 0 0, transparent 0.85rem, rgb(188 211 238 / 6%) 0.9rem 1rem, transparent 1.05rem),
+    linear-gradient(#0b2547, #071a33 60%, #04122a);
+  --bs-pattern-size: 2.4rem 1.3rem, 2.4rem 1.3rem, 100% 100%;
+
+  font-family: Copperplate, "Copperplate Gothic Light", "Trajan Pro", Georgia, serif;
+}
+
+/* An anchor before the title; the alternative text is empty, so screen readers skip it. */
+:root[data-theme="nautical"] :is(.tv-title, .lobby-header h1)::before {
+  content: "\2693\FE0E\00A0" / "";
+  color: var(--bs-accent);
+}
+
 /* ---- Laundromat: soap bubbles, a spin-cycle blue, bubble-round squares. */
 :root[data-theme="laundromat"] {
   --bs-primary: #005f9e;
