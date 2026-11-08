@@ -223,7 +223,7 @@
   "handout.start": "Start the game",
   "handout.skip": "Skip (no phone)",
   "play.callLabel": "Call",
-  "play.callHint": "Type a square like {$example}, or pick one on the grid, then press Enter.",
+  "play.callHint": "Type a square like {$example} and press Enter, or click a square on the grid and click it again (or press Enter).",
   "play.bombHint": "{$name} is down to nothing: the call drops a 2×2 bomb from that square, moved back onto the board near the edges.",
   "play.submit": "Call it",
   "play.undo": "Undo last call",

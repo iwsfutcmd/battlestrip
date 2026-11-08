@@ -16,6 +16,7 @@ import {
   choosing,
   endHere,
   focusCell,
+  picked,
   game,
   notice,
   replaySameSeed,
@@ -35,6 +36,24 @@ function labels() {
 }
 
 /** The control grid's keyboard and pointer behaviour (ARIA grid with a roving tabindex). */
+/**
+ * Enter calls the picked square from anywhere on the page, except where Enter
+ * already means something: a text field (the call box submits itself), a
+ * button or link, the grid (which handles its own keys) or a dialog.
+ */
+function isCallShortcut(e: KeyboardEvent): boolean {
+  if (e.key !== 'Enter' || e.repeat || e.isComposing || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return false;
+  if (stage.value !== 'playing' || !picked.value) return false;
+  const target = e.target instanceof Element ? e.target : null;
+  return !target?.closest('input, textarea, select, button, a[href], [contenteditable], [role=grid], [role=dialog]');
+}
+
+function callPicked(): void {
+  const g = game.value;
+  if (!g || g.seats[g.current]?.kind === 'bot') return;
+  if (submitCall(focusCell.value)) callText.value = '';
+}
+
 export function useGridInteraction(): GridInteraction | undefined {
   const t = translator.value;
   const g = game.value;
@@ -55,13 +74,17 @@ export function useGridInteraction(): GridInteraction | undefined {
   };
   return {
     focus: focusCell.value,
+    selected: picked.value,
     gridName: t.format('play.grid'),
     cellName,
     onFocus: (c) => {
       focusCell.value = c;
+      picked.value = true;
       callText.value = coordText(t, l, c).replaceAll(/[\u2066-\u2069]/gu, '');
     },
     onActivate: (c) => {
+      // A bot calls for itself: a stray click mustn't call for it.
+      if (g.seats[g.current]?.kind === 'bot') return;
       focusCell.value = c;
       if (submitCall(c)) callText.value = '';
     },
@@ -80,6 +103,11 @@ export function PlayPanel({ displayConnected, tableHere, onToggleTable }: { read
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent): void => {
+      if (isCallShortcut(e)) {
+        e.preventDefault();
+        callPicked();
+        return;
+      }
       if (!isUndoShortcut(e)) return;
       // In a non-empty text field, Ctrl+Z belongs to the field.
       const target = e.target as HTMLElement | null;

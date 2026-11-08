@@ -128,6 +128,13 @@ export const choosing = signal<PlayerId | null>(null);
 export const canUndo = signal(false);
 export const notice = signal<Notice | null>(null);
 export const focusCell = signal<Coord>({ row: 0, col: 0 });
+/**
+ * Whether `focusCell` was picked (clicked, or moved to with the keyboard)
+ * since the last call. A picked square is called by clicking it again or by
+ * Enter. Each call clears it, so the next caller can't fire with one click
+ * on a square they never chose.
+ */
+export const picked = signal(false);
 /** Seats whose layout came from a fleet code (M5). */
 export const placedOnPhone = signal<readonly PlayerId[]>([]);
 
@@ -375,6 +382,7 @@ export function beginPlay(): void {
     stage.value = 'playing';
     const g = game.value;
     if (g) focusCell.value = { row: Math.floor(g.rules.rows / 2), col: Math.floor(g.rules.cols / 2) };
+    picked.value = false;
   }
 }
 
@@ -397,6 +405,7 @@ export function submitCall(at: Coord): boolean {
   if (!after) return false;
   notice.value = null;
   canUndo.value = true;
+  picked.value = false;
   reveal.value = { turn: after.turn, revealed: false };
   clearTimeout(beatTimer);
   const ms = reducedMotion() ? 0 : (session.value?.settings.beatMs ?? 0);

@@ -12,6 +12,8 @@ export interface CellRender {
 
 export interface GridInteraction {
   readonly focus: Coord;
+  /** The focused square was picked on purpose: shown as selected, and clicking it again activates it. */
+  readonly selected: boolean;
   readonly onFocus: (c: Coord) => void;
   readonly onActivate: (c: Coord) => void;
   /** Accessible name for a cell (from a message). */
@@ -56,7 +58,7 @@ export function Grid({ rows, cols, labels, dir, writingMode, cell, overlays, int
       next = e.ctrlKey ? { row: 0, col: 0 } : { row: focus.row, col: 0 };
     } else if (e.key === 'End') {
       next = e.ctrlKey ? { row: rows - 1, col: cols - 1 } : { row: focus.row, col: cols - 1 };
-    } else if (e.key === 'Enter' || e.key === ' ') {
+    } else if ((e.key === 'Enter' || e.key === ' ') && !e.repeat) {
       e.preventDefault();
       interaction.onActivate(focus);
       return;
@@ -117,18 +119,19 @@ export function Grid({ rows, cols, labels, dir, writingMode, cell, overlays, int
           {colIdx.map((c) => {
             const render = cell({ row: r, col: c });
             const focused = interaction && interaction.focus.row === r && interaction.focus.col === c;
+            const selected = focused && interaction.selected;
             return (
               <div
                 key={c}
-                class={`board-cell ${render.className ?? ''} ${focused ? 'is-focused' : ''}`}
+                class={`board-cell ${render.className ?? ''} ${selected ? 'is-focused' : ''}`}
                 style={at(r + 2, c + 2)}
                 data-cell={`${r}-${c}`}
                 role={interaction ? 'gridcell' : undefined}
                 tabIndex={interaction ? (focused ? 0 : -1) : undefined}
                 aria-label={interaction?.cellName({ row: r, col: c })}
-                aria-selected={interaction ? (focused ? 'true' : 'false') : undefined}
-                onClick={interaction ? () => interaction.onFocus({ row: r, col: c }) : undefined}
-                onDblClick={interaction ? () => interaction.onActivate({ row: r, col: c }) : undefined}
+                aria-selected={interaction ? (selected ? 'true' : 'false') : undefined}
+                // First click picks the square; a click on the picked square calls it (so a double click does both).
+                onClick={interaction ? () => (selected ? interaction.onActivate({ row: r, col: c }) : interaction.onFocus({ row: r, col: c })) : undefined}
               >
                 {render.content}
               </div>

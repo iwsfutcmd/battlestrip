@@ -212,7 +212,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
         writingMode={invite.writingMode}
         className="fleet-board phone-board"
         cell={() => ({})}
-        interaction={{ focus, onFocus: tap, onActivate: tap, cellName: () => '', gridName: t.format('place.heading') }}
+        interaction={{ focus, selected: true, onFocus: tap, onActivate: tap, cellName: () => '', gridName: t.format('place.heading') }}
         overlays={fleet.map((k) => {
           const p = layout[k];
           const def = rules.shipyard[k];
