@@ -141,4 +141,33 @@ export default defineConfig(
       ],
     },
   },
+
+  // ---- Bots (§6.1) --------------------------------------------------------
+  // Bots see only viewFor(…) and legalCalls: the engine's public index, never
+  // its internals, never fleetOf, and nothing from the UI.
+  {
+    files: ['src/bots/**/*.ts'],
+    ignores: ['src/bots/**/*.test.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            fleetOfPattern,
+            {
+              regex: '(^|/)engine/(?!index\\.ts$)',
+              message: 'Bots may import only the engine’s public surface (engine/index.ts), not its internals.',
+            },
+            { regex: '(^|/)(ui|i18n|share)(/|$)', message: 'Bots must not import ui/, i18n/ or share/.' },
+            { regex: '^(?!\\.\\.?/)', message: 'Bots have no dependencies beyond the engine.' },
+          ],
+        },
+      ],
+      'no-restricted-properties': [
+        'error',
+        ...caseMappingProperties,
+        { object: 'Math', property: 'random', message: 'Bots are deterministic: use the seed they are given.' },
+      ],
+    },
+  },
 );
