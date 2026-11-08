@@ -528,6 +528,30 @@
   align-items: center;
 }
 
+/* Compact, in the title strip: one line that clips rather than spills. */
+.shape-key.is-compact {
+  overflow: hidden;
+  display: flex;
+  flex: 0 1 auto;
+  gap: 0.5em;
+  align-items: center;
+  min-inline-size: 0;
+  white-space: nowrap;
+}
+
+.shape-key.is-compact .shape-key-heading {
+  margin: 0;
+}
+
+.shape-key.is-compact .shape-key-list {
+  display: flex;
+  gap: 0.5em;
+}
+
+.shape-key.is-compact .shape-key-item {
+  gap: 0.2em;
+}
+
 .tv[data-wm^="vertical"] .shape-key .ship-pic-number {
   text-combine-upright: all;
 }

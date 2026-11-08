@@ -69,6 +69,8 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
     // Speak once per beat stage.
   }, [spokenKey]);
 
+  const vertical = table.settings.writingMode !== 'horizontal-tb';
+
   return (
     <div class="tv" data-stage={table.stage} data-wm={table.settings.writingMode} style={{ writingMode: table.settings.writingMode }}>
       <header class="tv-bar">
@@ -80,6 +82,7 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
             <Msg id="display.gameCode" /> <bdi dir="ltr" class="code">{table.gameCode}</bdi>
           </p>
         )}
+        {vertical && view && table.stage !== 'over' && <ShapeKey view={view} locale={table.settings.locale} compact />}
         {showHousekeeping && <Housekeeping />}
       </header>
       {table.stage === 'over' && view ? (
@@ -122,7 +125,7 @@ export function TableDisplay({ table, speak, interaction, showHousekeeping }: Ta
               </p>
             )}
             <Roster table={table} view={view} />
-            {view && <ShapeKey view={view} locale={table.settings.locale} />}
+            {!vertical && view && <ShapeKey view={view} locale={table.settings.locale} />}
           </aside>
         </div>
       )}

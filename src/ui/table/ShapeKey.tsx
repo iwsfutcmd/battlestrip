@@ -11,14 +11,18 @@ import { ShapeIcon } from './Piece.tsx';
  * outfits are chosen in the open, and every shape is in the wardrobe); it
  * says nothing about where anything is. A piece may lie turned or flipped
  * on a board, so the drawing is one way it can look.
+ *
+ * `compact` is one line of numbers and shapes, with the names for screen
+ * readers only: vertical tables put it in the title strip, because their
+ * side column is already full.
  */
-export function ShapeKey({ view, locale }: { readonly view: PlayerView; readonly locale: string }) {
+export function ShapeKey({ view, locale, compact = false }: { readonly view: PlayerView; readonly locale: string; readonly compact?: boolean }) {
   const t = useTranslator();
   const worn = new Set(view.players.flatMap((p) => p.ships.map((s) => s.ship)));
   const pieces = view.rules.shipyard.filter((s) => worn.has(s.id));
   if (pieces.length === 0) return null;
   return (
-    <section class="shape-key" aria-labelledby="shape-key-heading">
+    <section class={`shape-key ${compact ? 'is-compact' : ''}`} aria-labelledby="shape-key-heading">
       <h2 id="shape-key-heading" class="shape-key-heading">
         <Msg id="shapeKey.heading" />
       </h2>
@@ -28,8 +32,8 @@ export function ShapeKey({ view, locale }: { readonly view: PlayerView; readonly
             <span class="ship-pic-number" aria-hidden="true">
               {formatNumber(locale, def.number)}
             </span>
-            <ShapeIcon shape={shapeOf(def)} size="1.5em" />
-            <span class="shape-key-name">{shipNameIn(t, view.rules, def.id)}</span>
+            <ShapeIcon shape={shapeOf(def)} size={compact ? '1.1em' : '1.5em'} />
+            <span class={compact ? 'visually-hidden' : 'shape-key-name'}>{shipNameIn(t, view.rules, def.id)}</span>
           </li>
         ))}
       </ul>
