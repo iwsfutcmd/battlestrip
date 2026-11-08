@@ -109,9 +109,9 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     labels2: null,
     writingMode: 'horizontal-tb',
     seed: '',
-    // Results show the moment a square is called; a pause before them is opt-in.
+    // Results show the moment a square is called, and bots call straight away; pauses are opt-in.
     beatSeconds: 0,
-    botSeconds: 1.2,
+    botSeconds: 0,
     speech: false,
     placement: 'random',
     playOut: true,
