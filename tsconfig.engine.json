@@ -1,0 +1,11 @@
+{
+  // The engine is pure: no DOM, no Node, no ambient @types.
+  // Anything outside ES2022 (window, document, setTimeout, crypto, Intl
+  // extras from later editions, …) is a compile error here.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022"],
+    "types": []
+  },
+  "include": ["src/engine/**/*.ts"]
+}

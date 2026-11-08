@@ -1,0 +1,46 @@
+{
+  "name": "battlestrip",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Battlestrip: N-player simultaneous-fire Battleship around one shared screen.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18"
+  },
+  "scripts": {
+    "dev": "vite --host",
+    "build": "vite build",
+    "preview": "vite preview --host",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.engine.json && tsc --noEmit -p tsconfig.node.json",
+    "lint": "eslint . && stylelint \"src/**/*.css\"",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "e2e": "playwright test --trace off",
+    "check": "npm run typecheck && npm run lint && npm run test"
+  },
+  "dependencies": {
+    "@preact/signals": "^2.11.4",
+    "messageformat": "^4.1.0",
+    "preact": "^11.2.0"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.29.13",
+    "@eslint/js": "^10.0.1",
+    "@playwright/test": "1.63.0",
+    "@preact/preset-vite": "^2.10.6",
+    "@types/node": "^22.20.5",
+    "eslint": "^10.14.0",
+    "fast-check": "^4.10.2",
+    "globals": "^17.14.0",
+    "stylelint": "^17.16.0",
+    "stylelint-config-standard": "^40.0.0",
+    "stylelint-use-logical": "^2.1.3",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.72.1",
+    "vite": "^8.3.6",
+    "vitest": "^5.1.0"
+  }
+}

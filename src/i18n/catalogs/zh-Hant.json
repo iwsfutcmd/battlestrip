@@ -1,0 +1,23 @@
+{
+  "app.title": "Battlestrip",
+  "app.tagline": "每一發砲彈，都落在每一張棋盤上。",
+  "title.control": "Battlestrip — 控制台",
+  "title.display": "Battlestrip — 共用螢幕",
+  "title.fleet": "Battlestrip — 你的艦隊",
+  "language.label": "語言",
+  "language.gameLabel": "遊戲語言",
+  "route.control.heading": "控制台",
+  "route.control.intro": "這台筆電負責主持遊戲。請在電視上開啟共用螢幕。",
+  "route.control.openDisplay": "開啟共用螢幕",
+  "route.control.openPhone": "預覽手機頁面",
+  "route.display.heading": "共用螢幕",
+  "route.display.waiting": "正在等候控制台……",
+  "route.fleet.heading": "你的艦隊",
+  "route.fleet.scanHint": "用手機相機掃描筆電上的 QR 碼，就能在這裡看到你的艦隊。",
+  "hello.sampleTable": "示範座位",
+  "hello.seat": "{$seat :integer}號座",
+  "hello.atTheTable": "在座：{$players}",
+  "hello.playerCount": "{$count :number} 位玩家",
+  "roster.calling": "輪到{$name}發射",
+  "roster.bombing": "輪到{$name}投彈"
+}

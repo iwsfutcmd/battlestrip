@@ -1,0 +1,24 @@
+/* The laptop control panel. */
+
+.control {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  max-inline-size: 60rem;
+  margin-inline: auto;
+  padding-block: 2rem;
+  padding-inline: 1.5rem;
+}
+
+.control-tagline {
+  color: var(--bs-muted);
+}
+
+.control-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}

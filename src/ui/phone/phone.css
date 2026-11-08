@@ -1,0 +1,18 @@
+/* The phone page: one static image, readable at a glance. */
+
+.phone {
+  display: grid;
+  gap: 1rem;
+  align-content: start;
+  max-inline-size: 40rem;
+  min-block-size: 100dvb;
+  margin-inline: auto;
+  padding-block: 1.5rem;
+  padding-inline: 1rem;
+  font-size: 1.125rem;
+}
+
+.phone-footer {
+  color: var(--bs-muted);
+  font-size: 0.875rem;
+}

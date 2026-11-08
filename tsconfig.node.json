@@ -1,0 +1,19 @@
+{
+  // Tooling that runs in Node: Vite/Vitest/Playwright configs, build plugins,
+  // CLI scripts, e2e specs and guardrail tests.
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "types": ["node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "include": [
+    "*.config.ts",
+    "build/**/*.ts",
+    "scripts/**/*.ts",
+    "e2e/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "exclude": ["test/guardrails/fixtures/**"]
+}

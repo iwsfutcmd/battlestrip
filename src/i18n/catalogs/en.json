@@ -1,0 +1,28 @@
+{
+  "app.title": "Battlestrip",
+  "app.tagline": "Every call lands on every board.",
+  "title.control": "Battlestrip — control panel",
+  "title.display": "Battlestrip — shared screen",
+  "title.fleet": "Battlestrip — your fleet",
+  "language.label": "Language",
+  "language.gameLabel": "Game language",
+  "route.control.heading": "Control panel",
+  "route.control.intro": "This laptop runs the game. Open the shared screen on the TV.",
+  "route.control.openDisplay": "Open the shared screen",
+  "route.control.openPhone": "Preview the phone page",
+  "route.display.heading": "Shared screen",
+  "route.display.waiting": "Waiting for the control panel…",
+  "route.fleet.heading": "Your fleet",
+  "route.fleet.scanHint": "Scan the QR code on the laptop with your phone’s camera to see your fleet here.",
+  "hello.sampleTable": "Sample table",
+  "hello.seat": "Seat {$seat :integer}",
+  "hello.atTheTable": "At the table: {$players}",
+  "hello.playerCount": [
+    ".input {$count :number}",
+    ".match $count",
+    "one {{{$count} player}}",
+    "*   {{{$count} players}}"
+  ],
+  "roster.calling": "{$name} is calling",
+  "roster.bombing": "{$name} is bombing"
+}

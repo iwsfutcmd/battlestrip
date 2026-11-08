@@ -1,0 +1,25 @@
+{
+  // Umbrella project for editors and type-aware linting: sees every file.
+  // `npm run typecheck` checks the stricter split projects instead:
+  //   tsconfig.app.json     browser code (DOM, no Node)
+  //   tsconfig.engine.json  the pure engine (ES2022 only: no DOM, no Node)
+  //   tsconfig.node.json    configs, build plugins, scripts, tests
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2024", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "node"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact"
+  },
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.json",
+    "*.config.ts",
+    "build/**/*.ts",
+    "scripts/**/*.ts",
+    "e2e/**/*.ts",
+    "test/**/*.ts"
+  ],
+  "exclude": ["test/guardrails/fixtures/**"]
+}

@@ -1,0 +1,32 @@
+{
+  "app.title": "Battlestrip",
+  "app.tagline": "كل طلقة تقع على كل اللوحات.",
+  "title.control": "Battlestrip — لوحة التحكم",
+  "title.display": "Battlestrip — الشاشة المشتركة",
+  "title.fleet": "Battlestrip — أسطولك",
+  "language.label": "اللغة",
+  "language.gameLabel": "لغة اللعبة",
+  "route.control.heading": "لوحة التحكم",
+  "route.control.intro": "هذا الحاسوب يدير اللعبة. افتح الشاشة المشتركة على التلفاز.",
+  "route.control.openDisplay": "افتح الشاشة المشتركة",
+  "route.control.openPhone": "معاينة صفحة الهاتف",
+  "route.display.heading": "الشاشة المشتركة",
+  "route.display.waiting": "بانتظار لوحة التحكم…",
+  "route.fleet.heading": "أسطولك",
+  "route.fleet.scanHint": "امسح رمز QR الظاهر على الحاسوب بكاميرا هاتفك لترى أسطولك هنا.",
+  "hello.sampleTable": "طاولة تجريبية",
+  "hello.seat": "المقعد {$seat :integer}",
+  "hello.atTheTable": "حول الطاولة: {$players}",
+  "hello.playerCount": [
+    ".input {$count :number}",
+    ".match $count",
+    "zero {{لا لاعبين}}",
+    "one  {{لاعب واحد}}",
+    "two  {{لاعبان}}",
+    "few  {{{$count} لاعبين}}",
+    "many {{{$count} لاعبًا}}",
+    "*    {{{$count} لاعب}}"
+  ],
+  "roster.calling": "دور {$name} في الإطلاق",
+  "roster.bombing": "دور {$name} في القصف"
+}

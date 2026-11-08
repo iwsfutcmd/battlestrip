@@ -1,0 +1,58 @@
+/* The TV: a 10-foot UI, sized against the viewport. */
+
+.tv {
+  display: grid;
+  gap: clamp(1rem, 3vmin, 3rem);
+  align-content: start;
+  min-block-size: 100dvb;
+  padding-block: clamp(1rem, 4vmin, 4rem);
+  padding-inline: clamp(1rem, 5vmin, 6rem);
+  font-size: clamp(1.25rem, 1rem + 2vmin, 3rem);
+}
+
+.tv-title {
+  font-size: 2.5em;
+  line-height: 1.1;
+  margin-block-end: 0.2em;
+}
+
+.tv-tagline {
+  color: var(--bs-muted);
+}
+
+.tv-roster {
+  display: grid;
+  gap: 0.4em;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tv-seat {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em 1em;
+  align-items: baseline;
+  padding-block: 0.3em;
+  padding-inline: 0.75em;
+  border-radius: var(--bs-radius);
+  background: var(--bs-surface);
+}
+
+.tv-seat-number {
+  color: var(--bs-muted);
+  font-size: 0.8em;
+  min-inline-size: 5em;
+}
+
+.tv-seat-name {
+  font-weight: 700;
+}
+
+.tv-seat-status {
+  color: var(--bs-accent);
+}
+
+.tv-waiting {
+  color: var(--bs-muted);
+}
