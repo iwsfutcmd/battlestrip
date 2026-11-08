@@ -11,7 +11,18 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 Battlestrip is played like Battleship, but every piece is a piece of clothing, and a piece can be any shape at all, not just a line.
 
 - **The wardrobe** (`src/engine/wardrobe.ts`) has 49 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
-  - Each piece has a fixed number (1 T-shirt … 50 leg warmers) and a shape of 1 to 8 squares. The shapes are whimsical, not to scale: a T-shirt is a T, pants are an upside-down U with legs, a bra is two squares side by side, a scarf is a long line. Underwear, a ring, and each sock are a single square; the left and right socks are separate pieces, so each comes off on its own.
+  - Each piece has a fixed number (1 T-shirt … 50 leg warmers) and a shape. **Its size in squares follows how big it is in real life**, so more cloth means more squares, and so more hits before it's off:
+    - **1 square:** underwear, each sock, watch, ring, sunglasses
+    - **2:** bra, boxers, crop top, cap, beanie, bow tie, earrings, and pairs of shoes, sandals, slippers, heels and gloves
+    - **3:** tank top, undershirt, bikini, necklace, tie, belt, sash
+    - **4:** T-shirt, blouse, vest, skirt, shorts, leggings, swimsuit, tights, boots, leg warmers, hat, scarf, suspenders
+    - **5:** shirt
+    - **6:** sweater, hoodie, jacket, blazer, jeans
+    - **7:** pants, dress
+    - **8:** robe, jumpsuit
+    - **9:** coat, raincoat
+
+    A test locks in this ladder. The shapes themselves are whimsical: a T-shirt is a T, pants are an upside-down U with legs, and things that come in pairs are two separate parts.
   - **Shapes can be anything.** A shape is any set of squares, so a piece can be edge-connected, joined only at corners, or in separate parts. The sash is a diagonal line, the bow tie an X and the necklace a V; earrings are two squares apart, and a bikini comes in three parts.
   - On boards and in saved images, squares that touch only at a corner get a small diamond "bridge" on that corner. Each separate part shows the piece's number, so a scattered piece still reads as one.
   - Shapes may be turned and mirrored: up to 8 orientations each.
@@ -23,7 +34,7 @@ Battlestrip is played like Battleship, but every piece is a piece of clothing, a
 - **Wording on screen.** A hit item is still "hit". A fully hit item is "off" ("Off: Bo, shirt"). A player with nothing left on goes nuclear. The last player still dressed is announced, and by default the table plays on until they're down to nothing too.
 - **Clothes are optional.** The app only tracks the game. Whether anyone actually takes anything off is up to the table.
 - **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. Only the wardrobe and presets (`src/engine/wardrobe.ts`, `presets.ts`), the catalogs (`ship.name`, `category.name`, `outfit.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
-- **The QR payload is at version 4** (and the TV invite at version 3), bumped whenever the wardrobe is renumbered or reshaped. Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
+- **The QR payload is at version 5** (and the TV invite at version 4), bumped whenever the wardrobe is renumbered or reshaped. Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
 - **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has only 13 squares, so games should run a little shorter. The simulation hasn't been rerun with shapes.
 
 ## Status

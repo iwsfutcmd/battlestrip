@@ -131,8 +131,32 @@ describe('the wardrobe', () => {
     const groups = (id: string) => cellGroups(placedCells(WARDROBE.find((w) => w.id === id) ?? { length: 1 }, { row: 0, col: 0 }, 0)).length;
     expect(groups('sash')).toBe(1);
     expect(groups('earrings')).toBe(2);
+    expect(groups('shoes')).toBe(2);
     expect(groups('bikini')).toBe(3);
     for (const outfit of Object.values(OUTFITS)) for (const id of outfit) expect(ids).toContain(id);
+  });
+
+  it('sizes pieces by how big they are: more cloth, more squares', async () => {
+    const { WARDROBE } = await import('./wardrobe.ts');
+    const size = (id: string): number => WARDROBE.find((w) => w.id === id)?.length ?? NaN;
+    for (const id of ['underwear', 'leftSock', 'rightSock', 'ring', 'watch']) expect(size(id), id).toBe(1);
+    expect(size('bra')).toBe(2);
+    // Each step of this ladder is no smaller than the one before it.
+    const ladder = [
+      ['ring', 'underwear', 'leftSock'],
+      ['bra', 'boxers', 'shoes', 'gloves', 'cap'],
+      ['tankTop', 'necklace', 'belt', 'undershirt'],
+      ['tShirt', 'skirt', 'shorts', 'swimsuit', 'scarf'],
+      ['shirt'],
+      ['sweater', 'jeans', 'jacket', 'hoodie'],
+      ['pants', 'dress'],
+      ['robe', 'jumpsuit'],
+      ['coat', 'raincoat'],
+    ];
+    for (let i = 1; i < ladder.length; i++) {
+      const smaller = Math.max(...(ladder[i - 1] ?? []).map(size));
+      for (const id of ladder[i] ?? []) expect(size(id), `${id} vs ${(ladder[i - 1] ?? []).join(', ')}`).toBeGreaterThan(smaller);
+    }
   });
 });
 

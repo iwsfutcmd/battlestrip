@@ -18,58 +18,63 @@ import type { Rules, ShipId, ShipKindId, ShipyardShip } from './types.ts';
 export const WARDROBE_CATEGORIES = ['tops', 'bottoms', 'onePieces', 'swimwear', 'underwear', 'footwear', 'outerwear', 'headwear', 'accessories'] as const;
 export type WardrobeCategory = (typeof WARDROBE_CATEGORIES)[number];
 
+/**
+ * A piece's size in squares follows how big it is in real life: a ring, a
+ * sock or underwear is one square; a coat is nine. Pairs (shoes, gloves,
+ * earrings) are two separate parts. The order is fixed (see above); shapes
+ * and sizes may change, with a version bump.
+ */
 const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: string])[] = [
-  ['tShirt', 'tops', '###/.#.'],
-  ['shirt', 'tops', '###/.#./.#.'],
-  ['tankTop', 'tops', '##/##'],
-  ['sweater', 'tops', '###/###'],
-  ['hoodie', 'tops', '.#./###/.#.'],
-  ['cropTop', 'tops', '###'],
-  ['blouse', 'tops', '.##/###'],
-  ['vest', 'tops', '#.#/###'],
-  ['pants', 'bottoms', '###/#.#/#.#'],
-  ['jeans', 'bottoms', '##/##/##'],
-  ['shorts', 'bottoms', '###/#.#'],
-  ['skirt', 'bottoms', '.#./###'],
-  ['leggings', 'bottoms', '####'],
-  ['dress', 'onePieces', '.#./.#./###'],
-  ['swimsuit', 'swimwear', '#.#/###/.#.'],
-  ['robe', 'onePieces', '###/.#./###'],
-  ['jumpsuit', 'onePieces', '.#./###/#.#'],
-  ['underwear', 'underwear', '#'],
-  ['boxers', 'underwear', '##/##'],
-  ['bra', 'underwear', '##'],
-  ['undershirt', 'underwear', '##/##/##'],
-  ['tights', 'underwear', '##/#./#.'],
-  ['leftSock', 'footwear', '#'],
-  ['rightSock', 'footwear', '#'],
-  ['shoes', 'footwear', '##'],
-  ['boots', 'footwear', '#./#./##'],
-  ['sandals', 'footwear', '#'],
-  ['slippers', 'footwear', '##'],
-  ['heels', 'footwear', '##/.#'],
-  ['coat', 'outerwear', '.#./###/###'],
-  ['jacket', 'outerwear', '##./###'],
-  ['blazer', 'outerwear', '#.#/###/.#.'],
-  ['raincoat', 'outerwear', '.#./###/#.#/#.#'],
-  ['hat', 'headwear', '.#./###'],
-  ['cap', 'headwear', '##./.##'],
-  ['beanie', 'headwear', '#'],
-  ['scarf', 'accessories', '#####'],
-  ['gloves', 'accessories', '##/#.'],
-  ['belt', 'accessories', '####'],
-  ['tie', 'accessories', '###'],
-  ['watch', 'accessories', '#'],
-  ['sunglasses', 'accessories', '##'],
-  ['ring', 'accessories', '#'],
-  // Shapes that aren't edge-connected.
-  ['necklace', 'accessories', '#...#/.#.#./..#..'],
-  ['bowTie', 'accessories', '#.#/.#./#.#'],
-  ['earrings', 'accessories', '#.#'],
-  ['sash', 'accessories', '#../.#./..#'],
-  ['suspenders', 'accessories', '#.#/#.#/#.#'],
-  ['bikini', 'swimwear', '#.#/.../.#.'],
-  ['legWarmers', 'footwear', '#.#/#.#'],
+  ['tShirt', 'tops', '###/.#.'], // 4
+  ['shirt', 'tops', '###/.#./.#.'], // 5
+  ['tankTop', 'tops', '#.#/.#.'], // 3
+  ['sweater', 'tops', '###/###'], // 6
+  ['hoodie', 'tops', '.#./###/.#./.#.'], // 6
+  ['cropTop', 'tops', '##'], // 2
+  ['blouse', 'tops', '.##/##.'], // 4
+  ['vest', 'tops', '#.#/#.#'], // 4: two open panels
+  ['pants', 'bottoms', '###/#.#/#.#'], // 7
+  ['jeans', 'bottoms', '##/##/##'], // 6
+  ['shorts', 'bottoms', '##/##'], // 4
+  ['skirt', 'bottoms', '.#./###'], // 4
+  ['leggings', 'bottoms', '####'], // 4
+  ['dress', 'onePieces', '.#./###/###'], // 7
+  ['swimsuit', 'swimwear', '#.#/.#./.#.'], // 4
+  ['robe', 'onePieces', '###/###/.#./.#.'], // 8
+  ['jumpsuit', 'onePieces', '.#./###/#.#/#.#'], // 8
+  ['underwear', 'underwear', '#'], // 1
+  ['boxers', 'underwear', '##'], // 2
+  ['bra', 'underwear', '##'], // 2
+  ['undershirt', 'underwear', '###'], // 3
+  ['tights', 'underwear', '#.#/#.#'], // 4: two legs
+  ['leftSock', 'footwear', '#'], // 1
+  ['rightSock', 'footwear', '#'], // 1
+  ['shoes', 'footwear', '#.#'], // 2: a pair
+  ['boots', 'footwear', '#.#/#.#'], // 4: a tall pair
+  ['sandals', 'footwear', '#.#'], // 2: a pair
+  ['slippers', 'footwear', '#.#'], // 2: a pair
+  ['heels', 'footwear', '#./.#'], // 2: a pair, staggered
+  ['coat', 'outerwear', '###/###/###'], // 9
+  ['jacket', 'outerwear', '.#./###/#.#'], // 6
+  ['blazer', 'outerwear', '#.#/###/.#.'], // 6
+  ['raincoat', 'outerwear', '.#./###/###/#.#'], // 9
+  ['hat', 'headwear', '.#./###'], // 4
+  ['cap', 'headwear', '##'], // 2
+  ['beanie', 'headwear', '##'], // 2
+  ['scarf', 'accessories', '####'], // 4
+  ['gloves', 'accessories', '#.#'], // 2: a pair
+  ['belt', 'accessories', '###'], // 3
+  ['tie', 'accessories', '###'], // 3
+  ['watch', 'accessories', '#'], // 1
+  ['sunglasses', 'accessories', '#'], // 1
+  ['ring', 'accessories', '#'], // 1
+  ['necklace', 'accessories', '#.#/.#.'], // 3: a V
+  ['bowTie', 'accessories', '#./.#'], // 2: corner to corner
+  ['earrings', 'accessories', '#.#'], // 2: a pair
+  ['sash', 'accessories', '#../.#./..#'], // 3: a diagonal
+  ['suspenders', 'accessories', '#.#/#.#'], // 4: two straps
+  ['bikini', 'swimwear', '#.#/.../.#.'], // 3: three parts
+  ['legWarmers', 'footwear', '#.#/#.#'], // 4: a pair
 ];
 
 export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art], i) => {
