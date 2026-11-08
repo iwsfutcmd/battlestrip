@@ -59,6 +59,9 @@ export async function handOut(page: Page, browser: Browser, phoneLocale = 'en'):
   const phone = await browser.newContext({ locale: phoneLocale, viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true });
   while (await page.locator('.handout-privacy').count()) {
     await page.locator('.handout-privacy button.primary').click();
+    // The QR screen shows the code and the outfit check, never the layout itself.
+    await expect(page.locator('.handout-qr svg.qr')).toBeVisible();
+    await expect(page.locator('.handout-qr .board')).toHaveCount(0);
     const url = await page.locator('svg.qr').getAttribute('data-url');
     const check = await page.locator('[data-testid=fleet-check]').textContent();
     expect(url).toBeTruthy();

@@ -57,7 +57,8 @@ export function Handout() {
 
   return (
     <section class="handout handout-qr">
-      <PrivateFleet g={g} s={s} player={next.id} showQr showBoard />
+      {/* Only the QR code: the layout itself is for the player's phone, not the laptop's screen. */}
+      <PrivateFleet g={g} s={s} player={next.id} showQr showBoard={false} />
       <div class="actions">
         <button
           type="button"
