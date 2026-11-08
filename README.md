@@ -17,17 +17,17 @@ Battlestrip is played like Battleship, but every piece is a piece of clothing, a
     - **3:** tank top, undershirt, bikini, necklace, tie, belt, sash
     - **4:** T-shirt, blouse, vest, skirt, shorts, leggings, swimsuit, tights, boots, leg warmers, hat, scarf, suspenders
     - **5:** shirt
-    - **6:** sweater, hoodie, jacket, blazer, jeans
-    - **7:** pants, dress
+    - **6:** sweater, hoodie, jacket, blazer
+    - **7:** pants, jeans, dress
     - **8:** robe, jumpsuit
     - **9:** coat, raincoat
 
-    A test locks in this ladder. The shapes themselves are whimsical: a T-shirt is a T, pants are an upside-down U with legs, and things that come in pairs are two separate parts.
+    A test locks in this ladder. The shapes themselves are whimsical: a T-shirt is a T, pants and jeans are the same upside-down U with legs, and things that come in pairs are two separate parts.
   - **Shapes can be anything.** A shape is any set of squares, so a piece can be edge-connected, joined only at corners, or in separate parts. The sash is a diagonal line, the bow tie an X and the necklace a V; earrings are two squares apart, and a bikini comes in three parts.
   - On boards and in saved images, squares that touch only at a corner get a small diamond "bridge" on that corner. Each separate part shows the piece's number, so a scattered piece still reads as one.
   - Shapes may be turned and mirrored: up to 8 orientations each.
   - New pieces are appended at the end of the list. Numbers and list positions travel in QR codes and outfit codes, so existing pieces are never reordered.
-- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, left sock, right sock: 13 squares, no shoes, the default), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie and suspenders) and Night in.
+- **Outfits.** Each player wears any non-empty set of pieces. Ready-made outfits fill a seat in one click: Everyday (T-shirt, jeans, underwear, left sock, right sock: 14 squares, no shoes, the default), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie and suspenders) and Night in.
 - **Search.** Each seat's picker has a search box and a category filter. It matches the piece's name in the game language, its English name, its category and its number, ignoring case and accents. Search keys are lower-cased in the game's locale before accents are dropped, so Turkish İ still finds i.
 - **Pickers show each piece's shape**, as a small icon next to its number, decorative emoji and name.
 
@@ -35,7 +35,7 @@ Battlestrip is played like Battleship, but every piece is a piece of clothing, a
 - **Clothes are optional.** The app only tracks the game. Whether anyone actually takes anything off is up to the table.
 - **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. Only the wardrobe and presets (`src/engine/wardrobe.ts`, `presets.ts`), the catalogs (`ship.name`, `category.name`, `outfit.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
 - **The QR payload is at version 5** (and the TV invite at version 4), bumped whenever the wardrobe is renumbered or reshaped. Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
-- **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has only 13 squares, so games should run a little shorter. The simulation hasn't been rerun with shapes.
+- **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has only 14 squares, so games should run a little shorter. The simulation hasn't been rerun with shapes.
 
 ## Status
 
@@ -78,7 +78,7 @@ Add `?lang=<tag>` to any route to override the browser's language, e.g. `/displa
 ## Playing
 
 1. Open `/` on the laptop. Choose the game language, the wardrobe, the players (each in any script; human or bot) and each player's outfit: any non-empty set of pieces from the wardrobe.
-   The board sizes itself to the outfits: with "Size the board to the outfits" ticked (the default), it's the size at which a first shot at a random square hits someone about half the time. Two players in the everyday outfit (13 squares each) get 6×7; three get 8×8, four 9×9, six 11×11, eight 12×13. Bigger outfits get a bigger board. The lobby shows the size and the hit chance as the outfits change. Untick it to set the rows and columns yourself.
+   The board sizes itself to the outfits: with "Size the board to the outfits" ticked (the default), it's the size at which a first shot at a random square hits someone about half the time. Two players in the everyday outfit (14 squares each) get 7×7; three get 8×9, four 9×10, six 11×12, eight 13×13. Bigger outfits get a bigger board. The lobby shows the size and the hit chance as the outfits change. Untick it to set the rows and columns yourself.
 2. Press **Deal the outfits**. For each human in seat order, the laptop shows a privacy screen, then a QR code (only the code and the outfit check: the layout itself is never drawn on the laptop's screen here). The player scans it with their phone's ordinary camera, checks that the three-character outfit check matches, and presses **Got it** (or **Reroll**).
 3. **Open the TV window** and drag it to the TV. Two-window mode keeps the QR code off the TV; the TV window only ever receives the public table. In one-window mode, the table and the docked controls share the laptop's screen. Don't mirror the laptop to the TV during the handout.
 4. Each caller says a square out loud. The operator types it (`D4`, `4d`, `Ｄ７`, `د٤`, `甲7`, …) and presses Enter, or clicks it on the grid and then clicks it again or presses Enter. A click only picks a square; each call clears the pick, so the next caller can't fire with one click on a square they never chose. Grid clicks do nothing while a bot is calling. The TV shows the call and every result at once, the moment it's made. ("Pause before results" in the lobby holds the results back for a moment of suspense; it's 0 by default.) If "Read calls aloud" is ticked in the lobby (it's off by default), it also reads the call and the results aloud where a voice exists. Ctrl/Cmd+Z, on the physical Z key, takes back the last call.

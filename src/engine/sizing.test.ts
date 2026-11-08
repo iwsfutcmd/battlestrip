@@ -31,7 +31,7 @@ describe('BOARD_SIZES', () => {
 
 describe('autoBoardSize', () => {
   it('counts an outfit’s squares', () => {
-    expect(fleetSquares(rules, everyday)).toBe(13);
+    expect(fleetSquares(rules, everyday)).toBe(14);
   });
 
   it('gets smaller with fewer players and keeps a first shot near 50%', () => {
@@ -42,7 +42,7 @@ describe('autoBoardSize', () => {
       const prev = sizes[i - 1];
       if (prev) expect(s.rows * s.cols).toBeGreaterThan(prev.rows * prev.cols);
     }
-    expect(sizes.map((s) => `${s.rows}×${s.cols}`)).toEqual(['6×7', '8×8', '9×9', '10×10', '11×11', '12×12', '12×13']);
+    expect(sizes.map((s) => `${s.rows}×${s.cols}`)).toEqual(['7×7', '8×9', '9×10', '10×11', '11×12', '12×12', '13×13']);
   });
 
   it('picks the size closest to the target', () => {

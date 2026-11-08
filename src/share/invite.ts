@@ -29,7 +29,7 @@ export interface PlacementInvite {
 }
 
 /** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. 3: wardrobe renumbered (socks). 4: pieces re-sized. */
-const VERSION = 4;
+const VERSION = 5;
 const NAME_BYTES = 48;
 const MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 

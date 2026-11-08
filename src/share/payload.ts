@@ -49,7 +49,7 @@ export interface FleetImage {
  * 4: one-square underwear, two-square bra, left and right socks (wardrobe renumbered).
  * 5: every piece sized by how big it really is.
  */
-export const PAYLOAD_VERSION = 5;
+export const PAYLOAD_VERSION = 6;
 /** Keeps the worst-case URL under ~400 characters (24 emoji ZWJ sequences would be ~600 bytes). */
 export const MAX_NAME_BYTES = 160;
 

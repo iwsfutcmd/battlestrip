@@ -34,7 +34,7 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['blouse', 'tops', '.##/##.'], // 4
   ['vest', 'tops', '#.#/#.#'], // 4: two open panels
   ['pants', 'bottoms', '###/#.#/#.#'], // 7
-  ['jeans', 'bottoms', '##/##/##'], // 6
+  ['jeans', 'bottoms', '###/#.#/#.#'], // 7: the same shape as pants
   ['shorts', 'bottoms', '##/##'], // 4
   ['skirt', 'bottoms', '.#./###'], // 4
   ['leggings', 'bottoms', '####'], // 4
