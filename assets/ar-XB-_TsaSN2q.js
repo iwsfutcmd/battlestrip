@@ -1,0 +1,152 @@
+var e={"app.title":`‏‮Battlestrip‬‏`,"app.tagline":`‏‮Strip‬‏ ‏‮battleship‬‏ ‏‮for‬‏ ‏‮the‬‏ ‏‮whole‬‏ ‏‮table:‬‏ ‏‮every‬‏ ‏‮call‬‏ ‏‮lands‬‏ ‏‮on‬‏ ‏‮everyone.‬‏`,"title.control":`‏‮Battlestrip‬‏ ‏‮—‬‏ ‏‮control‬‏ ‏‮panel‬‏`,"title.display":`‏‮Battlestrip‬‏ ‏‮—‬‏ ‏‮shared‬‏ ‏‮screen‬‏`,"title.fleet":`‏‮Battlestrip‬‏ ‏‮—‬‏ ‏‮your‬‏ ‏‮outfit‬‏`,"language.label":`‏‮Language‬‏`,"language.gameLabel":`‏‮Game‬‏ ‏‮language‬‏`,"route.display.waiting":`‏‮Waiting‬‏ ‏‮for‬‏ ‏‮the‬‏ ‏‮control‬‏ ‏‮panel…‬‏`,"route.fleet.heading":`‏‮Your‬‏ ‏‮outfit‬‏`,"route.fleet.scanHint":`‏‮Scan‬‏ ‏‮the‬‏ ‏‮QR‬‏ ‏‮code‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮laptop‬‏ ‏‮with‬‏ ‏‮your‬‏ ‏‮phone’s‬‏ ‏‮camera‬‏ ‏‮to‬‏ ‏‮see‬‏ ‏‮your‬‏ ‏‮outfit‬‏ ‏‮here.‬‏`,"coord.label":`{$row}{$col}`,"coord.bothNumeric":`{$row}‏‮-‬‏{$col}`,"coord.spoken":`{$row} {$col}`,"ship.name":`.input {$kind :string}
+.match $kind
+tShirt {{‏‮T-shirt‬‏}}
+shirt {{‏‮shirt‬‏}}
+tankTop {{‏‮tank‬‏ ‏‮top‬‏}}
+sweater {{‏‮sweater‬‏}}
+hoodie {{‏‮hoodie‬‏}}
+cropTop {{‏‮crop‬‏ ‏‮top‬‏}}
+blouse {{‏‮blouse‬‏}}
+vest {{‏‮vest‬‏}}
+pants {{‏‮pants‬‏}}
+jeans {{‏‮jeans‬‏}}
+shorts {{‏‮shorts‬‏}}
+skirt {{‏‮skirt‬‏}}
+leggings {{‏‮leggings‬‏}}
+dress {{‏‮dress‬‏}}
+swimsuit {{‏‮swimsuit‬‏}}
+robe {{‏‮robe‬‏}}
+jumpsuit {{‏‮jumpsuit‬‏}}
+underwear {{‏‮underwear‬‏}}
+boxers {{‏‮boxers‬‏}}
+bra {{‏‮bra‬‏}}
+undershirt {{‏‮undershirt‬‏}}
+tights {{‏‮tights‬‏}}
+socks {{‏‮socks‬‏}}
+shoes {{‏‮shoes‬‏}}
+boots {{‏‮boots‬‏}}
+sandals {{‏‮sandals‬‏}}
+slippers {{‏‮slippers‬‏}}
+heels {{‏‮heels‬‏}}
+coat {{‏‮coat‬‏}}
+jacket {{‏‮jacket‬‏}}
+blazer {{‏‮blazer‬‏}}
+raincoat {{‏‮raincoat‬‏}}
+cape {{‏‮cape‬‏}}
+hat {{‏‮hat‬‏}}
+cap {{‏‮cap‬‏}}
+beanie {{‏‮beanie‬‏}}
+scarf {{‏‮scarf‬‏}}
+gloves {{‏‮gloves‬‏}}
+belt {{‏‮belt‬‏}}
+tie {{‏‮tie‬‏}}
+watch {{‏‮watch‬‏}}
+sunglasses {{‏‮sunglasses‬‏}}
+ring {{‏‮ring‬‏}}
+sock {{‏‮sock‬‏}}
+glove {{‏‮glove‬‏}}
+necklace {{‏‮necklace‬‏}}
+bowTie {{‏‮bow‬‏ ‏‮tie‬‏}}
+earrings {{‏‮earrings‬‏}}
+sash {{‏‮sash‬‏}}
+suspenders {{‏‮suspenders‬‏}}
+bikini {{‏‮bikini‬‏}}
+legWarmers {{‏‮leg‬‏ ‏‮warmers‬‏}}
+leftSock {{‏‮left‬‏ ‏‮sock‬‏}}
+rightSock {{‏‮right‬‏ ‏‮sock‬‏}}
+* {{‏‮item‬‏}}`,"ship.withCopy":`{$name} {$copy :integer}`,"ship.status":`.input {$hits :number}
+.match $hits
+0 {{{$ship}‏‮,‬‏ {$length :integer} ‏‮squares,‬‏ ‏‮not‬‏ ‏‮hit‬‏}}
+one {{{$ship}‏‮,‬‏ {$length :integer} ‏‮squares,‬‏ {$hits} ‏‮hit‬‏}}
+* {{{$ship}‏‮,‬‏ {$length :integer} ‏‮squares,‬‏ {$hits} ‏‮hits‬‏}}`,"ship.sunkStatus":`{$ship}‏‮:‬‏ ‏‮off‬‏`,"roster.heading":`‏‮Players‬‏`,"shapeKey.heading":`‏‮Shapes‬‏`,"roster.calling":`{$name} ‏‮is‬‏ ‏‮calling‬‏`,"roster.bombing":`{$name} ‏‮is‬‏ ‏‮bombing‬‏`,"roster.choosing":`{$name} ‏‮is‬‏ ‏‮choosing…‬‏`,"roster.nuclear":`‏‮Nuclear‬‏`,"roster.ready":`‏‮Has‬‏ ‏‮their‬‏ ‏‮outfit‬‏`,"roster.bot":`‏‮Bot‬‏`,"call.bomb":`‏‮Bomb‬‏`,"call.turn":`‏‮Turn‬‏ {$turn :integer}`,"result.hit":`{$player}‏‮:‬‏ {$ship}‏‮,‬‏ {$square}`,"result.noHits":`‏‮No‬‏ ‏‮hits‬‏`,"result.sunk":`‏‮Off:‬‏ {$player}‏‮,‬‏ {$ship}`,"result.nuclear":`{$player} ‏‮is‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing,‬‏ ‏‮and‬‏ ‏‮goes‬‏ ‏‮nuclear!‬‏`,"spoken.call":`{$coord}`,"spoken.bomb":`‏‮Bomb,‬‏ {$coord}`,"spoken.hit":`‏‮Hit:‬‏ {$player}‏‮,‬‏ {$ship}‏‮.‬‏`,"spoken.sunk":`‏‮Off:‬‏ {$player}‏‮,‬‏ {$ship}‏‮.‬‏`,"spoken.nuclear":`{$player} ‏‮is‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing,‬‏ ‏‮and‬‏ ‏‮goes‬‏ ‏‮nuclear.‬‏`,"spoken.noHits":`‏‮No‬‏ ‏‮hits.‬‏`,"spoken.lastFleet":`{$player} ‏‮is‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed!‬‏`,"spoken.allNuclear":`‏‮Everyone‬‏ ‏‮is‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing.‬‏ ‏‮Everyone‬‏ ‏‮went‬‏ ‏‮nuclear!‬‏`,"over.heading":`‏‮Game‬‏ ‏‮over‬‏`,"over.lastFleet":`{$player} ‏‮is‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed!‬‏`,"over.allNuclear":`‏‮One‬‏ ‏‮call‬‏ ‏‮took‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮of‬‏ ‏‮everyone’s‬‏ ‏‮clothes.‬‏ ‏‮Everyone‬‏ ‏‮went‬‏ ‏‮nuclear!‬‏`,"over.awards":`‏‮Awards‬‏`,"over.fleets":`‏‮Every‬‏ ‏‮outfit,‬‏ ‏‮revealed‬‏`,"over.replay":`‏‮Play‬‏ ‏‮again‬‏ ‏‮with‬‏ ‏‮the‬‏ ‏‮same‬‏ ‏‮seed‬‏`,"over.newGame":`‏‮New‬‏ ‏‮game‬‏`,"award.friendlyFire":`.input {$count :number}
+.match $count
+one {{‏‮Friendly‬‏ ‏‮fire:‬‏ {$players}‏‮,‬‏ ‏‮with‬‏ {$count} ‏‮hit‬‏ ‏‮on‬‏ ‏‮their‬‏ ‏‮own‬‏ ‏‮outfit‬‏}}
+* {{‏‮Friendly‬‏ ‏‮fire:‬‏ {$players}‏‮,‬‏ ‏‮with‬‏ {$count} ‏‮hits‬‏ ‏‮on‬‏ ‏‮their‬‏ ‏‮own‬‏ ‏‮outfit‬‏}}`,"award.biggestBomb":`.input {$count :number}
+.match $count
+one {{‏‮Biggest‬‏ ‏‮bomb:‬‏ {$players}‏‮,‬‏ {$count} ‏‮hit‬‏ ‏‮in‬‏ ‏‮one‬‏ ‏‮blast‬‏}}
+* {{‏‮Biggest‬‏ ‏‮bomb:‬‏ {$players}‏‮,‬‏ {$count} ‏‮hits‬‏ ‏‮in‬‏ ‏‮one‬‏ ‏‮blast‬‏}}`,"award.longestSurvivor":`‏‮Last‬‏ ‏‮thing‬‏ ‏‮off:‬‏ {$ships}‏‮,‬‏ ‏‮kept‬‏ ‏‮on‬‏ ‏‮until‬‏ ‏‮turn‬‏ {$count :integer}`,"award.firstNuclear":`‏‮First‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing:‬‏ {$players}‏‮,‬‏ ‏‮on‬‏ ‏‮turn‬‏ {$count :integer}`,"award.bombSinker":`.input {$count :number}
+.match $count
+one {{‏‮Bomb‬‏ ‏‮squad:‬‏ {$players}‏‮,‬‏ {$count} ‏‮item‬‏ ‏‮knocked‬‏ ‏‮off‬‏ ‏‮by‬‏ ‏‮bombs‬‏}}
+* {{‏‮Bomb‬‏ ‏‮squad:‬‏ {$players}‏‮,‬‏ {$count} ‏‮items‬‏ ‏‮knocked‬‏ ‏‮off‬‏ ‏‮by‬‏ ‏‮bombs‬‏}}`,"award.sharpshooter":`.input {$count :number}
+.match $count
+one {{‏‮Sharpshooter:‬‏ {$players}‏‮,‬‏ {$count} ‏‮hit‬‏ ‏‮on‬‏ ‏‮other‬‏ ‏‮outfits‬‏}}
+* {{‏‮Sharpshooter:‬‏ {$players}‏‮,‬‏ {$count} ‏‮hits‬‏ ‏‮on‬‏ ‏‮other‬‏ ‏‮outfits‬‏}}`,"award.shipOf":`{$ship} ‏‮(‬‏{$player}‏‮)‬‏`,"display.gameCode":`‏‮Game‬‏`,"display.fullscreen":`‏‮Full‬‏ ‏‮screen‬‏`,"display.setup":`‏‮Setting‬‏ ‏‮up:‬‏ ‏‮each‬‏ ‏‮player‬‏ ‏‮gets‬‏ ‏‮their‬‏ ‏‮outfit‬‏ ‏‮privately‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮laptop.‬‏`,"display.lobby":`‏‮Choosing‬‏ ‏‮players‬‏ ‏‮and‬‏ ‏‮outfits…‬‏`,"lobby.heading":`‏‮New‬‏ ‏‮game‬‏`,"lobby.players":`‏‮Players‬‏`,"lobby.playerCount":`.input {$count :number}
+.match $count
+one {{{$count} ‏‮player‬‏}}
+* {{{$count} ‏‮players‬‏}}`,"lobby.seatNumber":`‏‮Seat‬‏ {$seat :integer}`,"lobby.addPlayer":`‏‮Add‬‏ ‏‮a‬‏ ‏‮player‬‏`,"lobby.removePlayer":`‏‮Remove‬‏ {$name}`,"lobby.name":`‏‮Name‬‏`,"lobby.defaultName":`‏‮Player‬‏ {$n :integer}`,"lobby.kind":`‏‮Who‬‏ ‏‮plays‬‏`,"lobby.human":`‏‮A‬‏ ‏‮person‬‏`,"lobby.bot":`‏‮A‬‏ ‏‮bot‬‏`,"lobby.botKind":`‏‮Bot‬‏ ‏‮style‬‏`,"bot.random":`‏‮Random‬‏`,"bot.density":`‏‮Density‬‏`,"lobby.fleet":`‏‮Outfit‬‏`,"lobby.policy":`‏‮Bot‬‏ ‏‮outfit‬‏`,"policy.full":`‏‮Everyday‬‏ ‏‮outfit‬‏`,"policy.random":`‏‮A‬‏ ‏‮random‬‏ ‏‮outfit‬‏`,"policy.fixed":`‏‮These‬‏ ‏‮clothes‬‏`,"lobby.fleetEmpty":`‏‮Pick‬‏ ‏‮at‬‏ ‏‮least‬‏ ‏‮one‬‏ ‏‮item‬‏ ‏‮of‬‏ ‏‮clothing.‬‏`,"lobby.nameEmpty":`‏‮Every‬‏ ‏‮player‬‏ ‏‮needs‬‏ ‏‮a‬‏ ‏‮name.‬‏`,"lobby.duplicateName":`‏‮Two‬‏ ‏‮players‬‏ ‏‮have‬‏ ‏‮the‬‏ ‏‮same‬‏ ‏‮name.‬‏`,"lobby.settings":`‏‮Settings‬‏`,"lobby.autoSize":`‏‮Size‬‏ ‏‮the‬‏ ‏‮board‬‏ ‏‮to‬‏ ‏‮the‬‏ ‏‮outfits‬‏`,"lobby.hitChance":`‏‮A‬‏ ‏‮first‬‏ ‏‮shot‬‏ ‏‮at‬‏ ‏‮a‬‏ ‏‮random‬‏ ‏‮square‬‏ ‏‮hits‬‏ ‏‮someone‬‏ ‏‮about‬‏ {$chance :percent} ‏‮of‬‏ ‏‮the‬‏ ‏‮time.‬‏`,"lobby.rows":`‏‮Rows‬‏`,"lobby.cols":`‏‮Columns‬‏`,"lobby.touching":`‏‮Clothes‬‏ ‏‮may‬‏ ‏‮touch‬‏`,"lobby.labels":`‏‮Row‬‏ ‏‮labels‬‏`,"lobby.labels2":`‏‮Second‬‏ ‏‮row‬‏ ‏‮labels‬‏`,"labels.none":`‏‮None‬‏`,"labels.system":`.input {$id :string}
+.match $id
+latin {{‏‮Latin‬‏ ‏‮(A‬‏ ‏‮B‬‏ ‏‮C)‬‏}}
+arabicAbjad {{‏‮Arabic,‬‏ ‏‮abjad‬‏ ‏‮order‬‏ ‏‮(أ‬‏ ‏‮ب‬‏ ‏‮ج)‬‏}}
+arabicAlphabetical {{‏‮Arabic,‬‏ ‏‮alphabetical‬‏ ‏‮(أ‬‏ ‏‮ب‬‏ ‏‮ت)‬‏}}
+persian {{‏‮Persian‬‏ ‏‮(الف‬‏ ‏‮ب‬‏ ‏‮پ)‬‏}}
+persianAbjad {{‏‮Persian,‬‏ ‏‮abjad‬‏ ‏‮order‬‏ ‏‮(الف‬‏ ‏‮ب‬‏ ‏‮ج)‬‏}}
+hebrew {{‏‮Hebrew‬‏ ‏‮(א‬‏ ‏‮ב‬‏ ‏‮ג)‬‏}}
+greek {{‏‮Greek‬‏ ‏‮(Α‬‏ ‏‮Β‬‏ ‏‮Γ)‬‏}}
+morskoyBoy {{‏‮Russian‬‏ ‏‮(А‬‏ ‏‮Б‬‏ ‏‮В)‬‏}}
+respublika {{‏‮РЕСПУБЛИКА‬‏}}
+heavenlyStems {{‏‮Heavenly‬‏ ‏‮Stems‬‏ ‏‮(甲‬‏ ‏‮乙‬‏ ‏‮丙)‬‏}}
+earthlyBranches {{‏‮Earthly‬‏ ‏‮Branches‬‏ ‏‮(子‬‏ ‏‮丑‬‏ ‏‮寅)‬‏}}
+hangul {{‏‮Hangul‬‏ ‏‮(가‬‏ ‏‮나‬‏ ‏‮다)‬‏}}
+iroha {{‏‮Iroha‬‏ ‏‮(イ‬‏ ‏‮ロ‬‏ ‏‮ハ)‬‏}}
+numeric {{‏‮Numbers‬‏ ‏‮(1‬‏ ‏‮2‬‏ ‏‮3)‬‏}}
+* {{{$id}}}`,"lobby.labelsFallback":`‏‮Too‬‏ ‏‮many‬‏ ‏‮rows‬‏ ‏‮for‬‏ ‏‮that‬‏ ‏‮system:‬‏ ‏‮the‬‏ ‏‮rows‬‏ ‏‮use‬‏ {$used} ‏‮instead.‬‏`,"lobby.writingMode":`‏‮Board‬‏ ‏‮orientation‬‏`,"wm.horizontal":`‏‮Horizontal‬‏`,"wm.vertical":`‏‮Vertical‬‏`,"lobby.seed":`‏‮Seed‬‏ ‏‮(optional)‬‏`,"lobby.beat":`‏‮Pause‬‏ ‏‮before‬‏ ‏‮results,‬‏ ‏‮in‬‏ ‏‮seconds‬‏`,"lobby.botDelay":`‏‮Bot‬‏ ‏‮thinking‬‏ ‏‮time,‬‏ ‏‮in‬‏ ‏‮seconds‬‏`,"lobby.speech":`‏‮Read‬‏ ‏‮calls‬‏ ‏‮aloud‬‏`,"lobby.start":`‏‮Deal‬‏ ‏‮the‬‏ ‏‮outfits‬‏`,"lobby.noLayout":`‏‮These‬‏ ‏‮clothes‬‏ ‏‮don’t‬‏ ‏‮fit‬‏ ‏‮on‬‏ ‏‮this‬‏ ‏‮board.‬‏ ‏‮Make‬‏ ‏‮the‬‏ ‏‮board‬‏ ‏‮bigger‬‏ ‏‮or‬‏ ‏‮the‬‏ ‏‮outfits‬‏ ‏‮smaller.‬‏`,"lobby.resume":`‏‮There’s‬‏ ‏‮a‬‏ ‏‮saved‬‏ ‏‮game‬‏ ‏‮from‬‏ ‏‮earlier.‬‏`,"lobby.resumeYes":`‏‮Resume‬‏ ‏‮it‬‏`,"lobby.resumeNo":`‏‮Discard‬‏ ‏‮it‬‏`,"handout.heading":`‏‮Outfit‬‏ ‏‮handout‬‏`,"handout.passTo":`‏‮Pass‬‏ ‏‮the‬‏ ‏‮laptop‬‏ ‏‮to‬‏ {$name}`,"handout.lookAway":`‏‮Everyone‬‏ ‏‮else,‬‏ ‏‮look‬‏ ‏‮away.‬‏`,"handout.show":`‏‮Show‬‏ ‏‮my‬‏ ‏‮outfit‬‏`,"handout.scan":`‏‮Scan‬‏ ‏‮this‬‏ ‏‮with‬‏ ‏‮your‬‏ ‏‮phone’s‬‏ ‏‮camera.‬‏ ‏‮Your‬‏ ‏‮outfit‬‏ ‏‮stays‬‏ ‏‮on‬‏ ‏‮your‬‏ ‏‮phone.‬‏`,"handout.check":`‏‮Outfit‬‏ ‏‮check‬‏`,"handout.gotIt":`‏‮Got‬‏ ‏‮it‬‏`,"handout.reroll":`‏‮Reroll‬‏`,"handout.progress":`.input {$total :number}
+.match $total
+one {{{$done :integer} ‏‮of‬‏ {$total} ‏‮player‬‏ ‏‮has‬‏ ‏‮their‬‏ ‏‮outfit‬‏}}
+* {{{$done :integer} ‏‮of‬‏ {$total} ‏‮players‬‏ ‏‮have‬‏ ‏‮their‬‏ ‏‮outfit‬‏}}`,"handout.start":`‏‮Start‬‏ ‏‮the‬‏ ‏‮game‬‏`,"handout.skip":`‏‮Skip‬‏ ‏‮(no‬‏ ‏‮phone)‬‏`,"play.callLabel":`‏‮Call‬‏`,"play.callHint":`‏‮Type‬‏ ‏‮a‬‏ ‏‮square‬‏ ‏‮like‬‏ {$example} ‏‮and‬‏ ‏‮press‬‏ ‏‮Enter,‬‏ ‏‮or‬‏ ‏‮click‬‏ ‏‮a‬‏ ‏‮square‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮grid‬‏ ‏‮and‬‏ ‏‮click‬‏ ‏‮it‬‏ ‏‮again‬‏ ‏‮(or‬‏ ‏‮press‬‏ ‏‮Enter).‬‏`,"play.bombHint":`{$name} ‏‮is‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing:‬‏ ‏‮the‬‏ ‏‮call‬‏ ‏‮drops‬‏ ‏‮a‬‏ ‏‮2×2‬‏ ‏‮bomb‬‏ ‏‮from‬‏ ‏‮that‬‏ ‏‮square,‬‏ ‏‮moved‬‏ ‏‮back‬‏ ‏‮onto‬‏ ‏‮the‬‏ ‏‮board‬‏ ‏‮near‬‏ ‏‮the‬‏ ‏‮edges.‬‏`,"play.submit":`‏‮Call‬‏ ‏‮it‬‏`,"play.undo":`‏‮Undo‬‏ ‏‮last‬‏ ‏‮call‬‏`,"play.undoNote":`‏‮Undo‬‏ ‏‮is‬‏ ‏‮only‬‏ ‏‮for‬‏ ‏‮typos:‬‏ ‏‮everyone‬‏ ‏‮already‬‏ ‏‮saw‬‏ ‏‮the‬‏ ‏‮result.‬‏`,"play.undone":`‏‮The‬‏ ‏‮last‬‏ ‏‮call‬‏ ‏‮was‬‏ ‏‮taken‬‏ ‏‮back.‬‏`,"play.peek":`‏‮Show‬‏ ‏‮an‬‏ ‏‮outfit‬‏ ‏‮privately‬‏`,"play.grid":`‏‮Board‬‏`,"play.openDisplay":`‏‮Open‬‏ ‏‮the‬‏ ‏‮TV‬‏ ‏‮window‬‏`,"play.hideTable":`‏‮Hide‬‏ ‏‮the‬‏ ‏‮table‬‏ ‏‮here‬‏`,"play.showTable":`‏‮Show‬‏ ‏‮the‬‏ ‏‮table‬‏ ‏‮here‬‏`,"play.controls":`‏‮Controls‬‏`,"play.collapse":`‏‮Collapse‬‏ ‏‮the‬‏ ‏‮controls‬‏`,"play.expand":`‏‮Expand‬‏ ‏‮the‬‏ ‏‮controls‬‏`,"play.endGame":`‏‮End‬‏ ‏‮this‬‏ ‏‮game‬‏`,"cell.unshot":`{$coord}‏‮,‬‏ ‏‮not‬‏ ‏‮called‬‏`,"cell.miss":`{$coord}‏‮,‬‏ ‏‮miss‬‏`,"cell.hit":`{$coord}‏‮,‬‏ ‏‮hit:‬‏ {$players}`,"parse.empty":`‏‮Type‬‏ ‏‮a‬‏ ‏‮square‬‏ ‏‮first.‬‏`,"parse.unrecognised":`‏‮That‬‏ ‏‮doesn’t‬‏ ‏‮look‬‏ ‏‮like‬‏ ‏‮a‬‏ ‏‮square‬‏ ‏‮on‬‏ ‏‮this‬‏ ‏‮board.‬‏`,"parse.outOfRange":`‏‮That‬‏ ‏‮square‬‏ ‏‮isn’t‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮board.‬‏`,"parse.ambiguous":`‏‮Put‬‏ ‏‮a‬‏ ‏‮separator‬‏ ‏‮between‬‏ ‏‮the‬‏ ‏‮row‬‏ ‏‮and‬‏ ‏‮the‬‏ ‏‮column,‬‏ ‏‮like‬‏ {$example}‏‮.‬‏`,"error.violation":`.input {$code :string}
+.match $code
+notYourTurn {{‏‮It‬‏ ‏‮isn’t‬‏ ‏‮that‬‏ ‏‮player’s‬‏ ‏‮turn.‬‏}}
+outOfBounds {{‏‮That‬‏ ‏‮square‬‏ ‏‮isn’t‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮board.‬‏}}
+noUnshotTarget {{‏‮That‬‏ ‏‮square‬‏ ‏‮has‬‏ ‏‮already‬‏ ‏‮been‬‏ ‏‮called.‬‏}}
+bombOffBoard {{‏‮A‬‏ ‏‮bomb‬‏ ‏‮there‬‏ ‏‮would‬‏ ‏‮run‬‏ ‏‮off‬‏ ‏‮the‬‏ ‏‮board.‬‏ ‏‮Pick‬‏ ‏‮a‬‏ ‏‮corner‬‏ ‏‮one‬‏ ‏‮square‬‏ ‏‮further‬‏ ‏‮in.‬‏}}
+wrongPhase {{‏‮That‬‏ ‏‮can’t‬‏ ‏‮be‬‏ ‏‮done‬‏ ‏‮right‬‏ ‏‮now.‬‏}}
+noLegalLayout {{‏‮These‬‏ ‏‮clothes‬‏ ‏‮don’t‬‏ ‏‮fit‬‏ ‏‮on‬‏ ‏‮this‬‏ ‏‮board.‬‏}}
+* {{‏‮That‬‏ ‏‮isn’t‬‏ ‏‮allowed.‬‏}}`,"peek.heading":`‏‮Show‬‏ ‏‮an‬‏ ‏‮outfit‬‏ ‏‮privately‬‏`,"peek.choose":`‏‮Whose‬‏ ‏‮outfit?‬‏`,"peek.hold":`‏‮Press‬‏ ‏‮and‬‏ ‏‮hold‬‏ ‏‮to‬‏ ‏‮see‬‏ ‏‮the‬‏ ‏‮outfit‬‏`,"peek.showQr":`‏‮Show‬‏ ‏‮the‬‏ ‏‮QR‬‏ ‏‮code‬‏ ‏‮again‬‏`,"common.done":`‏‮Done‬‏`,"common.cancel":`‏‮Cancel‬‏`,"phone.hold":`‏‮Press‬‏ ‏‮and‬‏ ‏‮hold‬‏ ‏‮to‬‏ ‏‮see‬‏ ‏‮your‬‏ ‏‮outfit‬‏`,"phone.alwaysShow":`‏‮Always‬‏ ‏‮show‬‏`,"phone.save":`‏‮Save‬‏ ‏‮image‬‏`,"phone.legend":`‏‮Clothes‬‏`,"phone.gameCode":`‏‮Game‬‏`,"phone.fleetCheck":`‏‮Outfit‬‏ ‏‮check‬‏`,"phone.invalid":`‏‮This‬‏ ‏‮link‬‏ ‏‮doesn’t‬‏ ‏‮hold‬‏ ‏‮an‬‏ ‏‮outfit.‬‏ ‏‮Scan‬‏ ‏‮the‬‏ ‏‮code‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮laptop‬‏ ‏‮again.‬‏`,"phone.shipLine":`{$number :integer} ‏‮·‬‏ {$ship}‏‮:‬‏ {$squares}`,"phone.shipsAlt":`‏‮Your‬‏ ‏‮clothes‬‏`,"speech.noVoice":`‏‮No‬‏ ‏‮voice‬‏ ‏‮for‬‏ ‏‮this‬‏ ‏‮language‬‏ ‏‮is‬‏ ‏‮available,‬‏ ‏‮so‬‏ ‏‮calls‬‏ ‏‮won’t‬‏ ‏‮be‬‏ ‏‮read‬‏ ‏‮aloud.‬‏`,"title.place":`‏‮Battlestrip‬‏ ‏‮—‬‏ ‏‮lay‬‏ ‏‮out‬‏ ‏‮your‬‏ ‏‮clothes‬‏`,"place.heading":`‏‮Lay‬‏ ‏‮out‬‏ ‏‮your‬‏ ‏‮clothes‬‏`,"place.who":`‏‮Who‬‏ ‏‮are‬‏ ‏‮you?‬‏`,"place.hint":`‏‮Pick‬‏ ‏‮an‬‏ ‏‮item,‬‏ ‏‮then‬‏ ‏‮tap‬‏ ‏‮where‬‏ ‏‮it‬‏ ‏‮goes.‬‏ ‏‮Rotate‬‏ ‏‮and‬‏ ‏‮Flip‬‏ ‏‮turn‬‏ ‏‮the‬‏ ‏‮selected‬‏ ‏‮item.‬‏`,"place.rotate":`‏‮Rotate‬‏`,"place.random":`‏‮Random‬‏`,"place.clear":`‏‮Clear‬‏`,"place.invalid":`‏‮That‬‏ ‏‮doesn’t‬‏ ‏‮fit‬‏ ‏‮there.‬‏`,"place.done":`‏‮Done‬‏`,"place.codeHeading":`‏‮Your‬‏ ‏‮outfit‬‏ ‏‮code‬‏`,"place.codeHint":`‏‮Show‬‏ ‏‮this‬‏ ‏‮to‬‏ ‏‮the‬‏ ‏‮laptop’s‬‏ ‏‮camera,‬‏ ‏‮or‬‏ ‏‮read‬‏ ‏‮the‬‏ ‏‮code‬‏ ‏‮out‬‏ ‏‮to‬‏ ‏‮whoever‬‏ ‏‮is‬‏ ‏‮at‬‏ ‏‮the‬‏ ‏‮laptop.‬‏`,"place.showFleet":`‏‮Show‬‏ ‏‮my‬‏ ‏‮outfit‬‏ ‏‮image‬‏`,"place.change":`‏‮Change‬‏ ‏‮my‬‏ ‏‮placement‬‏`,"place.invalidLink":`‏‮This‬‏ ‏‮link‬‏ ‏‮doesn’t‬‏ ‏‮hold‬‏ ‏‮a‬‏ ‏‮game.‬‏ ‏‮Scan‬‏ ‏‮the‬‏ ‏‮code‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮TV‬‏ ‏‮again.‬‏`,"lobby.theme":`‏‮Theme‬‏`,"lobby.placement":`‏‮Laying‬‏ ‏‮out‬‏ ‏‮clothes‬‏`,"placement.random":`‏‮Random,‬‏ ‏‮handed‬‏ ‏‮out‬‏ ‏‮by‬‏ ‏‮QR‬‏ ‏‮code‬‏`,"placement.phones":`‏‮Players‬‏ ‏‮lay‬‏ ‏‮out‬‏ ‏‮their‬‏ ‏‮own‬‏ ‏‮on‬‏ ‏‮their‬‏ ‏‮phones‬‏`,"placement.heading":`‏‮Players‬‏ ‏‮lay‬‏ ‏‮out‬‏ ‏‮their‬‏ ‏‮clothes‬‏`,"placement.scanTv":`‏‮Everyone‬‏ ‏‮scans‬‏ ‏‮the‬‏ ‏‮code‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮TV‬‏ ‏‮with‬‏ ‏‮their‬‏ ‏‮phone,‬‏ ‏‮lays‬‏ ‏‮out‬‏ ‏‮their‬‏ ‏‮clothes,‬‏ ‏‮then‬‏ ‏‮shows‬‏ ‏‮their‬‏ ‏‮outfit‬‏ ‏‮code‬‏ ‏‮here.‬‏`,"placement.codeLabel":`‏‮Outfit‬‏ ‏‮code‬‏`,"placement.enter":`‏‮Enter‬‏`,"placement.scan":`‏‮Scan‬‏ ‏‮with‬‏ ‏‮the‬‏ ‏‮camera‬‏`,"placement.stopScan":`‏‮Stop‬‏ ‏‮scanning‬‏`,"placement.accepted":`‏‮Placed:‬‏ {$name}`,"placement.waiting":`‏‮Waiting‬‏`,"display.placementQr":`‏‮Scan‬‏ ‏‮to‬‏ ‏‮lay‬‏ ‏‮out‬‏ ‏‮your‬‏ ‏‮clothes‬‏`,"code.error":`.input {$code :string}
+.match $code
+empty {{‏‮Type‬‏ ‏‮or‬‏ ‏‮scan‬‏ ‏‮an‬‏ ‏‮outfit‬‏ ‏‮code‬‏ ‏‮first.‬‏}}
+badCharacter {{‏‮That‬‏ ‏‮code‬‏ ‏‮has‬‏ ‏‮a‬‏ ‏‮character‬‏ ‏‮that‬‏ ‏‮can’t‬‏ ‏‮be‬‏ ‏‮in‬‏ ‏‮an‬‏ ‏‮outfit‬‏ ‏‮code.‬‏}}
+length {{‏‮That‬‏ ‏‮code‬‏ ‏‮is‬‏ ‏‮the‬‏ ‏‮wrong‬‏ ‏‮length.‬‏}}
+checksum {{‏‮That‬‏ ‏‮code‬‏ ‏‮has‬‏ ‏‮a‬‏ ‏‮typo:‬‏ ‏‮check‬‏ ‏‮it‬‏ ‏‮and‬‏ ‏‮try‬‏ ‏‮again.‬‏}}
+otherGame {{‏‮That‬‏ ‏‮code‬‏ ‏‮is‬‏ ‏‮from‬‏ ‏‮a‬‏ ‏‮different‬‏ ‏‮game.‬‏}}
+wrongFleet {{‏‮That‬‏ ‏‮code‬‏ ‏‮doesn’t‬‏ ‏‮match‬‏ ‏‮this‬‏ ‏‮player’s‬‏ ‏‮outfit.‬‏}}
+badLayout {{‏‮Those‬‏ ‏‮clothes‬‏ ‏‮overlap‬‏ ‏‮or‬‏ ‏‮touch.‬‏}}
+* {{‏‮That‬‏ ‏‮code‬‏ ‏‮doesn’t‬‏ ‏‮work.‬‏}}`,"lobby.playOut":`‏‮Play‬‏ ‏‮on‬‏ ‏‮when‬‏ ‏‮only‬‏ ‏‮one‬‏ ‏‮player‬‏ ‏‮is‬‏ ‏‮still‬‏ ‏‮dressed,‬‏ ‏‮until‬‏ ‏‮they’re‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing‬‏ ‏‮too‬‏`,"roster.lastFleet":`‏‮Last‬‏ ‏‮one‬‏ ‏‮dressed‬‏`,"result.lastFleet":`{$player} ‏‮is‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed!‬‏ ‏‮Everyone‬‏ ‏‮else,‬‏ ‏‮get‬‏ ‏‮them.‬‏`,"spoken.lastFleetStanding":`{$player} ‏‮is‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed.‬‏ ‏‮Everyone‬‏ ‏‮else,‬‏ ‏‮get‬‏ ‏‮them.‬‏`,"play.lastFleetBanner":`{$player} ‏‮is‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed.‬‏ ‏‮Play‬‏ ‏‮on‬‏ ‏‮until‬‏ ‏‮they’re‬‏ ‏‮down‬‏ ‏‮to‬‏ ‏‮nothing,‬‏ ‏‮or‬‏ ‏‮end‬‏ ‏‮the‬‏ ‏‮game‬‏ ‏‮here.‬‏`,"play.endHere":`‏‮End‬‏ ‏‮the‬‏ ‏‮game‬‏ ‏‮here‬‏`,"over.playedOut":`.input {$turns :number}
+.match $turns
+0 {{{$player} ‏‮was‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed,‬‏ ‏‮and‬‏ ‏‮lost‬‏ ‏‮the‬‏ ‏‮rest‬‏ ‏‮on‬‏ ‏‮the‬‏ ‏‮very‬‏ ‏‮next‬‏ ‏‮call!‬‏}}
+one {{{$player} ‏‮was‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed,‬‏ ‏‮and‬‏ ‏‮held‬‏ ‏‮out‬‏ ‏‮for‬‏ {$turns} ‏‮more‬‏ ‏‮turn!‬‏}}
+* {{{$player} ‏‮was‬‏ ‏‮the‬‏ ‏‮last‬‏ ‏‮one‬‏ ‏‮still‬‏ ‏‮dressed,‬‏ ‏‮and‬‏ ‏‮held‬‏ ‏‮out‬‏ ‏‮for‬‏ {$turns} ‏‮more‬‏ ‏‮turns!‬‏}}`,"category.name":`.input {$id :string}
+.match $id
+tops {{‏‮tops‬‏}}
+bottoms {{‏‮bottoms‬‏}}
+onePieces {{‏‮one-pieces‬‏}}
+swimwear {{‏‮swimwear‬‏}}
+underwear {{‏‮underwear‬‏}}
+footwear {{‏‮footwear‬‏}}
+outerwear {{‏‮outerwear‬‏}}
+headwear {{‏‮headwear‬‏}}
+accessories {{‏‮accessories‬‏}}
+* {{{$id}}}`,"outfit.name":`.input {$id :string}
+.match $id
+everyday {{‏‮Everyday‬‏}}
+bundledUp {{‏‮Bundled‬‏ ‏‮up‬‏}}
+beachDay {{‏‮Beach‬‏ ‏‮day‬‏}}
+dressedUp {{‏‮Dressed‬‏ ‏‮up‬‏}}
+nightIn {{‏‮Night‬‏ ‏‮in‬‏}}
+* {{{$id}}}`,"lobby.squares":`.input {$count :number}
+.match $count
+one {{{$count} ‏‮square‬‏}}
+* {{{$count} ‏‮squares‬‏}}`,"lobby.removeItem":`‏‮Remove‬‏ {$item}`,"lobby.addItem":`‏‮Add‬‏ {$item}`,"lobby.outfits":`‏‮Ready-made‬‏ ‏‮outfits:‬‏`,"lobby.search":`‏‮Search‬‏ ‏‮clothes‬‏`,"lobby.category":`‏‮Category‬‏`,"category.all":`‏‮All‬‏ ‏‮categories‬‏`,"lobby.noResults":`‏‮No‬‏ ‏‮clothes‬‏ ‏‮match.‬‏`,"place.flip":`‏‮Flip‬‏`,"theme.name":`.input {$id :string}
+.match $id
+classic {{‏‮Classic‬‏}}
+nautical {{‏‮Nautical‬‏}}
+boudoir {{‏‮Boudoir‬‏}}
+laundromat {{‏‮Laundromat‬‏}}
+mirrorBall {{‏‮Mirror‬‏ ‏‮ball‬‏}}
+grandmasSofa {{‏‮Grandma’s‬‏ ‏‮sofa‬‏}}
+neonLockerRoom {{‏‮Neon‬‏ ‏‮locker‬‏ ‏‮room‬‏}}
+clothesline {{‏‮Clothesline‬‏}}
+tieDye {{‏‮Tie-dye‬‏}}
+sockDrawer {{‏‮Sock‬‏ ‏‮drawer‬‏}}
+runway {{‏‮Runway‬‏}}
+beachTowel {{‏‮Beach‬‏ ‏‮towel‬‏}}
+pajamaParty {{‏‮Pajama‬‏ ‏‮party‬‏}}
+* {{‏‮Classic‬‏}}`};export{e as default};
