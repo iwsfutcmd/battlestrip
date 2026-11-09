@@ -150,7 +150,7 @@ describe('the wardrobe', () => {
       ['shirt'],
       ['sweater', 'jacket', 'hoodie'],
       ['pants', 'jeans', 'dress'],
-      ['robe', 'jumpsuit'],
+      ['robe', 'jumpsuit', 'cape'],
       ['coat', 'raincoat'],
     ];
     for (let i = 1; i < ladder.length; i++) {

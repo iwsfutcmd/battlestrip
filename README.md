@@ -10,8 +10,8 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 
 Battlestrip is played like Battleship, but every piece is a piece of clothing, and a piece can be any shape at all, not just a line.
 
-- **The wardrobe** (`src/engine/wardrobe.ts`) has 49 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
-  - Each piece has a fixed number (1 T-shirt … 50 leg warmers) and a shape. **Its size in squares follows how big it is in real life**, so more cloth means more squares, and so more hits before it's off:
+- **The wardrobe** (`src/engine/wardrobe.ts`) has 51 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
+  - Each piece has a fixed number (1 T-shirt … 51 cape) and a shape. **Its size in squares follows how big it is in real life**, so more cloth means more squares, and so more hits before it's off:
     - **1 square:** underwear, each sock, watch, ring, sunglasses
     - **2:** bra, boxers, crop top, cap, beanie, bow tie, earrings, and pairs of shoes, sandals, slippers, heels and gloves
     - **3:** tank top, undershirt, bikini, necklace, tie, belt, sash
@@ -19,7 +19,7 @@ Battlestrip is played like Battleship, but every piece is a piece of clothing, a
     - **5:** shirt
     - **6:** sweater, hoodie, jacket, blazer
     - **7:** pants, jeans, dress
-    - **8:** robe, jumpsuit
+    - **8:** robe, jumpsuit, cape
     - **9:** coat, raincoat
 
     A test locks in this ladder. The shapes themselves are whimsical: a T-shirt is a T, pants and jeans are the same upside-down U with legs, and things that come in pairs are two separate parts.

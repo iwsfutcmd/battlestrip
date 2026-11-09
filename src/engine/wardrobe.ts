@@ -75,6 +75,7 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['suspenders', 'accessories', '#.#/#.#'], // 4: two straps
   ['bikini', 'swimwear', '#.#/.../.#.'], // 3: three parts
   ['legWarmers', 'footwear', '#.#/#.#'], // 4: a pair
+  ['cape', 'outerwear', '.##./.##./####'], // 8: narrow at the shoulders, flaring at the hem
 ];
 
 export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art], i) => {

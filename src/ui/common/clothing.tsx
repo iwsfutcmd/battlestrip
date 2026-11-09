@@ -38,6 +38,7 @@ const ICONS: Readonly<Record<string, string>> = {
   jacket: '🧥',
   blazer: '🧥',
   raincoat: '☔',
+  cape: '🦸',
   hat: '🎩',
   cap: '🧢',
   beanie: '🧶',
