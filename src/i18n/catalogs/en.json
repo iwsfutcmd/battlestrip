@@ -159,6 +159,7 @@
   "lobby.botKind": "Bot style",
   "bot.random": "Random",
   "bot.density": "Density",
+  "bot.finisher": "Finisher (chases hits)",
   "lobby.fleet": "Outfit",
   "lobby.policy": "Bot outfit",
   "policy.full": "Everyday outfit",

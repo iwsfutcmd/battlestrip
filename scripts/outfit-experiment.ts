@@ -9,6 +9,7 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
+import { BOT_KINDS, isBotKind } from '../src/bots/index.ts';
 import { OUTFIT_IDS, type OutfitId } from '../src/engine/index.ts';
 import { piecesOfSize, playFocusGame, SIZE_CLASSES, SIZE_RANGE, summarizeCell, type CellSummary, type ExperimentOptions, type SizeClass } from './outfit-experiment-core.ts';
 
@@ -21,6 +22,7 @@ const { values } = parseArgs({
     others: { type: 'string', default: 'everyday' },
     target: { type: 'string', default: '0.5' },
     seed: { type: 'string', default: '1' },
+    bots: { type: 'string', default: 'density' },
     locale: { type: 'string', default: 'en' },
     out: { type: 'string', default: 'sim-out' },
     quiet: { type: 'boolean', default: false },
@@ -41,6 +43,7 @@ const whole = (spec: string, name: string, min: number, max: number): number => 
 const sizes = values.sizes.split(',').map((s) => s.trim());
 for (const s of sizes) if (!(SIZE_CLASSES as readonly string[]).includes(s)) fail(`--sizes: "${s}" is not one of ${SIZE_CLASSES.join(', ')}`);
 if (!(OUTFIT_IDS as readonly string[]).includes(values.others)) fail(`--others: one of ${OUTFIT_IDS.join(', ')}`);
+if (!isBotKind(values.bots)) fail(`--bots: one of ${BOT_KINDS.join(', ')}`);
 const target = Number(values.target);
 if (!(target > 0 && target < 1)) fail('--target: a share between 0 and 1, like 0.5');
 
@@ -52,6 +55,7 @@ const options: ExperimentOptions = {
   sizes: sizes as SizeClass[],
   others: values.others as OutfitId,
   target,
+  bots: values.bots,
 };
 
 const n1 = new Intl.NumberFormat(values.locale, { maximumFractionDigits: 1, minimumFractionDigits: 1 });
@@ -101,7 +105,7 @@ const report = [
   `## One player’s outfit: ${n0.format(options.games)} games per cell (seed ${values.seed}, ${n1.format(seconds)} s)\n`,
   `${options.players}-player tables. The focus player wears the given number of pieces drawn at random from one size class: ${options.sizes.map(sizeLabel).join(', ')}. ` +
     `Everyone else wears the ready-made "${options.others}" outfit. The board is sized to all the outfits for a ${pct.format(options.target)} first-shot hit chance, and the game plays on until everyone is naked. ` +
-    'DensityBot in every seat. Times are shares of the way through the game.\n',
+    `${options.bots === 'finisher' ? 'FinisherBot' : options.bots === 'random' ? 'RandomBot' : 'DensityBot'} in every seat. Times are shares of the way through the game.\n`,
   header + rows + '\n',
   grid('Time spent naked', (c) => pct.format(c.nakedShare)),
   grid('Last one dressed, against a fair share (1.00× is fair)', (c) => x2(c.lastDressedMultiplier)),
@@ -111,6 +115,7 @@ const report = [
 
 process.stdout.write(report);
 await mkdir(values.out, { recursive: true });
-await writeFile(join(values.out, 'outfit-experiment.json'), JSON.stringify({ options, seconds, cells }, null, 1));
-await writeFile(join(values.out, 'outfit-experiment.md'), report);
-if (!values.quiet) process.stderr.write(`wrote ${join(values.out, 'outfit-experiment.json')} and outfit-experiment.md\n`);
+const stem = options.bots === 'density' ? 'outfit-experiment' : `outfit-experiment-${options.bots}`;
+await writeFile(join(values.out, `${stem}.json`), JSON.stringify({ options, seconds, cells }, null, 1));
+await writeFile(join(values.out, `${stem}.md`), report);
+if (!values.quiet) process.stderr.write(`wrote ${join(values.out, `${stem}.json`)} and ${stem}.md\n`);

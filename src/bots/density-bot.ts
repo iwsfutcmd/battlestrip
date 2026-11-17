@@ -50,7 +50,14 @@ function placements(rows: number, cols: number, ship: Pick<ShipyardShip, 'length
  * may not touch). With unattributed hits (classic reporting, simulation
  * only), placements covering them get a heavy weight instead.
  */
-export function boardDensity(view: PlayerView, seat: number): Float64Array {
+export type PieceFilter = 'all' | 'wounded' | 'fresh';
+
+/**
+ * `pieces` limits the sum to pieces with at least one named hit (`wounded`)
+ * or none (`fresh`); with unattributed hits every piece counts as fresh.
+ * `only` limits it to one piece (by id).
+ */
+export function boardDensity(view: PlayerView, seat: number, pieces: PieceFilter = 'all', only?: string): Float64Array {
   const { rows, cols, shipyard, allowTouching, announceShipOnHit } = view.rules;
   const size = rows * cols;
   const density = new Float64Array(size);
@@ -62,11 +69,16 @@ export function boardDensity(view: PlayerView, seat: number): Float64Array {
   for (const ship of player.ships) {
     if (ship.sunk) continue;
     const k = shipyard.findIndex((s) => s.id === ship.ship);
+    // The piece's shape is on its shipyard entry: the view's status only has its id, length and hits.
+    const def = shipyard[k];
+    if (!def) continue;
     let named = 0;
     if (announceShipOnHit) for (let i = 0; i < size; i++) if (cells[i] === k) named++;
+    if ((pieces === 'wounded' && named === 0) || (pieces === 'fresh' && named > 0)) continue;
+    if (only !== undefined && ship.ship !== only) continue;
     acc.fill(0);
     let total = 0;
-    for (const p of placements(rows, cols, ship)) {
+    for (const p of placements(rows, cols, def)) {
       let covered = 0;
       let unknown = 0;
       let ok = true;

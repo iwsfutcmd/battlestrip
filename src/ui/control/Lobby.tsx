@@ -26,6 +26,7 @@ import {
   type SeatConfig,
 } from './store.ts';
 import { signal } from '@preact/signals';
+import { isBotKind } from '../../bots/index.ts';
 import { ThemePicker } from './ThemePicker.tsx';
 
 const SYSTEMS = Object.keys(LABEL_SYSTEMS) as LabelSystemId[];
@@ -336,8 +337,9 @@ function SeatEditor({ seat, index, count }: { readonly seat: SeatConfig; readonl
           <label for={botId}>
             <Msg id="lobby.botKind" />
           </label>
-          <select id={botId} value={seat.bot} onChange={(e) => updateSeat(seat.key, { bot: e.currentTarget.value === 'random' ? 'random' : 'density' })}>
+          <select id={botId} value={seat.bot} onChange={(e) => updateSeat(seat.key, { bot: isBotKind(e.currentTarget.value) ? e.currentTarget.value : 'density' })}>
             <option value="density">{t.format('bot.density')}</option>
+            <option value="finisher">{t.format('bot.finisher')}</option>
             <option value="random">{t.format('bot.random')}</option>
           </select>
           <label for={policyId}>

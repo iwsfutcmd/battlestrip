@@ -7,13 +7,14 @@ import {
   reduce,
   placedCells,
   viewFor,
+  wardrobeRules,
   type Coord,
   type GameState,
   type Rules,
   type Seat,
   type ShipId,
 } from '../engine/index.ts';
-import { at, call, navalRules, pid, seat, ship, startedGame } from '../engine/test-utils.ts';
+import { at, call, navalRules, pid, seat, ship, sid, startedGame } from '../engine/test-utils.ts';
 import { boardDensity, callSeed, chooseCall, chooseFleet, playBotGame, type BotKind } from './index.ts';
 
 const key = (c: Coord): string => `${c.row},${c.col}`;
@@ -27,7 +28,7 @@ const setupArb = fc
     nuclear: fc.boolean(),
     allowTouching: fc.boolean(),
     fleets: fc.array(fc.subarray([0, 1, 2, 3, 4], { minLength: 1, maxLength: 2 }), { minLength: 2, maxLength: 4 }),
-    bots: fc.array(fc.constantFrom<BotKind>('density', 'random'), { minLength: 4, maxLength: 4 }),
+    bots: fc.array(fc.constantFrom<BotKind>('density', 'finisher', 'random'), { minLength: 4, maxLength: 4 }),
     seed: fc.nat(),
   })
   .map(({ fleets, bots, seed, ...r }) => ({
@@ -70,7 +71,7 @@ describe('bots', () => {
   it('are deterministic in the seed', () => {
     const rules = navalRules();
     const seats = [seat('a', ['carrier', 'destroyer'], 'bot'), seat('b', ['cruiser'], 'bot'), seat('c', ['battleship'], 'bot')];
-    for (const kind of ['density', 'random'] as const) {
+    for (const kind of ['density', 'finisher', 'random'] as const) {
       const one = playBotGame({ rules, seats, seed: 5, bots: [kind, kind, kind] });
       const two = playBotGame({ rules, seats, seed: 5, bots: [kind, kind, kind] });
       expect(JSON.stringify(one)).toBe(JSON.stringify(two));
@@ -99,6 +100,58 @@ describe('RandomBot', () => {
     );
     const legal = [at('C3')];
     expect(chooseCall('random', viewFor(s, pid('me')), legal, 1)).toEqual(at('C3'));
+  });
+});
+
+describe('DensityBot with shaped pieces', () => {
+  it('places a hit piece by its real shape, not as a line of its length', () => {
+    // Jeans are an upside-down U (###/#.#/#.#). Hit both ends of the waistband and the foot of a leg:
+    // no straight line covers those three squares, but the jeans still fit, so the density must stay on them.
+    const rules = wardrobeRules({ rows: 9, cols: 9 });
+    const seats = [seat('me', ['underwear'], 'bot'), seat('you', ['jeans'], 'bot')];
+    const s0 = startedGame(seats, { me: [{ ship: sid('underwear'), origin: at('I9'), orientation: 0 }], you: [{ ship: sid('jeans'), origin: at('A1'), orientation: 0 }] }, 'me', rules);
+    let s = call(s0, 'me', 'A1').state;
+    s = call(s, 'you', 'I1').state;
+    s = call(s, 'me', 'A3').state;
+    s = call(s, 'you', 'I2').state;
+    s = call(s, 'me', 'C1').state;
+    const d = boardDensity(viewFor(s, pid('me')), 1);
+    // Four squares are left in any placement that fits, all inside the 3×3 block the hits span
+    // (a ∩ or a ⊏ both fit through A1, A3 and C1). Read as a line of 7, nothing would fit at all.
+    const total = [...d].reduce((a, b) => a + b, 0);
+    expect(total).toBeCloseTo(4);
+    const inBlock = (i: number): boolean => Math.floor(i / 9) <= 2 && i % 9 <= 2;
+    expect([...d].reduce((a, v, i) => a + (inBlock(i) ? v : 0), 0)).toBeCloseTo(total);
+    expect(d[at('A2').row * 9 + at('A2').col]).toBeGreaterThan(0);
+  });
+});
+
+describe('FinisherBot', () => {
+  it('while a piece is hit and still on, calls only where that piece can still be', () => {
+    const s0 = startedGame(
+      [seat('me', ['destroyer'], 'bot'), seat('you', ['carrier', 'battleship'], 'bot'), seat('them', ['carrier', 'battleship'], 'bot')],
+      { me: [ship('destroyer', 'J1', 'alongRow')], you: [ship('carrier', 'E3', 'alongRow'), ship('battleship', 'A1', 'alongCol')], them: [ship('carrier', 'A5', 'alongRow'), ship('battleship', 'G6', 'alongRow')] },
+      'me',
+    );
+    const s = call(call(call(s0, 'me', 'E5').state, 'you', 'J10').state, 'them', 'I10').state; // E5 hits your carrier; then two misses
+    const view = viewFor(s, pid('me'));
+    const wounded = boardDensity(view, 1, 'wounded');
+    for (let seed = 0; seed < 40; seed++) {
+      const c = chooseCall('finisher', view, legalCalls(s, pid('me')), seed);
+      expect(wounded[c.row * 10 + c.col]).toBeGreaterThan(0);
+    }
+  });
+
+  it('with nothing hit, searches like DensityBot', () => {
+    const s0 = startedGame(
+      [seat('me', ['destroyer'], 'bot'), seat('you', ['carrier'], 'bot')],
+      { me: [ship('destroyer', 'J1', 'alongRow')], you: [ship('carrier', 'E3', 'alongRow')] },
+      'me',
+    );
+    for (let seed = 0; seed < 20; seed++) {
+      const legal = legalCalls(s0, pid('me'));
+      expect(chooseCall('finisher', viewFor(s0, pid('me')), legal, seed)).toEqual(chooseCall('density', viewFor(s0, pid('me')), legal, seed));
+    }
   });
 });
 

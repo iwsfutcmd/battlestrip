@@ -8,7 +8,7 @@
  *
  * Pure apart from the bookkeeping: everything comes from the seed.
  */
-import { playBotGame } from '../src/bots/index.ts';
+import { playBotGame, type BotKind } from '../src/bots/index.ts';
 import {
   autoBoardSize,
   cellsOf,
@@ -46,6 +46,8 @@ export interface BalanceOptions {
   readonly maxPieces: number;
   /** The first-shot hit chance the board is sized for (the game uses 0.5). */
   readonly target?: number | undefined;
+  /** The bot in every seat (default DensityBot). Seeds don't depend on it, so runs with different bots are paired. */
+  readonly bots?: BotKind | undefined;
 }
 
 export interface PlayerRecord {
@@ -137,7 +139,7 @@ export function drawTable(options: BalanceOptions, g: number): { dress: Dress; f
 export function playBalanceGame(options: BalanceOptions, g: number): GameRecord {
   const { dress, fleets, rules } = drawTable(options, g);
   const seats: Seat[] = fleets.map((fleet, i) => ({ id: `p${i}` as PlayerId, kind: 'bot', fleet }));
-  const s = playBotGame({ rules, seats, seed: mixSeed(options.seed, g, 0x9a3e), bots: seats.map(() => 'density') });
+  const s = playBotGame({ rules, seats, seed: mixSeed(options.seed, g, 0x9a3e), bots: seats.map(() => options.bots ?? 'density') });
   if (typeof s === 'string') throw new Error(`game ${g}: setup failed (${s})`);
   const stats = gameStats(s);
   const n = seats.length;

@@ -128,6 +128,7 @@
   "lobby.botKind": "電腦風格",
   "bot.random": "隨機",
   "bot.density": "機率密度",
+  "bot.finisher": "收尾型（追擊命中）",
   "lobby.fleet": "穿著",
   "lobby.policy": "電腦的穿著",
   "policy.full": "日常穿搭",

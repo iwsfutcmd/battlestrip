@@ -165,6 +165,7 @@
   "lobby.botKind": "أسلوب الروبوت",
   "bot.random": "عشوائي",
   "bot.density": "الكثافة",
+  "bot.finisher": "المُجهِز (يلاحق الإصابات)",
   "lobby.fleet": "الملابس",
   "lobby.policy": "ملابس الروبوت",
   "policy.full": "الطقم اليومي",

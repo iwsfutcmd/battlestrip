@@ -1,9 +1,14 @@
 import { nextInt, seedRng, type Coord, type PlayerView, type Rules, type ShipId } from '../engine/index.ts';
 import { densityBotCall } from './density-bot.ts';
+import { finisherBotCall } from './finisher-bot.ts';
 import { randomBotCall } from './random-bot.ts';
 
-export type BotKind = 'random' | 'density';
-export const BOT_KINDS: readonly BotKind[] = ['density', 'random'];
+export type BotKind = 'random' | 'density' | 'finisher';
+export const BOT_KINDS: readonly BotKind[] = ['density', 'finisher', 'random'];
+
+export function isBotKind(value: unknown): value is BotKind {
+  return typeof value === 'string' && (BOT_KINDS as readonly string[]).includes(value);
+}
 
 export type FleetPolicy =
   | { readonly kind: 'full' }
@@ -16,7 +21,14 @@ export type FleetPolicy =
  */
 export function chooseCall(kind: BotKind, view: PlayerView, legal: readonly Coord[], seed: number): Coord {
   if (legal.length === 0) throw new Error('chooseCall: no legal calls');
-  return kind === 'random' ? randomBotCall(view, legal, seed) : densityBotCall(view, legal, seed);
+  switch (kind) {
+    case 'random':
+      return randomBotCall(view, legal, seed);
+    case 'finisher':
+      return finisherBotCall(view, legal, seed);
+    default:
+      return densityBotCall(view, legal, seed);
+  }
 }
 
 /** A non-empty fleet from the shipyard per the policy (random = uniform over non-empty subsets). */

@@ -23,6 +23,7 @@ import {
   type GroupRow,
   type Spread,
 } from './balance-core.ts';
+import { BOT_KINDS, isBotKind } from '../src/bots/index.ts';
 
 const { values } = parseArgs({
   options: {
@@ -32,6 +33,7 @@ const { values } = parseArgs({
     maxPieces: { type: 'string', default: '12' },
     seed: { type: 'string', default: '1' },
     target: { type: 'string', default: '0.5' },
+    bots: { type: 'string', default: 'density' },
     locale: { type: 'string', default: 'en' },
     out: { type: 'string', default: 'sim-out' },
     quiet: { type: 'boolean', default: false },
@@ -73,6 +75,7 @@ const options: BalanceOptions = {
   dress: dress as Dress[],
   maxPieces: positive(values.maxPieces, 'maxPieces'),
   target: Number(values.target),
+  bots: isBotKind(values.bots) ? values.bots : fail(`--bots: one of ${BOT_KINDS.join(', ')}`),
 };
 if (!(options.target !== undefined && options.target > 0 && options.target < 1)) fail('--target: a share between 0 and 1, like 0.5');
 
@@ -139,7 +142,7 @@ const fairTable = (title: string, label: string, rows: ReturnType<typeof fairnes
 const all = groupRow('all', games);
 const report = [
   `## Balance: ${n0.format(games.length)} games (seed ${values.seed}, ${n1.format(seconds)} s)\n`,
-  `DensityBot in every seat. Wardrobe outfits, the board sized to the outfits for a ${pct.format(options.target ?? 0.5)} first-shot hit chance, clothes may touch, play on after one player is left dressed. ` +
+  `${options.bots === 'finisher' ? 'FinisherBot' : options.bots === 'random' ? 'RandomBot' : 'DensityBot'} in every seat. Wardrobe outfits, the board sized to the outfits for a ${pct.format(options.target ?? 0.5)} first-shot hit chance, clothes may touch, play on after one player is left dressed. ` +
     `Each game draws its own table: ${options.players.length > 1 ? `${options.players[0]}–${options.players[options.players.length - 1]}` : options.players[0]} players, dressed ${options.dress.join(' / ')} ` +
     `(matched: everyone in the same ready-made outfit; mixed: a ready-made outfit each; random: 1–${options.maxPieces} pieces each from the whole wardrobe).\n`,
   groupTable('Overall', [all]),

@@ -6,7 +6,7 @@
  * naked. Only the focus player's outfit varies, so differences between cells
  * are theirs. Pure apart from the bookkeeping: everything comes from the seed.
  */
-import { playBotGame } from '../src/bots/index.ts';
+import { playBotGame, type BotKind } from '../src/bots/index.ts';
 import {
   autoBoardSize,
   fleetSquares,
@@ -49,6 +49,8 @@ export interface ExperimentOptions {
   readonly others: OutfitId;
   /** The first-shot hit chance the board is sized for (the game uses 0.5). */
   readonly target: number;
+  /** The bot in every seat (default DensityBot). Seeds don't depend on it, so runs with different bots are paired. */
+  readonly bots?: BotKind | undefined;
 }
 
 /** One game, from the focus player's side. Shares are of the game's turns (0 = the start, 1 = the last call). */
@@ -99,7 +101,7 @@ export function playFocusGame(o: ExperimentOptions, size: SizeClass, count: numb
   const sized = autoBoardSize(base, fleets, o.target);
   const rules = { ...base, rows: sized.rows, cols: sized.cols };
   const seats: Seat[] = fleets.map((fleet, i) => ({ id: `p${i}` as PlayerId, kind: 'bot', fleet }));
-  const s = playBotGame({ rules, seats, seed: mixSeed(o.seed, cell, g, 0x9a3e), bots: seats.map(() => 'density') });
+  const s = playBotGame({ rules, seats, seed: mixSeed(o.seed, cell, g, 0x9a3e), bots: seats.map(() => o.bots ?? 'density') });
   if (typeof s === 'string') throw new Error(`${size} × ${count}, game ${g}: setup failed (${s})`);
   const stats = gameStats(s);
   const T = Math.max(1, stats.turns);
