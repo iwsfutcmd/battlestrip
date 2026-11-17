@@ -367,7 +367,7 @@ Named hits and self-fire, with bombs on, 1,000 games per cell (`--players 3,4,6,
 
 ### Balance: the game as it is now
 
-`npm run balance` plays the game as it's played today: wardrobe outfits, the board sized to the outfits, play on after one player is left dressed, a bot in every seat. Unlike `npm run sim`, every game draws its own table, so a few hundred games cover the space: 2–8 players, dressed *matched* (everyone in the same ready-made outfit), *mixed* (a ready-made outfit each) or *random* (1–12 pieces each from the whole wardrobe). Options: `--games`, `--players`, `--dress`, `--maxPieces`, `--target` (the first-shot hit chance the board is sized for; the game uses 0.5), `--bots` (`density`, `finisher` or `random`), `--seed`, `--locale`, `--out`. It writes `balance.md`, `balance.json` (every game) and `balance-players.csv` (one row per player) to `sim-out/`. Seeds don't depend on the bot or the target, so runs that differ only in those replay the same tables.
+`npm run balance` plays the game as it's played today: wardrobe outfits, the board sized to the outfits, play on after one player is left dressed, a bot in every seat. Unlike `npm run sim`, every game draws its own table, so a few hundred games cover the space: 2–8 players, dressed *matched* (everyone in the same ready-made outfit), *mixed* (a ready-made outfit each) or *random* (1–12 pieces each from the whole wardrobe), and, with `--dress realistic`, each in one of the test outfits below. Options: `--games`, `--players`, `--dress`, `--maxPieces`, `--target` (the first-shot hit chance the board is sized for; the game uses 0.5), `--bots` (`density`, `finisher` or `random`), `--seed`, `--locale`, `--out`. It writes `balance.md`, `balance.json` (every game) and `balance-players.csv` (one row per player) to `sim-out/`. Seeds don't depend on the bot or the target, so runs that differ only in those replay the same tables.
 
 > **A correction.** Until the commit that added FinisherBot, DensityBot read every piece as a straight line of its length when it worked out where a hit piece could be (it passed the piece's status, which has no shape, instead of its wardrobe entry). Once a hit piece's hits didn't line up, the bot gave up on it, and the rest of it was only found by sweeping. Earlier versions of these tables, and conclusions drawn from them (games as long as the board, clothes coming off in a rush at the end, most games ending in a joint strip, big pieces coming off only at the very end), came from that bug. The tables below are from the fixed bot; `src/bots/bots.test.ts` now checks that a U-shaped piece is placed by its shape.
 
@@ -474,6 +474,17 @@ Time spent naked, DensityBot:
 - **Big outfits mean a long time naked.** Big and medium pieces are found and finished, so their wearers are naked from about 45–80% of the way through and spend 19–56% of the game naked. A player in small pieces is naked for 5–40%, less the more pieces they wear.
 - **One heavily dressed player still makes everyone's game longer.** The board grows to fit their clothes, from 72 squares to 256 with 12 big pieces, and the game from about 54 turns to 192 for the whole table.
 - **FinisherBot changes little.** It takes the first piece slightly sooner and gets more of the clothes off by halfway, but the shape of every result holds.
+
+### Test outfits
+
+`scripts/test-outfits.ts` has 20 outfits to test with: 16 realistic ones (an office day, a job interview, weekend errands, a heatwave, a winter commute, the gym, date night, a wedding, the beach, pajamas, a lazy Sunday, a rainy walk, a festival, a day hike, a superhero costume, 80s aerobics) and 4 experiments (everyday plus every small accessory, only accessories, only underwear, every winter layer at once). Each realistic outfit that includes underwear, boxers or a bra also comes with them kept out, for a player who doesn't want to put those in the game: 35 in all. `npm run outfit-lineup` plays each one as a single player against three Everyday outfits (options as for the outfit experiment), and writes `outfit-lineup.md` and `.json` to `sim-out/`.
+
+At 300 games each (`npm run outfit-lineup -- --games 300 --seed 1`, about 2 minutes):
+
+- **Keeping the underwear out mostly makes a player strip sooner.** Underwear (1 square) and a bra (2) are the hardest pieces to find, so they're often the last thing a player loses. The effect is biggest when everything else is big: a superhero costume goes from 0.48× a fair share of being the last one dressed to 0.05×, 80s aerobics from 0.63× to 0.01×, date night from 0.76× to 0.41×. It hardly matters when other small pieces are left to hide: an office day (socks, a watch) goes from 1.03× to 1.00×, and a day hike (socks, a watch, sunglasses, a cap) stays within noise.
+- **The most durable outfits are full of small things**: everyday plus accessories (1.52×), a day hike (1.31×), a winter commute (1.31×), the gym (1.25×). The least are a few big pieces: pajamas, a robe over a T-shirt (0.11×), the beach (0.25×), the superhero costume (0.48×).
+- **Size alone doesn't decide it.** Only underwear and socks (5 squares) is last dressed 0.84×; every winter layer at once (50 squares) 1.09×.
+- With 300 games, a "last one dressed" figure is good to about ±0.2×.
 
 ## License
 

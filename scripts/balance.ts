@@ -30,6 +30,7 @@ const { values } = parseArgs({
     games: { type: 'string', default: '500' },
     players: { type: 'string', default: '2..8' },
     dress: { type: 'string', default: 'matched,mixed,random' },
+    // also: realistic (the realistic test outfits, scripts/test-outfits.ts)
     maxPieces: { type: 'string', default: '12' },
     seed: { type: 'string', default: '1' },
     target: { type: 'string', default: '0.5' },

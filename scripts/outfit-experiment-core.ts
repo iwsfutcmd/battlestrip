@@ -55,7 +55,8 @@ export interface ExperimentOptions {
 
 /** One game, from the focus player's side. Shares are of the game's turns (0 = the start, 1 = the last call). */
 export interface FocusGame {
-  readonly size: SizeClass;
+  /** The size class the pieces were drawn from, or null for a given outfit. */
+  readonly size: SizeClass | null;
   readonly count: number;
   readonly squares: number;
   readonly board: number;
@@ -95,14 +96,23 @@ function draw(pool: readonly ShipId[], k: number, int: (n: number) => number): S
 export function playFocusGame(o: ExperimentOptions, size: SizeClass, count: number, g: number): FocusGame {
   const cell = SIZE_CLASSES.indexOf(size) * 1000 + count;
   const int = counter(mixSeed(o.seed, cell, g, 0xf0c5));
-  const focus = draw(piecesOfSize(size), count, int);
-  const fleets: ShipId[][] = [focus, ...Array.from({ length: o.players - 1 }, () => outfit(o.others))];
+  return { ...playFocusFleet(o, draw(piecesOfSize(size), count, int), cell, g), size };
+}
+
+/**
+ * One game with the focus player in exactly `focus`, everyone else in
+ * `o.others`. `key` keeps different cells' games apart while the same cell
+ * and game number always replay the same game.
+ */
+export function playFocusFleet(o: Pick<ExperimentOptions, 'seed' | 'players' | 'others' | 'target' | 'bots'>, focus: readonly ShipId[], key: number, g: number): FocusGame {
+  const cell = key;
+  const fleets: ShipId[][] = [[...focus], ...Array.from({ length: o.players - 1 }, () => outfit(o.others))];
   const base = wardrobeRules({ playOut: true });
   const sized = autoBoardSize(base, fleets, o.target);
   const rules = { ...base, rows: sized.rows, cols: sized.cols };
   const seats: Seat[] = fleets.map((fleet, i) => ({ id: `p${i}` as PlayerId, kind: 'bot', fleet }));
   const s = playBotGame({ rules, seats, seed: mixSeed(o.seed, cell, g, 0x9a3e), bots: seats.map(() => o.bots ?? 'density') });
-  if (typeof s === 'string') throw new Error(`${size} × ${count}, game ${g}: setup failed (${s})`);
+  if (typeof s === 'string') throw new Error(`cell ${cell}, game ${g}: setup failed (${s})`);
   const stats = gameStats(s);
   const T = Math.max(1, stats.turns);
   const me = seats[0]?.id;
@@ -114,7 +124,7 @@ export function playFocusGame(o: ExperimentOptions, size: SizeClass, count: numb
   const lastTurn = Math.max(...stats.players.map((p) => p.sunkOnTurn ?? 0));
   const result = s.result;
   return {
-    size,
+    size: null,
     count: focus.length,
     squares: fleetSquares(rules, focus),
     board: rules.rows * rules.cols,
@@ -130,7 +140,7 @@ export function playFocusGame(o: ExperimentOptions, size: SizeClass, count: numb
 }
 
 export interface CellSummary {
-  readonly size: SizeClass;
+  readonly size: SizeClass | null;
   readonly count: number;
   readonly games: number;
   readonly squares: number;
@@ -152,7 +162,7 @@ export function summarizeCell(games: readonly FocusGame[], players: number): Cel
   const first = games[0];
   const lastDressed = mean((g) => (g.lastDressed ? 1 : 0));
   return {
-    size: first?.size ?? 'small',
+    size: first?.size ?? null,
     count: first?.count ?? 0,
     games: games.length,
     squares: mean((g) => g.squares),

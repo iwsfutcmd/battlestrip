@@ -28,15 +28,20 @@ import {
   type ShipId,
 } from '../src/engine/index.ts';
 import { mixSeed } from './sim-core.ts';
+import { TEST_OUTFITS } from './test-outfits.ts';
+
+const REALISTIC = TEST_OUTFITS.filter((o) => o.group === 'realistic');
 
 /**
  * How the table dresses:
  * - `matched`: everyone in the same ready-made outfit;
  * - `mixed`: each player picks a ready-made outfit of their own;
- * - `random`: each player wears 1 to `maxPieces` pieces drawn from the whole wardrobe.
+ * - `random`: each player wears 1 to `maxPieces` pieces drawn from the whole wardrobe;
+ * - `realistic`: each player wears one of the realistic test outfits (scripts/test-outfits.ts),
+ *   as worn or with the underwear kept out.
  */
-export type Dress = 'matched' | 'mixed' | 'random';
-export const DRESS: readonly Dress[] = ['matched', 'mixed', 'random'];
+export type Dress = 'matched' | 'mixed' | 'random' | 'realistic';
+export const DRESS: readonly Dress[] = ['matched', 'mixed', 'random', 'realistic'];
 
 export interface BalanceOptions {
   readonly games: number;
@@ -129,6 +134,7 @@ export function drawTable(options: BalanceOptions, g: number): { dress: Dress; f
   const fleets: ShipId[][] = Array.from({ length: n }, () => {
     if (everyone) return outfit(everyone);
     if (dress === 'mixed') return outfit(pick(OUTFIT_IDS, int));
+    if (dress === 'realistic') return [...pick(REALISTIC, int).pieces];
     return draw(ids, 1 + int(options.maxPieces), int);
   });
   const base = wardrobeRules({ playOut: true });
