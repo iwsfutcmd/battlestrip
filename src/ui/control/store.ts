@@ -1,4 +1,5 @@
 import { batch, computed, effect, signal } from '@preact/signals';
+import { firstFreeIdentity, nextIdentity } from '../common/identity.tsx';
 import { callSeed, chooseCall, type BotKind } from '../../bots/index.ts';
 import {
   MAX_PLAYERS,
@@ -48,6 +49,8 @@ export interface SeatConfig {
   /** The chosen ships (humans, and bots with the `fixed` policy). */
   /** The chosen outfit (humans, and bots with the `fixed` policy). */
   readonly fleet: readonly ShipId[];
+  /** Colour and shape (see `identity.tsx`); unique at the table. */
+  readonly identity: number;
 }
 
 export interface LobbyConfig {
@@ -82,6 +85,13 @@ export interface Session {
   readonly bots: readonly BotKind[];
   readonly settings: TableSettings;
   readonly botMs: number;
+  /** Each seat's colour and shape. Saves from before players could choose read as seat order. */
+  readonly identities?: readonly number[];
+}
+
+/** A dealt seat's colour and shape. */
+export function identityOf(s: Session, i: number): number {
+  return s.identities?.[i] ?? i;
 }
 
 export interface Notice {
@@ -99,9 +109,20 @@ export function rulesForLobby(c: LobbyConfig): Rules {
   return wardrobeRules({ rows: c.rows, cols: c.cols, allowTouching: c.allowTouching, playOut: c.playOut ?? true });
 }
 
-function defaultSeat(kind: 'human' | 'bot'): SeatConfig {
+function defaultSeat(kind: 'human' | 'bot', identity: number): SeatConfig {
   // Outfits start empty: each player chooses what they put in the game (a bot's default policy dresses it anyway).
-  return { key: newKey(), name: '', kind, bot: 'density', policy: 'full', fleet: [] };
+  return { key: newKey(), name: '', kind, bot: 'density', policy: 'full', fleet: [], identity };
+}
+
+/** Give every seat a colour and shape of its own (lobbies saved before they could be chosen have none). */
+function withIdentities(c: LobbyConfig): LobbyConfig {
+  const taken: number[] = [];
+  const seats = c.seats.map((s) => {
+    const own = typeof s.identity === 'number' && !taken.includes(s.identity) ? s.identity : firstFreeIdentity(taken);
+    taken.push(own);
+    return own === s.identity ? s : { ...s, identity: own };
+  });
+  return { ...c, seats };
 }
 
 export function defaultLobby(locale = 'en'): LobbyConfig {
@@ -121,7 +142,7 @@ export function defaultLobby(locale = 'en'): LobbyConfig {
     theme: preferredTheme(),
     placement: 'random',
     playOut: true,
-    seats: [defaultSeat('human'), defaultSeat('human'), defaultSeat('human')],
+    seats: [defaultSeat('human', 0), defaultSeat('human', 1), defaultSeat('human', 2)],
   };
 }
 
@@ -173,7 +194,16 @@ export function updateSeat(key: string, patch: Partial<SeatConfig>): void {
 
 export function addSeat(kind: 'human' | 'bot'): void {
   if (lobby.value.seats.length >= MAX_SEATS) return;
-  lobby.value = { ...lobby.value, seats: [...lobby.value.seats, defaultSeat(kind)] };
+  const taken = lobby.value.seats.map((s) => s.identity);
+  lobby.value = { ...lobby.value, seats: [...lobby.value.seats, defaultSeat(kind, firstFreeIdentity(taken))] };
+}
+
+/** Step a seat to the next colour and shape nobody else has (back one with step −1). */
+export function cycleIdentity(key: string, step: 1 | -1 = 1): void {
+  const seat = lobby.value.seats.find((s) => s.key === key);
+  if (!seat) return;
+  const taken = lobby.value.seats.filter((s) => s.key !== key).map((s) => s.identity);
+  updateSeat(key, { identity: nextIdentity(seat.identity, taken, step) });
 }
 
 export function removeSeat(key: string): void {
@@ -308,6 +338,7 @@ export function deal(names: readonly string[], locale: string): boolean {
       bots: c.seats.map((s) => s.bot),
       settings,
       botMs: Math.max(0, c.botSeconds * 1000),
+      identities: c.seats.map((s) => s.identity),
     };
     game.value = created.value;
     stage.value = c.placement === 'phones' ? 'placement' : 'handout';
@@ -374,6 +405,7 @@ export const inviteUrl = computed<string | null>(() => {
     seats: s.seats.map((seat, i) => ({
       name: s.names[i] ?? '',
       human: seat.kind === 'human',
+      identity: identityOf(s, i),
       fleet: seat.fleet.map((id) => s.rules.shipyard.findIndex((x) => x.id === id)).filter((k) => k >= 0),
     })),
   };
@@ -538,8 +570,8 @@ export const publicTable = computed<PublicTable | null>(() => {
   const g = game.value;
   const c = lobby.value;
   const seats: PublicSeat[] = s
-    ? s.seats.map((seat, i) => ({ id: seat.id, name: s.names[i] ?? '', identity: i, kind: seat.kind }))
-    : c.seats.map((seat, i) => ({ id: seat.key as PlayerId, name: seat.name, identity: i, kind: seat.kind }));
+    ? s.seats.map((seat, i) => ({ id: seat.id, name: s.names[i] ?? '', identity: identityOf(s, i), kind: seat.kind }))
+    : c.seats.map((seat) => ({ id: seat.key as PlayerId, name: seat.name, identity: seat.identity, kind: seat.kind }));
   const settings: TableSettings = s?.settings ?? {
     locale: t.locale,
     labels: systemForRows(c.labels, lobbyBoard(c).rows),
@@ -614,7 +646,7 @@ export function resume(file: SaveFile): boolean {
   if (!r.ok) return false;
   const g = r.value;
   batch(() => {
-    lobby.value = file.lobby;
+    lobby.value = withIdentities(file.lobby);
     session.value = file.session;
     game.value = g;
     ready.value = file.ready;

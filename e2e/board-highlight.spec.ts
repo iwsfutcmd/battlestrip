@@ -52,3 +52,29 @@ test('when the caller is down to nothing, highlighting a square outlines the bom
   const [r, c] = (last ?? '0-0').split('-').map(Number) as [number, number];
   expect(new Set(keys)).toEqual(new Set([`${r - 1}-${c - 1}`, `${r - 1}-${c}`, `${r}-${c - 1}`, `${r}-${c}`]));
 });
+
+test('highlighting a square of a piece that’s off outlines the whole piece', async ({ page, browser }) => {
+  test.setTimeout(120_000);
+  await deal(page, { lang: 'en', names: ['Amani', 'Bo'], autoSize: true });
+  await handOut(page, browser);
+  await page.locator('.handout-done button.primary').click();
+  const cells = page.locator('.tv [data-cell]');
+  const n = await cells.count();
+  for (let i = 0; i < n && (await page.locator('.tv .board-cell.is-sunk').count()) === 0; i++) {
+    await expect(page.locator('.call-input')).toBeEnabled();
+    await cells.nth(i).dblclick();
+  }
+  const sunk = page.locator('.tv .board-cell.is-sunk').first();
+  await page.mouse.move(0, 0);
+  await expect(page.locator('.tv .board-cell.is-piece-preview')).toHaveCount(0);
+  await sunk.hover();
+  await expect(page.locator('.cell-info-card')).toContainText('(off)');
+  const outlined = page.locator('.tv .board-cell.is-piece-preview');
+  await expect(sunk).toHaveClass(/is-piece-preview/u);
+  // Every outlined square was hit, and there's more than the one pointed at unless the piece is one square.
+  const total = await outlined.count();
+  expect(total).toBeGreaterThanOrEqual(1);
+  await expect(page.locator('.tv .board-cell.is-piece-preview.is-hit')).toHaveCount(total);
+  await page.mouse.move(0, 0);
+  await expect(outlined).toHaveCount(0);
+});

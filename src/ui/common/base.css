@@ -125,9 +125,13 @@ button {
   cursor: pointer;
 }
 
+/* Clearly out of play: faded, grey and flat, in every theme. */
 button:disabled {
   cursor: not-allowed;
-  opacity: 0.5;
+  border-style: dashed;
+  box-shadow: none;
+  opacity: 0.35;
+  filter: grayscale(1);
 }
 
 button.primary {

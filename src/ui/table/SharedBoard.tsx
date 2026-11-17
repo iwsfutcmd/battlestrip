@@ -29,8 +29,9 @@ export interface SharedBoardProps {
  *
  * Where it can be played (the control window), the highlighted square (under
  * the pointer, or else the one picked) gets a card saying whose clothes were
- * hit there and which piece, and when the caller drops bombs, the four squares
- * the bomb would cover are outlined.
+ * hit there and which piece. If that piece is off, every square of it is
+ * outlined (all of them have been hit, so this shows nothing that isn't public).
+ * When the caller drops bombs, the four squares the bomb would cover are outlined.
  */
 export function SharedBoard({ view, seats, labels, dir, writingMode, last, revealed, interaction, className }: SharedBoardProps) {
   const t = useTranslator();
@@ -57,10 +58,19 @@ export function SharedBoard({ view, seats, labels, dir, writingMode, last, revea
       const code = view.boards[seat]?.cells[i] ?? VIEW_UNSHOT;
       const def = code >= 0 ? view.rules.shipyard[code] : undefined;
       const off = def ? view.players[seat]?.ships.find((s) => s.ship === def.id)?.sunk === true : false;
-      return { seat, piece: def ? shipNameIn(t, view.rules, def.id) : null, off };
+      return { seat, code, piece: def ? shipNameIn(t, view.rules, def.id) : null, off };
     });
     return { at: highlighted, lines };
   })();
+
+  // Every square of each piece on the highlighted square that's off.
+  const pieceKeys = new Set<number>();
+  for (const line of info?.lines ?? []) {
+    if (!line.off || line.code < 0) continue;
+    view.boards[line.seat]?.cells.forEach((code, k) => {
+      if (code === line.code && !hidden.has(k)) pieceKeys.add(k);
+    });
+  }
 
   return (
     <Grid
@@ -80,6 +90,7 @@ export function SharedBoard({ view, seats, labels, dir, writingMode, last, revea
           noOps.has(i) ? 'is-noop' : '',
           last?.shape === 'bomb' && lastKeys.has(i) ? 'is-bomb' : '',
           bombKeys.has(i) ? 'is-bomb-preview' : '',
+          pieceKeys.has(i) ? 'is-piece-preview' : '',
         ];
         if (!cell?.called || (hidden.has(i) && !noOps.has(i))) return { className: classes.join(' ') };
         if (cell.hits.length === 0) return { className: [...classes, 'is-miss'].join(' '), content: <span class="miss-mark" aria-hidden="true" /> };

@@ -30,6 +30,37 @@ export function identityShape(i: number): string {
   return SHAPES[Math.max(0, Math.floor(i)) % 8] ?? SHAPES[0] ?? '';
 }
 
+/** Every distinct colour–shape pair: 8 × 8. */
+export const IDENTITY_COUNT = 64;
+
+/** Names for the colours and shapes, in PALETTE and SHAPES order (messages `identity.colour` and `identity.shape`). */
+export const COLOUR_IDS = ['orange', 'skyBlue', 'green', 'yellow', 'blue', 'red', 'pink', 'black'] as const;
+export const SHAPE_IDS = ['circle', 'square', 'triangle', 'diamond', 'star', 'hexagon', 'plus', 'pentagon'] as const;
+
+export function identityParts(i: number): { readonly colour: (typeof COLOUR_IDS)[number]; readonly shape: (typeof SHAPE_IDS)[number] } {
+  const n = Math.max(0, Math.floor(i));
+  return { colour: COLOUR_IDS[(n + Math.floor(n / 8)) % 8] ?? 'orange', shape: SHAPE_IDS[n % 8] ?? 'circle' };
+}
+
+/**
+ * The next colour–shape pair after `current` (before it, with step −1) that
+ * nobody in `taken` has. The first eight are the eight colours each with its own
+ * shape; after those come the mixed pairs. Returns `current` if every pair is taken.
+ */
+export function nextIdentity(current: number, taken: readonly number[], step: 1 | -1 = 1): number {
+  for (let k = 1; k < IDENTITY_COUNT; k++) {
+    const n = (((current + step * k) % IDENTITY_COUNT) + IDENTITY_COUNT) % IDENTITY_COUNT;
+    if (!taken.includes(n)) return n;
+  }
+  return current;
+}
+
+/** The first pair nobody in `taken` has (0 if all are taken). */
+export function firstFreeIdentity(taken: readonly number[]): number {
+  for (let n = 0; n < IDENTITY_COUNT; n++) if (!taken.includes(n)) return n;
+  return 0;
+}
+
 /** A decorative glyph; the player's name always appears next to it, so it is aria-hidden. */
 export function Glyph({ identity, size = '1em' }: { readonly identity: number; readonly size?: string }) {
   const colour = identityColour(identity);

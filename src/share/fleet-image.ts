@@ -20,7 +20,7 @@ export function checkFor(s: GameState, player: PlayerId, placedOnPhone = false):
 }
 
 /** Build a player's fleet image. share/ is one of the three places allowed to call fleetOf. */
-export function fleetImageFor(s: GameState, player: PlayerId, name: string, settings: ImageSettings, placedOnPhone = false): FleetImage {
+export function fleetImageFor(s: GameState, player: PlayerId, name: string, settings: ImageSettings, placedOnPhone = false, identity?: number): FleetImage {
   const seat = s.seats.findIndex((x) => x.id === player);
   return {
     gameCode: gameCode(s.seed),
@@ -29,7 +29,7 @@ export function fleetImageFor(s: GameState, player: PlayerId, name: string, sett
     cols: s.rules.cols,
     ...settings,
     name,
-    identity: seat,
+    identity: identity ?? seat,
     ships: fleetOf(s, player).flatMap((p) => {
       const piece = wardrobePiece(WARDROBE.findIndex((w) => w.id === p.ship), p.origin, p.orientation);
       return piece ? [piece] : [];

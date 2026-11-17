@@ -3,7 +3,7 @@ import { directionOf } from '../../../i18n/direction.ts';
 import { numberingSystemOf } from '../../../i18n/labels.ts';
 import { checkFor, fleetImageFor } from '../../../share/fleet-image.ts';
 import { encodeFleetImage, type FleetImage } from '../../../share/payload.ts';
-import { placedOnPhone, type Session } from '../store.ts';
+import { identityOf, placedOnPhone, type Session } from '../store.ts';
 
 /** The private fleet image for a player, and the phone URL that carries it in its fragment. */
 export function fleetImage(g: GameState, s: Session, player: PlayerId): FleetImage {
@@ -14,7 +14,7 @@ export function fleetImage(g: GameState, s: Session, player: PlayerId): FleetIma
     numbering: numberingSystemOf(s.settings.locale),
     dir: directionOf(s.settings.locale),
     writingMode: s.settings.writingMode,
-  }, placedOnPhone.value.includes(player));
+  }, placedOnPhone.value.includes(player), identityOf(s, i));
 }
 
 export function fleetUrl(image: FleetImage): string {

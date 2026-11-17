@@ -1,7 +1,7 @@
 import { useEffect, useId, useRef, useState } from 'preact/hooks';
 import { Glyph } from '../../common/identity.tsx';
 import { Msg } from '../../common/Msg.tsx';
-import { acceptFleetCode, beginPlay, notice, ready, session } from '../store.ts';
+import { acceptFleetCode, beginPlay, identityOf, notice, ready, session } from '../store.ts';
 
 interface DetectedBarcode {
   readonly rawValue: string;
@@ -38,7 +38,7 @@ export function Placement() {
       <ul class="placement-seats">
         {humans.map(({ seat, i }) => (
           <li key={seat.id} class={ready.value.includes(seat.id) ? 'is-ready' : ''}>
-            <Glyph identity={i} /> <bdi>{s.names[i]}</bdi>{' '}
+            <Glyph identity={identityOf(s, i)} /> <bdi>{s.names[i]}</bdi>{' '}
             <span class="muted">
               {ready.value.includes(seat.id) ? (
                 <>

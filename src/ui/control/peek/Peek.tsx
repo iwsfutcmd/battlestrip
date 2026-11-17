@@ -4,7 +4,7 @@ import { HoldToReveal } from '../../common/HoldToReveal.tsx';
 import { Glyph } from '../../common/identity.tsx';
 import { Msg } from '../../common/Msg.tsx';
 import { PrivateFleet } from '../handout/PrivateFleet.tsx';
-import { game, session } from '../store.ts';
+import { game, identityOf, session } from '../store.ts';
 
 /**
  * Show one player's fleet privately on the laptop, for players without a
@@ -34,7 +34,7 @@ export function Peek({ onClose }: { readonly onClose: () => void }) {
               {s.seats.map((seat, k) => (
                 <li key={seat.id}>
                   <button type="button" onClick={() => setPlayer(seat.id)}>
-                    <Glyph identity={k} /> <bdi>{s.names[k]}</bdi>
+                    <Glyph identity={identityOf(s, k)} /> <bdi>{s.names[k]}</bdi>
                   </button>
                 </li>
               ))}

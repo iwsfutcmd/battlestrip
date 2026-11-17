@@ -1,18 +1,16 @@
-import { useState } from 'preact/hooks';
-import { Glyph } from '../../common/identity.tsx';
 import { Msg } from '../../common/Msg.tsx';
 import { beginPlay, confirmReady, game, ready, reroll, session } from '../store.ts';
 import { PrivateFleet } from './PrivateFleet.tsx';
 
 /**
- * One human player at a time, in seat order: a privacy screen, then their QR
- * code (scanned with the phone's ordinary camera) with a preview and fleet
- * check, then Got it or Reroll.
+ * One human player at a time, in seat order: their name and QR code (scanned
+ * with the phone's ordinary camera) and fleet check, then Got it or Reroll.
+ * The laptop never draws the layout here, so there's nothing to look away
+ * from: scanning someone else's code is on the scanner.
  */
 export function Handout() {
   const g = game.value;
   const s = session.value;
-  const [shown, setShown] = useState(false);
   if (!g || !s) return null;
   const nextIndex = s.seats.findIndex((seat) => seat.kind === 'human' && !ready.value.includes(seat.id));
   const next = s.seats[nextIndex];
@@ -35,38 +33,18 @@ export function Handout() {
     );
   }
 
-  const name = s.names[nextIndex] ?? '';
-  if (!shown) {
-    return (
-      <section class="handout handout-privacy">
-        <p class="handout-progress">
-          <Msg id="handout.progress" values={{ done, total: humans.length }} />
-        </p>
-        <h2 class="handout-pass">
-          <Glyph identity={nextIndex} size="1.2em" /> <Msg id="handout.passTo" values={{ name }} />
-        </h2>
-        <p>
-          <Msg id="handout.lookAway" />
-        </p>
-        <button type="button" class="primary" onClick={() => setShown(true)}>
-          <Msg id="handout.show" />
-        </button>
-      </section>
-    );
-  }
-
   return (
     <section class="handout handout-qr">
+      <p class="handout-progress">
+        <Msg id="handout.progress" values={{ done, total: humans.length }} />
+      </p>
       {/* Only the QR code: the layout itself is for the player's phone, not the laptop's screen. */}
       <PrivateFleet g={g} s={s} player={next.id} showQr showBoard={false} />
       <div class="actions">
         <button
           type="button"
           class="primary"
-          onClick={() => {
-            confirmReady(next.id);
-            setShown(false);
-          }}
+          onClick={() => confirmReady(next.id)}
         >
           <Msg id="handout.gotIt" />
         </button>

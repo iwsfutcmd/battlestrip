@@ -29,7 +29,7 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
   const addBot = page.locator('.lobby-section .actions button').nth(1);
   // The lobby starts with three seats: remove any the test doesn't name.
   while ((await page.locator('.seat').count()) > o.names.length) {
-    await page.locator('.seat').last().locator('.seat-head > button').last().click();
+    await page.locator('.seat').last().locator('.seat-remove').click();
   }
   while ((await page.locator('.seat').count()) < o.names.length) {
     if ((o.bots ?? []).includes(await page.locator('.seat').count())) await addBot.click();
@@ -71,8 +71,8 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
 export async function handOut(page: Page, browser: Browser, phoneLocale = 'en'): Promise<string[]> {
   const urls: string[] = [];
   const phone = await browser.newContext({ locale: phoneLocale, viewport: { width: 412, height: 915 }, isMobile: true, hasTouch: true });
-  while (await page.locator('.handout-privacy').count()) {
-    await page.locator('.handout-privacy button.primary').click();
+  // Straight to each player's QR code: no look-away screen.
+  while (await page.locator('.handout-qr').count()) {
     // The QR screen shows the code and the outfit check, never the layout itself.
     await expect(page.locator('.handout-qr svg.qr')).toBeVisible();
     await expect(page.locator('.handout-qr .board')).toHaveCount(0);

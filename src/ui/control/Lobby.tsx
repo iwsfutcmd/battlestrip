@@ -2,7 +2,7 @@ import { useId } from 'preact/hooks';
 import { writingModesFor, type CatalogId } from '../../i18n/index.ts';
 import { fits, LABEL_SYSTEMS, systemForRows, defaultLabelSystem, type LabelSystemId } from '../../i18n/labels.ts';
 import { cleanName, sameName } from '../../i18n/text.ts';
-import { Glyph } from '../common/identity.tsx';
+import { Glyph, identityParts } from '../common/identity.tsx';
 import { OutfitPicker } from './OutfitPicker.tsx';
 import { LanguagePicker } from '../common/LanguagePicker.tsx';
 import { activateLocale, useTranslator } from '../common/locale-state.ts';
@@ -10,6 +10,7 @@ import { Msg } from '../common/Msg.tsx';
 import {
   addSeat,
   clearSave,
+  cycleIdentity,
   deal,
   lobby,
   lobbyAutoSize,
@@ -293,10 +294,24 @@ function SeatEditor({ seat, index, count }: { readonly seat: SeatConfig; readonl
   const policyId = useId();
   const displayName = seat.name.trim() || t.format('lobby.defaultName', { n: index + 1 });
   const showFleet = seat.kind === 'human' || seat.policy === 'fixed';
+  const parts = identityParts(seat.identity);
+  const look = t.format('lobby.changeLook', {
+    name: displayName,
+    colour: t.format('identity.colour', { id: parts.colour }),
+    shape: t.format('identity.shape', { id: parts.shape }),
+  });
   return (
     <li class="seat">
       <div class="seat-head">
-        <Glyph identity={index} size="1.5em" />
+        <button
+          type="button"
+          class="seat-glyph"
+          onClick={(e) => cycleIdentity(seat.key, e.shiftKey ? -1 : 1)}
+          aria-label={look}
+          title={look}
+        >
+          <Glyph identity={seat.identity} size="1.5em" />
+        </button>
         <span class="muted">
           <Msg id="lobby.seatNumber" values={{ seat: index + 1 }} />
         </span>
@@ -328,7 +343,14 @@ function SeatEditor({ seat, index, count }: { readonly seat: SeatConfig; readonl
             ↓
           </button>
         </span>
-        <button type="button" disabled={count <= 2} onClick={() => removeSeat(seat.key)} aria-label={t.format('lobby.removePlayer', { name: displayName })}>
+        <button
+          type="button"
+          class="seat-remove"
+          disabled={count <= 2}
+          onClick={() => removeSeat(seat.key)}
+          aria-label={t.format('lobby.removePlayer', { name: displayName })}
+          title={count <= 2 ? t.format('lobby.needTwo') : undefined}
+        >
           ✕
         </button>
       </div>

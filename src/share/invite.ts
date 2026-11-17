@@ -11,6 +11,8 @@ import { LABEL_SYSTEM_IDS, base64url, fitName, fromBase64url } from './payload.t
 export interface InviteSeat {
   readonly name: string;
   readonly human: boolean;
+  /** Colour and shape (see `identity.tsx`). */
+  readonly identity: number;
   /** Wardrobe indices. */
   readonly fleet: readonly number[];
 }
@@ -28,8 +30,8 @@ export interface PlacementInvite {
   readonly seats: readonly InviteSeat[];
 }
 
-/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. 3: wardrobe renumbered (socks). 4: pieces re-sized. 6: up to 16 seats (outfit codes changed). */
-const VERSION = 6;
+/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. 3: wardrobe renumbered (socks). 4: pieces re-sized. 6: up to 16 seats (outfit codes changed). 7: each seat's chosen colour and shape. */
+const VERSION = 7;
 const NAME_BYTES = 48;
 const MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 
@@ -44,7 +46,7 @@ export function encodeInvite(inv: PlacementInvite): string {
   b.push(nu.length, ...nu, inv.seats.length);
   for (const s of inv.seats) {
     const name = enc.encode(fitName(s.name, NAME_BYTES));
-    b.push(s.human ? 1 : 0, s.fleet.length, ...s.fleet, name.byteLength, ...name);
+    b.push(s.human ? 1 : 0, s.identity & 0xff, s.fleet.length, ...s.fleet, name.byteLength, ...name);
   }
   return base64url(Uint8Array.from(b));
 }
@@ -71,12 +73,13 @@ export function decodeInvite(text: string): PlacementInvite | null {
     const seats: InviteSeat[] = [];
     for (let n = next(); n > 0; n--) {
       const human = next() === 1;
+      const identity = next();
       const fleet: number[] = [];
       for (let f = next(); f > 0; f--) fleet.push(next());
       const len = next();
       const name = new TextDecoder('utf-8', { fatal: true }).decode(bytes.slice(i, i + len));
       i += len;
-      seats.push({ name, human, fleet });
+      seats.push({ name, human, identity, fleet });
     }
     const writingMode = MODES[flags >> 2];
     if (!labels || labels2 === undefined || !writingMode || !/^[a-z]+$/u.test(numbering)) return null;

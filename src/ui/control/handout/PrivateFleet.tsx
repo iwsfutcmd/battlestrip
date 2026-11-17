@@ -21,7 +21,7 @@ export function PrivateFleet({ g, s, player, showQr, showBoard }: { readonly g: 
   return (
     <div class="private-fleet">
       <p class="private-name">
-        <Glyph identity={i} size="1.5em" /> <bdi>{image.name}</bdi>
+        <Glyph identity={image.identity} size="1.5em" /> <bdi>{image.name}</bdi>
       </p>
       <div class="private-body">
         {showQr && (
@@ -40,7 +40,7 @@ export function PrivateFleet({ g, s, player, showQr, showBoard }: { readonly g: 
             dir={image.dir}
             writingMode={image.writingMode}
             ships={image.ships}
-            identity={i}
+            identity={image.identity}
             hits={hits}
             className={showQr ? 'is-small' : ''}
           />

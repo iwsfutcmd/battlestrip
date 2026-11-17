@@ -93,6 +93,14 @@
   background-image: linear-gradient(color-mix(in srgb, var(--bs-bomb) 16%, transparent), color-mix(in srgb, var(--bs-bomb) 16%, transparent));
 }
 
+/* A piece that's off, when one of its squares is highlighted: all of its squares. */
+.board-cell.is-piece-preview {
+  z-index: 1;
+  outline: 0.16em solid var(--bs-accent);
+  outline-offset: -0.16em;
+  background-image: linear-gradient(color-mix(in srgb, var(--bs-accent) 22%, transparent), color-mix(in srgb, var(--bs-accent) 22%, transparent));
+}
+
 /* Whose clothes are on the highlighted hit square: a card above it (below it on the first row). */
 .cell-info {
   position: relative;

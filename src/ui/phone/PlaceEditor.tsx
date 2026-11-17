@@ -68,7 +68,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
                     setSelected(s.fleet[0] ?? null);
                   }}
                 >
-                  <Glyph identity={i} size="1.4em" /> <bdi>{s.name}</bdi>
+                  <Glyph identity={s.identity} size="1.4em" /> <bdi>{s.name}</bdi>
                 </button>
               </li>
             ) : null,
@@ -160,7 +160,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
       dir: invite.dir,
       writingMode: invite.writingMode,
       name: me?.name ?? '',
-      identity: seat,
+      identity: me?.identity ?? seat,
       ships: ships.flatMap((s) => {
         const piece = wardrobePiece(s.ship, s.origin, s.orientation);
         return piece ? [piece] : [];
@@ -195,7 +195,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
   return (
     <main class="phone place">
       <header class="phone-header">
-        <Glyph identity={seat} size="2em" />
+        <Glyph identity={me?.identity ?? seat} size="2em" />
         <h1 class="phone-name">
           <bdi>{me?.name}</bdi>
         </h1>
@@ -220,7 +220,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
             <PieceOutline
               key={k}
               piece={{ number: def.number, kind: def.kind, cells: cellsOf(rules, { ship: def.id, origin: p.origin, orientation: p.orientation }) }}
-              colour={identityColour(seat)}
+              colour={identityColour(me?.identity ?? seat)}
               digitsLocale={labels.digitsLocale}
               selected={selected === k}
             />

@@ -14,9 +14,9 @@ describe('placement invite', () => {
       dir: 'ltr',
       writingMode: 'horizontal-tb',
       seats: [
-        { name: 'Лена', human: true, fleet: [0, 1, 2, 41] },
-        { name: '👩🏽‍🚀 Ada', human: true, fleet: [3] },
-        { name: 'Robo', human: false, fleet: [28, 3, 8, 35, 36, 34, 24] },
+        { name: 'Лена', human: true, identity: 5, fleet: [0, 1, 2, 41] },
+        { name: '👩🏽‍🚀 Ada', human: true, identity: 63, fleet: [3] },
+        { name: 'Robo', human: false, identity: 0, fleet: [28, 3, 8, 35, 36, 34, 24] },
       ],
     };
     expect(decodeInvite(encodeInvite(inv))).toEqual(inv);
