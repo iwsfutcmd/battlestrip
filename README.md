@@ -414,6 +414,41 @@ Wearing more or less than the rest of the table, on mixed and random tables. 1.0
 - **The target is the length dial.** At 65% (`--target 0.65`) boards shrink by about a third and so do games (23.5 calls each instead of 33.5), with the same late pacing, but more games end with everyone stripping on one call (70% instead of 56%).
 - Bots are not people: DensityBot searches far better than a table of friends, so real games will run longer, and people will hit themselves more often.
 
+### One player's outfit
+
+`npm run outfit-experiment` asks what kind of game one player has depending on what they wear. A focus player wears 1–12 pieces drawn from one size class: small (1–2 squares, like socks, caps and rings), medium (3–5, like T-shirts and skirts) or big (6–9, like jeans, coats and capes). Everyone else wears Everyday. The board is sized to all the outfits, and the game plays on until everyone is naked. Options: `--games`, `--players`, `--counts`, `--sizes`, `--others`, `--target`, `--seed`. It writes `outfit-experiment.md` and `.json` to `sim-out/`.
+
+4-player tables, 100 games per row (`npm run outfit-experiment -- --games 100 --seed 1`, about 35 s). Times are shares of the way through the game:
+
+| Their clothes | Pieces | Squares | Board | Turns | First piece off | Their clothes off by halfway | Longest wait for the next piece | Naked from | Time spent naked | Last one dressed | …against a fair share | Out in a joint strip |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| small | 1 | 1.7 | 72 | 63 | 64% | 29% | 64% | 64% | 36% | 3% | 0.12× | 6% |
+| small | 2 | 3.4 | 72 | 68 | 47% | 33% | 61% | 83% | 17% | 6% | 0.24× | 14% |
+| small | 3 | 5.0 | 72 | 69 | 36% | 34% | 52% | 88% | 12% | 6% | 0.24× | 11% |
+| small | 5 | 8.3 | 81 | 79 | 22% | 38% | 41% | 94% | 6% | 7% | 0.28× | 25% |
+| small | 8 | 13.6 | 89 | 88 | 17% | 37% | 32% | 96% | 4% | 12% | 0.48× | 25% |
+| small | 12 | 19.8 | 100 | 99 | 12% | 38% | 26% | 99% | 1% | 31% | 1.24× | 36% |
+| medium | 1 | 3.6 | 72 | 65 | 75% | 22% | 75% | 75% | 25% | 1% | 0.04× | 13% |
+| medium | 2 | 7.4 | 80 | 78 | 57% | 24% | 71% | 92% | 8% | 5% | 0.20× | 18% |
+| medium | 3 | 11.0 | 81 | 80 | 41% | 28% | 60% | 95% | 5% | 3% | 0.12× | 35% |
+| medium | 5 | 18.6 | 96 | 95 | 37% | 23% | 51% | 98% | 2% | 11% | 0.44× | 46% |
+| medium | 8 | 29.8 | 113 | 111 | 24% | 24% | 41% | 99% | 1% | 22% | 0.88× | 45% |
+| medium | 12 | 44.6 | 143 | 142 | 20% | 22% | 32% | 100% | 0% | 34% | 1.36× | 45% |
+| big | 1 | 7.4 | 78 | 77 | 94% | 0% | 94% | 94% | 6% | 3% | 0.12× | 27% |
+| big | 2 | 14.6 | 89 | 88 | 89% | 1% | 89% | 98% | 2% | 8% | 0.32× | 47% |
+| big | 3 | 21.7 | 101 | 100 | 86% | 0% | 86% | 99% | 1% | 8% | 0.32× | 50% |
+| big | 5 | 36.2 | 126 | 124 | 81% | 1% | 81% | 100% | 0% | 26% | 1.04× | 56% |
+| big | 8 | 58.2 | 168 | 167 | 77% | 0% | 77% | 100% | 0% | 38% | 1.52× | 53% |
+| big | 12 | 87.0 | 256 | 255 | 71% | 1% | 72% | 100% | 0% | 48% | 1.92× | 45% |
+
+#### What it says
+
+- **Small pieces make a steady game; big pieces make a waiting game.** Someone in small pieces loses one early (12–64% of the way through, sooner the more they wear) and keeps losing them: about a third of their clothes are off by halfway. Someone in big pieces loses almost nothing until the end: their first piece comes off 71–94% of the way through, and 0–1% of their clothes are off by halfway. A big piece only comes off when every one of its 6–9 squares is hit.
+- **Wearing little means a long time naked.** One small piece: naked from 64% of the way through, so naked for over a third of the game. Two or more big pieces: naked for 2% or less.
+- **Squares win.** The last one dressed is mostly whoever has the most squares on the board: 12 big pieces (87 squares) are last dressed 1.92× a fair share; one small piece, 0.12×. About 20–45 squares (12 small, 8–12 medium or 5 big pieces) is roughly an even chance (0.88–1.36×) against three Everyday outfits of 14 squares each.
+- **Big outfits often go out in a joint strip.** They come off at the very end, together with the last others: 45–56% of the time with 2+ big pieces.
+- **One heavily dressed player makes everyone's game longer.** The board grows to fit their clothes, from 72 squares to 256 with 12 big pieces, and the game from about 63 turns to 255 for the whole table.
+
 ## License
 
 [MIT](LICENSE).
