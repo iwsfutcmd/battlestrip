@@ -52,11 +52,11 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['shoes', 'footwear', '#.#'], // 2: a pair
   ['boots', 'footwear', '#.#/#.#'], // 4: a tall pair
   ['sandals', 'footwear', '#.#'], // 2: a pair
-  ['slippers', 'footwear', '#.#'], // 2: a pair
+  ['slippers', 'footwear', '#../..#'], // 2: a pair, kicked off anyhow
   ['heels', 'footwear', '#./.#'], // 2: a pair, staggered
   ['coat', 'outerwear', '###/###/###'], // 9
   ['jacket', 'outerwear', '.#./###/#.#'], // 6
-  ['blazer', 'outerwear', '#.#/###/.#.'], // 6
+  ['blazer', 'outerwear', '#..#/####'], // 6: a deep V between the lapels
   ['raincoat', 'outerwear', '.#./###/###/#.#'], // 9
   ['hat', 'headwear', '.#./###'], // 4
   ['cap', 'headwear', '##'], // 2
@@ -74,7 +74,7 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['sash', 'accessories', '#../.#./..#'], // 3: a diagonal
   ['suspenders', 'accessories', '#.#/#.#'], // 4: two straps
   ['bikini', 'swimwear', '#.#/.../.#.'], // 3: three parts
-  ['legWarmers', 'footwear', '#.#/#.#'], // 4: a pair
+  ['legWarmers', 'footwear', '#../#.#/..#'], // 4: a pair, one leg up (it's the 80s)
   ['cape', 'outerwear', '.##./.##./####'], // 8: narrow at the shoulders, flaring at the hem
 ];
 

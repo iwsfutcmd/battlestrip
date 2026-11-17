@@ -39,7 +39,7 @@ export interface FleetImage {
   readonly writingMode: WritingMode;
   /** NFC. Long names are cut at a grapheme boundary to keep the QR small (see MAX_NAME_BYTES). */
   readonly name: string;
-  /** Seat index 0–7: picks the glyph and colour. */
+  /** The player's colour and shape, 0–63 (see ui/common/identity.tsx). */
   readonly identity: number;
   readonly ships: readonly FleetImageShip[];
 }
@@ -48,8 +48,9 @@ export interface FleetImage {
  * 2: clothing kinds replaced ship kinds. 3: wardrobe pieces with shapes and orientations.
  * 4: one-square underwear, two-square bra, left and right socks (wardrobe renumbered).
  * 5: every piece sized by how big it really is.
+ * 7: blazer, leg warmers and slippers reshaped.
  */
-export const PAYLOAD_VERSION = 6;
+export const PAYLOAD_VERSION = 7;
 /** Keeps the worst-case URL under ~400 characters (24 emoji ZWJ sequences would be ~600 bytes). */
 export const MAX_NAME_BYTES = 160;
 

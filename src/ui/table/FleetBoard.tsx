@@ -31,7 +31,7 @@ export function FleetBoard({ rows, cols, labels, dir, writingMode, ships, identi
       ariaHidden
       cell={(c) => ({ className: hits?.has(`${c.row},${c.col}`) ? 'is-hit' : '' })}
       overlays={ships.map((s) => (
-        <PieceOutline key={s.number} piece={s} colour={identityColour(identity)} digitsLocale={labels.digitsLocale} />
+        <PieceOutline key={s.number} piece={s} colour={identityColour(identity)} digitsLocale={labels.digitsLocale} dir={dir} writingMode={writingMode} />
       ))}
     />
   );

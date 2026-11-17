@@ -171,6 +171,17 @@
   background: rgb(86 180 233 / 22%);
 }
 
+/* A line joining a piece's separate parts (shoes, earrings, a bikini). */
+.piece-link {
+  z-index: 1;
+  overflow: visible;
+  pointer-events: none;
+  inline-size: 100%;
+  block-size: 100%;
+  stroke-width: 0.1;
+  stroke-linecap: round;
+}
+
 .piece-bridge {
   position: absolute;
   z-index: 2;
@@ -190,6 +201,12 @@
   vertical-align: middle;
   fill: currentcolor;
   opacity: 0.85;
+}
+
+.shape-icon-link {
+  stroke: currentcolor;
+  stroke-width: 0.16;
+  stroke-linecap: round;
 }
 
 .ship-number {

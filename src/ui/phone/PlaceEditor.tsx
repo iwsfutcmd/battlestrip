@@ -222,6 +222,8 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
               piece={{ number: def.number, kind: def.kind, cells: cellsOf(rules, { ship: def.id, origin: p.origin, orientation: p.orientation }) }}
               colour={identityColour(me?.identity ?? seat)}
               digitsLocale={labels.digitsLocale}
+              dir={invite.dir}
+              writingMode={invite.writingMode}
               selected={selected === k}
             />
           );

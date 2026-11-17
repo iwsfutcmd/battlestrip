@@ -4,6 +4,7 @@ import type { FleetImage } from '../../share/payload.ts';
 import { identityColour, identityShape } from '../common/identity.tsx';
 import { colText, row2Text, rowText, type BoardLabels } from '../table/format.ts';
 import { labelCell } from '../table/Piece.tsx';
+import { linkSegment, partLinks } from '../table/links.ts';
 import { cellGroups } from '../../engine/index.ts';
 
 const CELL = 56;
@@ -142,7 +143,19 @@ export async function fleetPng(image: FleetImage, labels: BoardLabels, legend: r
         ctx.fill();
       }
     }
-    // A number in each separate part.
+    // A line joining each separate part to the next, drawn only between the parts.
+    ctx.lineWidth = CELL * 0.1;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    for (const [a, b] of partLinks(s.cells)) {
+      const pa = L.at(a.row, a.col);
+      const pb = L.at(b.row, b.col);
+      const [x1, y1, x2, y2] = linkSegment(pa.x + CELL / 2, pa.y + CELL / 2, pb.x + CELL / 2, pb.y + CELL / 2, CELL);
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+    }
+    ctx.stroke();
+    // A marker in each separate part.
     for (const group of cellGroups(s.cells)) {
       const label = labelCell(group);
       if (!label) continue;
