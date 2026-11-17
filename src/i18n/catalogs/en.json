@@ -81,6 +81,12 @@
     "mask {{mask}}",
     "featherBoa {{feather boa}}",
     "sari {{sari}}",
+    "corset {{corset}}",
+    "thong {{thong}}",
+    "stockings {{stockings}}",
+    "garterBelt {{garter belt}}",
+    "negligee {{negligee}}",
+    "choker {{choker}}",
     "* {{item}}"
   ],
   "ship.withCopy": "{$name} {$copy :integer}",
@@ -380,6 +386,7 @@
     "onePieces {{one-pieces}}",
     "swimwear {{swimwear}}",
     "underwear {{underwear}}",
+    "lingerie {{lingerie}}",
     "footwear {{footwear}}",
     "outerwear {{outerwear}}",
     "headwear {{headwear}}",
@@ -394,6 +401,7 @@
     "beachDay {{Beach day}}",
     "dressedUp {{Dressed up}}",
     "nightIn {{Night in}}",
+    "boudoir {{Boudoir}}",
     "* {{{$id}}}"
   ],
   "lobby.squares": [

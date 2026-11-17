@@ -141,16 +141,16 @@ describe('the wardrobe', () => {
   it('sizes pieces by how big they are: more cloth, more squares', async () => {
     const { WARDROBE } = await import('./wardrobe.ts');
     const size = (id: string): number => WARDROBE.find((w) => w.id === id)?.length ?? NaN;
-    for (const id of ['underwear', 'leftSock', 'rightSock', 'ring', 'watch']) expect(size(id), id).toBe(1);
+    for (const id of ['underwear', 'leftSock', 'rightSock', 'ring', 'watch', 'thong', 'choker']) expect(size(id), id).toBe(1);
     expect(size('bra')).toBe(2);
     // Each step of this ladder is no smaller than the one before it.
     const ladder = [
       ['ring', 'underwear', 'leftSock'],
       ['bra', 'boxers', 'shoes', 'gloves', 'cap', 'glasses', 'mask', 'dressShoes'],
       ['tankTop', 'necklace', 'belt', 'undershirt', 'crown'],
-      ['tShirt', 'skirt', 'shorts', 'swimsuit', 'scarf', 'featherBoa', 'rollerSkates'],
-      ['shirt', 'apron', 'sunHat'],
-      ['sweater', 'jacket', 'hoodie'],
+      ['tShirt', 'skirt', 'shorts', 'swimsuit', 'scarf', 'featherBoa', 'rollerSkates', 'stockings', 'garterBelt'],
+      ['shirt', 'apron', 'sunHat', 'corset'],
+      ['sweater', 'jacket', 'hoodie', 'negligee'],
       ['pants', 'dress'],
       ['robe', 'jumpsuit', 'cape', 'overalls', 'labCoat'],
       ['coat', 'raincoat', 'pajamas', 'wetsuit', 'sari'],

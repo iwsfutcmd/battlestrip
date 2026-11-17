@@ -68,6 +68,12 @@ const ICONS: Readonly<Record<string, string>> = {
   mask: '🎭',
   featherBoa: '🪶',
   sari: '🥻',
+  corset: '⏳',
+  thong: '🍑',
+  stockings: '🕸️',
+  garterBelt: '💋',
+  negligee: '🌙',
+  choker: '🖤',
   sock: '🧦',
   glove: '🧤',
 };

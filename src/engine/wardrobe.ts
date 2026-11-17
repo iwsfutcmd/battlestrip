@@ -15,7 +15,7 @@ import type { Rules, ShipId, ShipKindId, ShipyardShip } from './types.ts';
  *
  * Ids double as kinds and as message keys (ship.name) and icon keys.
  */
-export const WARDROBE_CATEGORIES = ['tops', 'bottoms', 'onePieces', 'swimwear', 'underwear', 'footwear', 'outerwear', 'headwear', 'accessories'] as const;
+export const WARDROBE_CATEGORIES = ['tops', 'bottoms', 'onePieces', 'swimwear', 'underwear', 'lingerie', 'footwear', 'outerwear', 'headwear', 'accessories'] as const;
 export type WardrobeCategory = (typeof WARDROBE_CATEGORIES)[number];
 
 /**
@@ -88,6 +88,12 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['mask', 'accessories', '##'], // 2: across the eyes
   ['featherBoa', 'accessories', '#.#./.#.#'], // 4: draped, corner to corner
   ['sari', 'onePieces', '#.../##../###./.###'], // 9: draped over one shoulder
+  ['corset', 'lingerie', '#.#/.#./#.#'], // 5: laced corner to corner
+  ['thong', 'lingerie', '#'], // 1: barely there
+  ['stockings', 'lingerie', '#..#/#..#'], // 4: a pair, thigh-high
+  ['garterBelt', 'lingerie', '.##./#..#'], // 4: a waistband with its straps
+  ['negligee', 'lingerie', '#.#/.#./###'], // 6: thin straps, a sheer flare
+  ['choker', 'lingerie', '#'], // 1: snug at the throat
 ];
 
 export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art], i) => {
@@ -102,6 +108,7 @@ export const OUTFITS = {
   beachDay: ['bikini', 'sunglasses', 'sandals', 'cap', 'necklace'],
   dressedUp: ['shirt', 'blazer', 'pants', 'bowTie', 'suspenders', 'dressShoes', 'watch'],
   nightIn: ['robe', 'boxers', 'tankTop', 'slippers'],
+  boudoir: ['corset', 'thong', 'stockings', 'garterBelt', 'heels', 'choker'],
 } as const satisfies Record<string, readonly string[]>;
 export type OutfitId = keyof typeof OUTFITS;
 export const OUTFIT_IDS = Object.keys(OUTFITS) as OutfitId[];

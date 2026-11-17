@@ -81,6 +81,12 @@
     "mask {{面具}}",
     "featherBoa {{羽毛圍巾}}",
     "sari {{紗麗}}",
+    "corset {{束腰}}",
+    "thong {{丁字褲}}",
+    "stockings {{長筒絲襪}}",
+    "garterBelt {{吊襪帶}}",
+    "negligee {{薄紗睡衣}}",
+    "choker {{頸鍊}}",
     "* {{衣物}}"
   ],
   "ship.withCopy": "{$name}{$copy :integer}號",
@@ -343,6 +349,7 @@
     "onePieces {{連身}}",
     "swimwear {{泳裝}}",
     "underwear {{內衣}}",
+    "lingerie {{性感內衣}}",
     "footwear {{鞋類}}",
     "outerwear {{外套}}",
     "headwear {{帽子}}",
@@ -357,6 +364,7 @@
     "beachDay {{海灘日}}",
     "dressedUp {{盛裝}}",
     "nightIn {{宅在家}}",
+    "boudoir {{閨房}}",
     "* {{{$id}}}"
   ],
   "lobby.squares": "{$count :number} 格",

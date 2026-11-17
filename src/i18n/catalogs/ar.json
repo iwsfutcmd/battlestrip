@@ -81,6 +81,12 @@
     "mask {{قناع}}",
     "featherBoa {{وشاح ريش}}",
     "sari {{ساري}}",
+    "corset {{مشدّ}}",
+    "thong {{سروال خيطي}}",
+    "stockings {{جوارب طويلة}}",
+    "garterBelt {{حزام الجوارب}}",
+    "negligee {{قميص نوم شفاف}}",
+    "choker {{قلادة طوق}}",
     "* {{قطعة}}"
   ],
   "ship.withCopy": "{$name} {$copy :integer}",
@@ -383,6 +389,7 @@
     "onePieces {{قطعة واحدة}}",
     "swimwear {{ملابس سباحة}}",
     "underwear {{ملابس داخلية}}",
+    "lingerie {{لانجري}}",
     "footwear {{أحذية}}",
     "outerwear {{ملابس خارجية}}",
     "headwear {{أغطية رأس}}",
@@ -397,6 +404,7 @@
     "beachDay {{يوم على الشاطئ}}",
     "dressedUp {{أناقة}}",
     "nightIn {{سهرة في البيت}}",
+    "boudoir {{المخدع}}",
     "* {{{$id}}}"
   ],
   "lobby.squares": [
