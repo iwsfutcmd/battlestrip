@@ -167,13 +167,14 @@ describe('playing it out (playOut)', () => {
     expect(t7.state.seats[t7.state.current]?.id).toBe('Bo');
   });
 
-  it('the last fleet can only call squares on its own board', () => {
+  it('the last one dressed is skipped: everyone else takes turns undressing them', () => {
     let s = toLastFleet().state;
     s = call(s, 'Bo', 'E5').state;
+    expect(s.seats[s.current]?.id).toBe('Chen');
     s = call(s, 'Chen', 'F5').state;
-    const legal = legalCalls(s, pid('Amani'));
-    expect(legal).toContainEqual(at('A1'));
-    expect(legal).not.toContainEqual(at('A2'));
+    // Back to Bo, not Amani.
+    expect(s.seats[s.current]?.id).toBe('Bo');
+    expect(reduce(s, { kind: 'call', player: pid('Amani'), at: at('A1') })).toEqual({ ok: false, error: 'notYourTurn' });
   });
 
   it('ends when the last fleet sinks, crediting how long it held out', () => {
@@ -218,5 +219,15 @@ describe('§2.4 selfFire: false (engine and simulation only)', () => {
     const r = reduce(t2.state, { kind: 'call', player: pid('Chen'), at: at('D4') });
     // Chen's targets are Amani's and Bo's boards, and D4 is now shot on both.
     expect(r).toEqual({ ok: false, error: 'noUnshotTarget' });
+  });
+});
+
+describe('table size', () => {
+  it('takes up to MAX_PLAYERS players, and refuses more', async () => {
+    const { MAX_PLAYERS, newGame, outfit, wardrobeRules } = await import('./index.ts');
+    const rules = wardrobeRules({ rows: 18, cols: 18 });
+    const seats = (n: number) => Array.from({ length: n }, (_, i) => ({ id: pid(`p${i}`), kind: 'bot' as const, fleet: outfit('everyday') }));
+    expect(newGame(rules, seats(MAX_PLAYERS), 1).ok).toBe(true);
+    expect(newGame(rules, seats(MAX_PLAYERS + 1), 1)).toEqual({ ok: false, error: 'tooManyPlayers' });
   });
 });

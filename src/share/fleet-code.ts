@@ -1,4 +1,4 @@
-import { nextInt, placedCells, placementsFor, seedRng, shapeOf, type Coord, type Orientation, type Placement, type Rules } from '../engine/index.ts';
+import { nextInt, placedCells, placementsFor, seedRng, shapeOf, type Coord, type Orientation, type Placement, type Rules, MAX_PLAYERS } from '../engine/index.ts';
 import { digitValue } from '../i18n/parse.ts';
 import { CROCKFORD, fnv1a } from './codes.ts';
 
@@ -18,7 +18,7 @@ import { CROCKFORD, fnv1a } from './codes.ts';
 
 const CHECK_SYMBOLS = `${CROCKFORD}*~$=U`;
 const GAME_CHECK_RADIX = 1024n;
-const MAX_SEATS = 8n;
+const MAX_SEATS = BigInt(MAX_PLAYERS);
 
 export interface FleetCodeContext {
   readonly gameCode: string;

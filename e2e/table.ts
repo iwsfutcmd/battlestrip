@@ -36,6 +36,11 @@ export async function deal(page: Page, o: DealOptions): Promise<void> {
     else await addHuman.click();
   }
   for (const [i, name] of o.names.entries()) await page.locator('.seat-name').nth(i).fill(name);
+  // Outfits start empty: dress each person in the first ready-made outfit (Everyday). Bots dress themselves.
+  for (let i = 0; i < o.names.length; i++) {
+    if ((o.bots ?? []).includes(i)) continue;
+    await page.locator('.seat').nth(i).locator('.outfit-presets button').first().click();
+  }
   for (const i of o.bots ?? []) await page.locator('.seat').nth(i).locator('select').first().selectOption('bot');
   const numbers = page.locator('.settings-grid input[type=number]');
   // The first settings checkbox is "size the board to the outfits".

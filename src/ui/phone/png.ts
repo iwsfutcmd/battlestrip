@@ -1,3 +1,4 @@
+import { pieceMarker } from '../common/clothing.tsx';
 import { firstStrongDirection } from '../../i18n/isolate.ts';
 import type { FleetImage } from '../../share/payload.ts';
 import { identityColour, identityShape } from '../common/identity.tsx';
@@ -27,7 +28,7 @@ function layout(image: FleetImage, top: number): Layout {
 
 /** Draw one text run with the right base direction (Canvas doesn't run the bidi algorithm across runs). */
 function text(ctx: CanvasRenderingContext2D, s: string, x: number, y: number, size: number, align: CanvasTextAlign = 'center'): void {
-  ctx.font = `${size}px system-ui, "Noto Sans", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans TC", sans-serif`;
+  ctx.font = `${size}px system-ui, "Noto Sans", "Noto Sans Arabic", "Noto Sans Hebrew", "Noto Sans TC", "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif`;
   ctx.direction = firstStrongDirection(s) ?? 'ltr';
   ctx.textAlign = align;
   ctx.textBaseline = 'middle';
@@ -147,7 +148,7 @@ export async function fleetPng(image: FleetImage, labels: BoardLabels, legend: r
       if (!label) continue;
       const p = L.at(label.row, label.col);
       ctx.fillStyle = '#f5f7fa';
-      text(ctx, new Intl.NumberFormat(labels.digitsLocale).format(s.number), p.x + CELL / 2, p.y + CELL / 2, CELL * 0.45);
+      text(ctx, pieceMarker(s.kind, s.number, labels.digitsLocale), p.x + CELL / 2, p.y + CELL / 2, CELL * 0.45);
     }
   }
 

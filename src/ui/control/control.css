@@ -120,10 +120,6 @@
   opacity: 1;
 }
 
-.ship-toggle-number {
-  font-weight: 700;
-}
-
 .settings-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
@@ -167,8 +163,10 @@
 
 .private-fleet {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 0.75rem;
   justify-items: center;
+  inline-size: 100%;
 }
 
 .private-name {
@@ -178,11 +176,22 @@
 }
 
 .private-body {
+  container-type: inline-size;
   display: flex;
   flex-wrap: wrap;
   gap: 1.5rem;
   align-items: center;
   justify-content: center;
+  inline-size: 100%;
+}
+
+/* The private board shrinks to the width it has (a phone, a narrow dialog) instead of pushing past it. */
+.private-body .board {
+  --cell: min(2.4rem, calc(100cqi / (var(--cols) + 2)));
+}
+
+.private-body .board.is-small {
+  --cell: min(1.15rem, calc(100cqi / (var(--cols) + 2)));
 }
 
 .private-qr {
@@ -288,6 +297,7 @@
 
 .peek {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
   overflow: auto;
   max-inline-size: min(56rem, 96vi);

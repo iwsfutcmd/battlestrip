@@ -104,6 +104,8 @@ describe('engine properties', () => {
           if (over?.kind === 'gameOver' && over.result.kind === 'playedOut') {
             expect(after.standing?.player).toBe(over.result.player);
           }
+          // The last one dressed never gets another turn.
+          if (after.phase === 'playing' && after.standing) expect(after.seats[after.current]?.id).not.toBe(after.standing.player);
         }
       }),
       RUNS,
@@ -122,14 +124,16 @@ describe('engine properties', () => {
     );
   });
 
-  it('a player goes nuclear exactly when their last ship sinks, then only bombs, and no turn is skipped', () => {
+  it('a player goes nuclear exactly when their last ship sinks, then only bombs, and only the last one dressed is skipped', () => {
     fc.assert(
       fc.property(setupArb.filter((s) => s.rules.nuclear), (setup) => {
         const { start, steps } = playOut(setup);
         let expectedCurrent = start.current;
         for (const { before, after, events } of steps) {
           expect(before.current).toBe(expectedCurrent);
+          // Turns go round in seat order, except that the last one dressed (once there is one) is passed over.
           expectedCurrent = (before.current + 1) % before.seats.length;
+          if (after.standing && after.seats[expectedCurrent]?.id === after.standing.player) expectedCurrent = (expectedCurrent + 1) % before.seats.length;
           const call = events[0];
           if (call?.kind !== 'shotCalled') throw new Error('first event must be shotCalled');
           expect(call.shape).toBe(isAfloat(before, before.current) ? 'single' : 'bomb');

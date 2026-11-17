@@ -6,6 +6,7 @@
  * of game that player has. Writes outfit-lineup.json (outfits, pieces and
  * results) and outfit-lineup.md to --out (default sim-out/).
  */
+import { MAX_PLAYERS } from '../src/engine/index.ts';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -45,7 +46,7 @@ if (!(target > 0 && target < 1)) fail('--target: a share between 0 and 1, like 0
 const options = {
   games: whole(values.games, 'games', 1, 100_000),
   seed: whole(values.seed, 'seed', 1, 2 ** 31),
-  players: whole(values.players, 'players', 2, 8),
+  players: whole(values.players, 'players', 2, MAX_PLAYERS),
   others: values.others as OutfitId,
   target,
   bots: values.bots,

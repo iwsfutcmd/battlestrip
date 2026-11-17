@@ -1,7 +1,7 @@
 import { useId, useState } from 'preact/hooks';
 import { OUTFIT_IDS, outfit, shapeOf, WARDROBE, WARDROBE_CATEGORIES, type ShipId, type ShipyardShip } from '../../engine/index.ts';
 import { searchKey } from '../../i18n/text.ts';
-import { ClothingIcon } from '../common/clothing.tsx';
+import { PieceMarker } from '../common/clothing.tsx';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
 import { shipName } from '../table/format.ts';
@@ -46,8 +46,7 @@ export function OutfitPicker({ value, onChange }: { readonly value: readonly Shi
         {chosen.map((w) => (
           <li key={w.id}>
             <button type="button" class="chip" onClick={() => remove(w.id)} aria-label={t.format('lobby.removeItem', { item: name(w) })}>
-              <span class="ship-toggle-number">{new Intl.NumberFormat(t.locale).format(w.number)}</span>
-              <ClothingIcon kind={w.kind} />
+              <PieceMarker kind={w.kind} number={w.number} locale={t.locale} />
               <span>{name(w)}</span>
               <ShapeIcon shape={shapeOf(w)} size="1.2em" />
               <span aria-hidden="true">✕</span>
@@ -100,8 +99,7 @@ export function OutfitPicker({ value, onChange }: { readonly value: readonly Shi
           {results.slice(0, MAX_RESULTS).map((w) => (
             <li key={w.id}>
               <button type="button" class="ship-toggle" onClick={() => add(w.id)} aria-label={t.format('lobby.addItem', { item: name(w) })}>
-                <span class="ship-toggle-number">{new Intl.NumberFormat(t.locale).format(w.number)}</span>
-                <ClothingIcon kind={w.kind} />
+                <PieceMarker kind={w.kind} number={w.number} locale={t.locale} />
                 <span>{name(w)}</span>
                 <ShapeIcon shape={shapeOf(w)} size="1.2em" />
                 <span aria-hidden="true">+</span>

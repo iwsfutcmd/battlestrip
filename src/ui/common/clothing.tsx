@@ -69,3 +69,20 @@ export function ClothingIcon({ kind }: { readonly kind: string }) {
     </span>
   ) : null;
 }
+
+/**
+ * What marks a piece, on a board and beside its name: its emoji, or its
+ * number for the few pieces without one (belt, suspenders).
+ */
+export function pieceMarker(kind: string, number: number, locale: string): string {
+  return ICONS[kind] ?? new Intl.NumberFormat(locale).format(number);
+}
+
+export function PieceMarker({ kind, number, locale, className }: { readonly kind: string; readonly number: number; readonly locale: string; readonly className?: string | undefined }) {
+  const icon = ICONS[kind];
+  return (
+    <span class={`${icon ? 'clothing-icon' : 'piece-number'} ${className ?? ''}`} aria-hidden="true">
+      {icon ?? new Intl.NumberFormat(locale).format(number)}
+    </span>
+  );
+}

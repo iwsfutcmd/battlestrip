@@ -1,5 +1,5 @@
+import { pieceMarker } from '../common/clothing.tsx';
 import { cellGroups, type Coord, type Shape } from '../../engine/index.ts';
-import { formatNumber } from '../../i18n/labels.ts';
 
 /** What a board needs to draw a piece: its number, its kind and the squares it covers. */
 export interface BoardPiece {
@@ -69,7 +69,7 @@ export function PieceOutline({
             borderInlineEndWidth: edge(!has(c.row, c.col + 1)),
           }}
         >
-          {labels.has(key(c.row, c.col)) && <span class="ship-number">{formatNumber(digitsLocale, piece.number)}</span>}
+          {labels.has(key(c.row, c.col)) && <span class="ship-number">{pieceMarker(piece.kind, piece.number, digitsLocale)}</span>}
           {/* Cells joined only at a corner get a bridge on that corner (drawn once, from the upper cell). */}
           {([-1, 1] as const).map((dc) =>
             has(c.row + 1, c.col + dc) && !has(c.row + 1, c.col) && !has(c.row, c.col + dc) ? (

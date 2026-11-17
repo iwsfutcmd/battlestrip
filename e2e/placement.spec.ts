@@ -43,6 +43,9 @@ test('M5: players place their own ships on their phones and bring back fleet cod
     await b.locator(`[data-cell="${cell}"]`).click();
   }
   await expect(b.locator('.fleet-board .ship-number')).toHaveCount(5);
+  // Pieces are marked with their emoji, not numbers.
+  await expect(b.locator('.fleet-board .ship-number', { hasText: '\u{1F456}' })).toHaveCount(1);
+  await expect(b.locator('.fleet-board .ship-number', { hasText: /\d/u })).toHaveCount(0);
   await b.getByRole('button', { name: visibleText('en', 'place.done') }).click();
   const codeB = (await b.locator('[data-testid=fleet-code]').textContent()) ?? '';
   // Bo's phone image: the same fleet check the laptop will compute.

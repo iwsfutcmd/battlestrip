@@ -1,5 +1,5 @@
 import { bombFootprint, cellsOf, coordOf, inBounds, indexOf, occupancy, shapeOf } from './board.ts';
-import { MAX_SIDE, MIN_SIDE } from './presets.ts';
+import { MAX_PLAYERS, MAX_SIDE, MIN_SIDE } from './presets.ts';
 import { randomLayout } from './placement.ts';
 import { err, ok, type Result } from './result.ts';
 import { nextInt, seedRng, type RngState } from './rng.ts';
@@ -93,6 +93,7 @@ function shapeOk(rules: Rules, s: Rules['shipyard'][number]): boolean {
 
 function validateSeats(rules: Rules, seats: readonly Seat[]): RuleViolation | null {
   if (seats.length < 2) return 'tooFewPlayers';
+  if (seats.length > MAX_PLAYERS) return 'tooManyPlayers';
   if (hasDuplicates(seats.map((s) => s.id))) return 'duplicatePlayer';
   for (const seat of seats) {
     if (seat.fleet.length === 0) return 'emptyFleet';
@@ -309,9 +310,11 @@ function applyCall(s: GameState, a: Extract<Action, { kind: 'call' }>): Result<{
 
   let current = s.current;
   if (phase === 'playing') {
+    // Once one player is the last one dressed, they stop calling: everyone else takes turns undressing them.
     const probe = { ...s, status };
+    const skip = standing?.player;
     do current = (current + 1) % s.seats.length;
-    while (!isInPlay(probe, current));
+    while (!isInPlay(probe, current) || s.seats[current]?.id === skip);
   }
 
   return ok({

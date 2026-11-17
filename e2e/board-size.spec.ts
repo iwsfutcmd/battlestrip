@@ -10,6 +10,11 @@ test('auto board size: two players in everyday outfits get 7×7', async ({ page,
   const noErrors = watchForErrors(page);
   await page.goto('./?lang=en');
   await page.waitForSelector('.lobby');
+  // Outfits start empty, and nobody can deal until everyone has something on.
+  await expect(page.locator('.seat .chip')).toHaveCount(0);
+  await expect(page.locator('button.primary.big')).toBeDisabled();
+  for (let i = 0; i < 3; i++) await page.locator('.seat').nth(i).locator('.outfit-presets button').first().click();
+  await expect(page.locator('button.primary.big')).toBeEnabled();
   const auto = page.locator('.settings-grid label.check input[type=checkbox]').first();
   const numbers = page.locator('.settings-grid input[type=number]');
   await expect(auto).toBeChecked();

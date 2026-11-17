@@ -18,6 +18,8 @@ export interface GridInteraction {
   readonly onActivate: (c: Coord) => void;
   /** Accessible name for a cell (from a message). */
   readonly cellName: (c: Coord) => string;
+  /** The square under the pointer, or null when it leaves the board. */
+  readonly onHover?: ((c: Coord | null) => void) | undefined;
   readonly gridName: string;
 }
 
@@ -108,6 +110,7 @@ export function Grid({ rows, cols, labels, dir, writingMode, cell, overlays, int
       aria-label={interaction?.gridName}
       aria-hidden={ariaHidden ? 'true' : undefined}
       onKeyDown={interaction ? move : undefined}
+      onPointerLeave={interaction?.onHover ? () => interaction.onHover?.(null) : undefined}
     >
       <div role={interaction ? 'row' : undefined} class="board-row">
         <div class="board-corner" style={at(1, 1)} />
@@ -132,6 +135,7 @@ export function Grid({ rows, cols, labels, dir, writingMode, cell, overlays, int
                 aria-selected={interaction ? (selected ? 'true' : 'false') : undefined}
                 // First click picks the square; a click on the picked square calls it (so a double click does both).
                 onClick={interaction ? () => (selected ? interaction.onActivate({ row: r, col: c }) : interaction.onFocus({ row: r, col: c })) : undefined}
+                onPointerEnter={interaction?.onHover ? () => interaction.onHover?.({ row: r, col: c }) : undefined}
               >
                 {render.content}
               </div>

@@ -2,7 +2,7 @@ import { useState } from 'preact/hooks';
 import type { CatalogId } from '../../i18n/index.ts';
 import type { FleetImage } from '../../share/payload.ts';
 import { HoldToReveal } from '../common/HoldToReveal.tsx';
-import { ClothingIcon } from '../common/clothing.tsx';
+import { PieceMarker, pieceMarker } from '../common/clothing.tsx';
 import { Glyph } from '../common/identity.tsx';
 import { LanguagePicker } from '../common/LanguagePicker.tsx';
 import { useTranslator } from '../common/locale-state.ts';
@@ -12,7 +12,6 @@ import { colText, labelsFor, rowText, shipName } from '../table/format.ts';
 import { fleetPng } from './png.ts';
 import { ShapeIcon } from '../table/Piece.tsx';
 import { WARDROBE } from '../../engine/index.ts';
-import { formatNumber } from '../../i18n/labels.ts';
 
 /**
  * The phone's one job: a static picture of your own fleet. Labels follow the
@@ -23,7 +22,7 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
   const [always, setAlways] = useState(false);
   const labels = labelsFor(image.labels, image.labels2, image.numbering);
   const ships = [...image.ships].sort((a, b) => a.number - b.number);
-  const legend = ships.map((s) => `${formatNumber(t.locale, s.number)} · ${shipName(t, s.kind, null)}`);
+  const legend = ships.map((s) => `${pieceMarker(s.kind, s.number, t.locale)} · ${shipName(t, s.kind, null)}`);
   const squares = (s: (typeof ships)[number]): string =>
     s.cells.map((c) => t.format('coord.label', { row: rowText(labels, c.row), col: colText(labels, c.col) })).join(', ');
 
@@ -60,7 +59,7 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
           <ul>
             {ships.map((s) => (
               <li key={s.number}>
-                <span class="legend-number">{formatNumber(t.locale, s.number)}</span> <ClothingIcon kind={s.kind} /> <span>{shipName(t, s.kind, null)}</span>{' '}
+                <PieceMarker kind={s.kind} number={s.number} locale={t.locale} className="legend-number" /> <span>{shipName(t, s.kind, null)}</span>{' '}
                 <ShapeIcon shape={WARDROBE[s.item]?.shape ?? []} />
               </li>
             ))}
@@ -70,7 +69,7 @@ export function FleetView({ image, onLanguage, showPseudo }: { readonly image: F
           <ul>
             {ships.map((s) => (
               <li key={s.number}>
-                <Msg id="phone.shipLine" values={{ number: s.number, ship: shipName(t, s.kind, null), squares: squares(s) }} />
+                <Msg id="phone.shipLine" values={{ marker: pieceMarker(s.kind, s.number, t.locale), ship: shipName(t, s.kind, null), squares: squares(s) }} />
               </li>
             ))}
           </ul>

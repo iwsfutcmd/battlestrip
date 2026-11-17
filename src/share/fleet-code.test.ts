@@ -37,6 +37,8 @@ const contexts: FleetCodeContext[] = [
     fleets: [idx(wardrobe, outfit('everyday')), idx(wardrobe, outfit('dressedUp')), idx(wardrobe, ['ring']), idx(wardrobe, outfit('bundledUp'))],
   },
   { gameCode: gameCode(8), rules: wardrobeRules({ rows: 20, cols: 20 }), fleets: [idx(wardrobe, outfit('bundledUp'))] },
+  // The biggest table: seats up to 16.
+  { gameCode: gameCode(16), rules: wardrobeRules({ rows: 18, cols: 18 }), fleets: Array.from({ length: 16 }, () => idx(wardrobe, outfit('everyday'))) },
 ];
 
 describe('fleet codes', () => {

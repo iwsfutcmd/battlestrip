@@ -1,6 +1,7 @@
 import { batch, computed, effect, signal } from '@preact/signals';
 import { callSeed, chooseCall, type BotKind } from '../../bots/index.ts';
 import {
+  MAX_PLAYERS,
   autoBoardSize,
   fleetSquares,
   gameStats,
@@ -89,7 +90,7 @@ export interface Notice {
   readonly tone: 'info' | 'error';
 }
 
-export const MAX_SEATS = 8;
+export const MAX_SEATS = MAX_PLAYERS;
 let seatCounter = 0;
 const newKey = (): string => `s${Date.now().toString(36)}${(seatCounter++).toString(36)}`;
 
@@ -99,7 +100,8 @@ export function rulesForLobby(c: LobbyConfig): Rules {
 }
 
 function defaultSeat(kind: 'human' | 'bot'): SeatConfig {
-  return { key: newKey(), name: '', kind, bot: 'density', policy: 'full', fleet: outfit('everyday') };
+  // Outfits start empty: each player chooses what they put in the game (a bot's default policy dresses it anyway).
+  return { key: newKey(), name: '', kind, bot: 'density', policy: 'full', fleet: [] };
 }
 
 export function defaultLobby(locale = 'en'): LobbyConfig {

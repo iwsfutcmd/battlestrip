@@ -16,12 +16,18 @@ export const SHAPES: readonly string[] = [
   'M5 0.5L9.5 3.8L7.8 9.3H2.2L0.5 3.8Z', // pentagon
 ];
 
+/**
+ * Seats 1–8 each get their own colour and shape. Past 8, colour and shape
+ * combine (each later group of eight shifts the colours by one), so every
+ * seat up to 64 has a pair no other seat has.
+ */
 export function identityColour(i: number): string {
-  return PALETTE[((i % 8) + 8) % 8] ?? '#ffffff';
+  const n = Math.max(0, Math.floor(i));
+  return PALETTE[(n + Math.floor(n / 8)) % 8] ?? '#ffffff';
 }
 
 export function identityShape(i: number): string {
-  return SHAPES[((i % 8) + 8) % 8] ?? SHAPES[0] ?? '';
+  return SHAPES[Math.max(0, Math.floor(i)) % 8] ?? SHAPES[0] ?? '';
 }
 
 /** A decorative glyph; the player's name always appears next to it, so it is aria-hidden. */

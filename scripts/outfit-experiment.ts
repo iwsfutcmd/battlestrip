@@ -6,6 +6,7 @@
  * Prints what kind of game that player has, per cell, in Markdown, and
  * writes outfit-experiment.json and .md to --out (default sim-out/).
  */
+import { MAX_PLAYERS } from '../src/engine/index.ts';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -50,7 +51,7 @@ if (!(target > 0 && target < 1)) fail('--target: a share between 0 and 1, like 0
 const options: ExperimentOptions = {
   games: whole(values.games, 'games', 1, 100_000),
   seed: whole(values.seed, 'seed', 1, 2 ** 31),
-  players: whole(values.players, 'players', 2, 8),
+  players: whole(values.players, 'players', 2, MAX_PLAYERS),
   counts: values.counts.split(',').map((c) => whole(c.trim(), 'counts', 1, 51)),
   sizes: sizes as SizeClass[],
   others: values.others as OutfitId,

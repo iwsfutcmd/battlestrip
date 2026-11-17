@@ -7,6 +7,7 @@
  * every game to --out (default sim-out/) as balance.json, and one row per
  * player to balance-players.csv. Numbers go through Intl.NumberFormat in --locale.
  */
+import { MAX_PLAYERS } from '../src/engine/index.ts';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -65,7 +66,7 @@ const positive = (spec: string, name: string): number => {
 };
 
 const players = parseInts(values.players, 'players');
-if (players.some((n) => n < 2 || n > 8)) fail('--players: 2 to 8');
+if (players.some((n) => n < 2 || n > MAX_PLAYERS)) fail(`--players: 2 to ${MAX_PLAYERS}`);
 const dress = values.dress.split(',').map((d) => d.trim());
 for (const d of dress) if (!(DRESS as readonly string[]).includes(d)) fail(`--dress: "${d}" is not one of ${DRESS.join(', ')}`);
 

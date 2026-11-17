@@ -1,22 +1,26 @@
 import { copyNumber, type PlayerView } from '../../engine/index.ts';
-import { formatNumber } from '../../i18n/labels.ts';
-import { ClothingIcon } from '../common/clothing.tsx';
+import { PieceMarker } from '../common/clothing.tsx';
 import { Glyph } from '../common/identity.tsx';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
 import { shipName } from './format.ts';
 import type { PublicTable } from './types.ts';
 
+/** Tables bigger than this get the compact roster. */
+export const COMPACT_FROM = 6;
+
 /** Each player: glyph, name, chosen fleet as numbered pictograms (one segment per square). */
 export function Roster({ table, view }: { readonly table: PublicTable; readonly view: PlayerView | null }) {
   const t = useTranslator();
   const rules = view?.rules;
+  // Past six players the side column can't hold every card: one short row each, in columns.
+  const compact = table.seats.length > COMPACT_FROM;
   return (
     <section class="roster" aria-labelledby="roster-heading">
       <h2 id="roster-heading" class="visually-hidden">
         <Msg id="roster.heading" />
       </h2>
-      <ul class="roster-list">
+      <ul class={`roster-list ${compact ? 'is-compact' : ''}`}>
         {table.seats.map((seat, i) => {
           const p = view?.players[i];
           const current = view?.current === seat.id;
@@ -63,7 +67,18 @@ export function Roster({ table, view }: { readonly table: PublicTable; readonly 
                     )}
                   </div>
                 )}
-                {rules && p && (
+                {rules && p && compact && (
+                  <span
+                    class="roster-pips"
+                    role="img"
+                    aria-label={t.format('roster.piecesOff', { off: p.ships.filter((s) => s.sunk).length, total: p.ships.length })}
+                  >
+                    {p.ships.map((s) => (
+                      <span key={s.ship} class={`roster-pip ${s.sunk ? 'is-off' : (s.hits ?? 0) > 0 ? 'is-hit' : ''}`} />
+                    ))}
+                  </span>
+                )}
+                {rules && p && !compact && (
                   <ul class="fleet-pics">
                     {p.ships.map((s) => {
                       const def = rules.shipyard.find((x) => x.id === s.ship);
@@ -77,10 +92,7 @@ export function Roster({ table, view }: { readonly table: PublicTable; readonly 
                             s.sunk ? t.format('ship.sunkStatus', { ship: name }) : t.format('ship.status', { ship: name, length: s.length, hits })
                           }
                         >
-                          <span class="ship-pic-number" aria-hidden="true">
-                            {formatNumber(table.settings.locale, def?.number ?? 0)}
-                          </span>
-                          <ClothingIcon kind={def?.kind ?? ''} />
+                          <PieceMarker kind={def?.kind ?? ''} number={def?.number ?? 0} locale={table.settings.locale} className="ship-pic-number" />
                           <span class="ship-pic-hull" aria-hidden="true">
                             {Array.from({ length: s.length }, (_, k) => (
                               <span key={k} class={`ship-seg ${k < hits ? 'is-hit' : ''}`} />

@@ -1,13 +1,13 @@
 import { signal } from '@preact/signals';
 import { useEffect, useId, useState } from 'preact/hooks';
-import type { Coord } from '../../engine/index.ts';
+import { viewFor, type Coord } from '../../engine/index.ts';
 import { numberingSystemOf } from '../../i18n/labels.ts';
 import { parseCoord } from '../../i18n/parse.ts';
 import { formatList } from '../../i18n/index.ts';
 import { translator, useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
 import { isUndoShortcut } from '../keyboard.ts';
-import { coordText, labelsFor } from '../table/format.ts';
+import { coordText, labelsFor, shipNameIn } from '../table/format.ts';
 import type { GridInteraction } from '../table/Grid.tsx';
 import { Peek } from './peek/Peek.tsx';
 import { ThemePicker } from './ThemePicker.tsx';
@@ -62,12 +62,18 @@ export function useGridInteraction(): GridInteraction | undefined {
   const l = labels();
   if (!t || !g || !s || !l || stage.value !== 'playing') return undefined;
   const view = g.boards;
+  // Public information only: which piece was hit is announced, so the spectator's view has it.
+  const pub = viewFor(g, 'spectator');
   const cellName = (c: Coord): string => {
     const coord = coordText(t, l, c);
     const i = c.row * g.rules.cols + c.col;
     const hit = s.seats.flatMap((seat, k) => {
       const v = view[k]?.cells[i] ?? 0;
-      return v === 2 ? [s.names[k] ?? seat.id] : [];
+      if (v !== 2) return [];
+      const code = pub.boards[k]?.cells[i] ?? -1;
+      const def = code >= 0 ? g.rules.shipyard[code] : undefined;
+      const player = s.names[k] ?? seat.id;
+      return [def ? t.format('board.hitPiece', { player, piece: shipNameIn(t, g.rules, def.id) }) : player];
     });
     if (hit.length > 0) return t.format('cell.hit', { coord, players: formatList(t.locale, hit) });
     const called = view.some((b) => (b.cells[i] ?? 0) !== 0);

@@ -5,7 +5,7 @@ import { fleetCheck } from '../../share/codes.ts';
 import { encodeFleetCode, groupCode } from '../../share/fleet-code.ts';
 import type { PlacementInvite } from '../../share/invite.ts';
 import { encodeFleetImage, type FleetImage } from '../../share/payload.ts';
-import { ClothingIcon } from '../common/clothing.tsx';
+import { PieceMarker } from '../common/clothing.tsx';
 import { Glyph, identityColour } from '../common/identity.tsx';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
@@ -13,7 +13,6 @@ import { Qr } from '../common/Qr.tsx';
 import { labelsFor, shipName } from '../table/format.ts';
 import { Grid } from '../table/Grid.tsx';
 import { PieceOutline, ShapeIcon } from '../table/Piece.tsx';
-import { formatNumber } from '../../i18n/labels.ts';
 import { wardrobePiece } from '../../share/payload.ts';
 
 type Layout = Partial<Record<number, { readonly origin: Coord; readonly orientation: number }>>;
@@ -245,8 +244,7 @@ export function PlaceEditor({ invite }: { readonly invite: PlacementInvite }) {
                   setOrientation(layout[k]?.orientation ?? 0);
                 }}
               >
-                <span class="ship-toggle-number">{formatNumber(t.locale, def.number)}</span>
-                <ClothingIcon kind={def.kind} />
+                <PieceMarker kind={def.kind} number={def.number} locale={t.locale} />
                 <span>{shipName(t, def.kind, null)}</span>
                 <ShapeIcon shape={orient(shapeOf(def), selected === k ? orientation : 0)} />
                 {layout[k] && <span aria-hidden="true">✓</span>}

@@ -9,6 +9,7 @@
  *   at the table is the last one dressed, against a fair share.
  * Prints Markdown and writes sizing-compare.md and .json to --out.
  */
+import { MAX_PLAYERS } from '../src/engine/index.ts';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -36,7 +37,7 @@ for (const part of values.players.split(',')) {
   if (m) for (let n = Number(m[1]); n <= Number(m[2]); n++) players.push(n);
   else players.push(Number(part));
 }
-if (players.some((n) => !Number.isInteger(n) || n < 2 || n > 8)) fail('--players: 2 to 8');
+if (players.some((n) => !Number.isInteger(n) || n < 2 || n > MAX_PLAYERS)) fail(`--players: 2 to ${MAX_PLAYERS}`);
 const dress = values.dress.split(',').map((d) => d.trim()) as Dress[];
 for (const d of dress) if (!DRESS.includes(d)) fail(`--dress: one of ${DRESS.join(', ')}`);
 const sizings = values.sizings.split(',').map((spec) => {

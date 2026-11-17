@@ -52,6 +52,8 @@ export function presetRules(preset: PresetId, overrides: Partial<Rules> = {}): R
   return { ...base, ...overrides };
 }
 
+/** The most players at one table: the lobby's cap, and what fleet codes can carry. */
+export const MAX_PLAYERS = 16;
 export const MIN_SIDE = 5;
 export const MAX_SIDE = 20;
 

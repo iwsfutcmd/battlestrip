@@ -144,6 +144,7 @@ export type RuleViolation =
   | 'noLegalLayout'
   | 'badRules'
   | 'tooFewPlayers'
+  | 'tooManyPlayers'
   | 'duplicatePlayer'
   | 'badLayout'
   | 'nothingToUndo';

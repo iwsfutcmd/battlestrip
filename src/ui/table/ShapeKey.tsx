@@ -1,5 +1,5 @@
 import { shapeOf, type PlayerView } from '../../engine/index.ts';
-import { formatNumber } from '../../i18n/labels.ts';
+import { PieceMarker } from '../common/clothing.tsx';
 import { useTranslator } from '../common/locale-state.ts';
 import { Msg } from '../common/Msg.tsx';
 import { shipNameIn } from './format.ts';
@@ -29,9 +29,7 @@ export function ShapeKey({ view, locale, compact = false }: { readonly view: Pla
       <ul class="shape-key-list">
         {pieces.map((def) => (
           <li key={def.id} class="shape-key-item">
-            <span class="ship-pic-number" aria-hidden="true">
-              {formatNumber(locale, def.number)}
-            </span>
+            <PieceMarker kind={def.kind} number={def.number} locale={locale} className="ship-pic-number" />
             <ShapeIcon shape={shapeOf(def)} size={compact ? '1.1em' : '1.5em'} />
             <span class={compact ? 'visually-hidden' : 'shape-key-name'}>{shipNameIn(t, view.rules, def.id)}</span>
           </li>
