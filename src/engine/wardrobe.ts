@@ -75,6 +75,19 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['bikini', 'swimwear', '#.#/.../.#.'], // 3: three parts
   ['legWarmers', 'footwear', '#../#.#/..#'], // 4: a pair, one leg up (it's the 80s)
   ['cape', 'outerwear', '.##./.##./####'], // 8: narrow at the shoulders, flaring at the hem
+  ['glasses', 'accessories', '#.#'], // 2: two lenses, joined over the nose
+  ['crown', 'headwear', '#.#.#'], // 3: three points
+  ['sunHat', 'headwear', '.#./####'], // 5: a crown on a wide, tilted brim
+  ['dressShoes', 'footwear', '#..#'], // 2: a pair, set neatly apart
+  ['rollerSkates', 'footwear', '##.##'], // 4: a pair, each on its wheels
+  ['pajamas', 'onePieces', '###/.#./.../###/#.#'], // 9: a top and its bottoms, two parts
+  ['overalls', 'onePieces', '#.#/.#./###/#.#'], // 8: straps, a bib and two legs
+  ['wetsuit', 'swimwear', '.#./###/.#./#.#/#.#'], // 9: head to toe
+  ['labCoat', 'outerwear', '#.#/###/###'], // 8: a collar and a long body
+  ['apron', 'outerwear', '.#./###/.#.'], // 5: a bib with its ties out
+  ['mask', 'accessories', '##'], // 2: across the eyes
+  ['featherBoa', 'accessories', '#.#./.#.#'], // 4: draped, corner to corner
+  ['sari', 'onePieces', '#.../##../###./.###'], // 9: draped over one shoulder
 ];
 
 export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art], i) => {
@@ -87,7 +100,7 @@ export const OUTFITS = {
   everyday: ['tShirt', 'pants', 'underwear', 'leftSock', 'rightSock'],
   bundledUp: ['coat', 'sweater', 'pants', 'scarf', 'gloves', 'beanie', 'boots'],
   beachDay: ['bikini', 'sunglasses', 'sandals', 'cap', 'necklace'],
-  dressedUp: ['shirt', 'blazer', 'pants', 'bowTie', 'suspenders', 'shoes', 'watch'],
+  dressedUp: ['shirt', 'blazer', 'pants', 'bowTie', 'suspenders', 'dressShoes', 'watch'],
   nightIn: ['robe', 'boxers', 'tankTop', 'slippers'],
 } as const satisfies Record<string, readonly string[]>;
 export type OutfitId = keyof typeof OUTFITS;

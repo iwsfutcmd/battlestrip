@@ -31,7 +31,14 @@ export function OutfitPicker({ value, onChange }: { readonly value: readonly Shi
     const haystack = [name(w), w.kind, t.format('category.name', { id: w.category ?? '' }), String(w.number), new Intl.NumberFormat(t.locale).format(w.number)];
     return haystack.some((h) => searchKey(h, t.locale).includes(q));
   };
-  const results = WARDROBE.filter((w) => !value.includes(w.id) && matches(w));
+  // Best matches first: the whole name, then names that start with the query, then a word that does; otherwise wardrobe order.
+  const rank = (w: ShipyardShip): number => {
+    const n = searchKey(name(w), t.locale);
+    if (n === q) return 0;
+    if (n.startsWith(q)) return 1;
+    return n.split(/[\s\p{P}]+/u).some((word) => word.startsWith(q)) ? 2 : 3;
+  };
+  const results = WARDROBE.filter((w) => !value.includes(w.id) && matches(w)).sort((a, b) => (q === '' ? 0 : rank(a) - rank(b)));
 
   // Keep the outfit in wardrobe order, so numbers read in order.
   const add = (id: ShipId): void => onChange(WARDROBE.filter((w) => w.id === id || value.includes(w.id)).map((w) => w.id));

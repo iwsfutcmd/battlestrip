@@ -1,11 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { WARDROBE } from '../../engine/index.ts';
+import { orient, shapeOf, WARDROBE } from '../../engine/index.ts';
 import { ICON_KINDS, pieceMarker } from './clothing.tsx';
 
 describe('clothing icons', () => {
   it('cover every piece in the wardrobe', () => {
     const missing = WARDROBE.map((w) => w.kind).filter((k) => !ICON_KINDS.includes(k));
     expect(missing).toEqual([]);
+  });
+});
+
+describe('pieces that share an emoji', () => {
+  it('never share a shape too, turned or flipped (the left and right sock are the one pair)', () => {
+    const anyWay = (id: string): string => {
+      const def = WARDROBE.find((w) => w.id === id);
+      if (!def) throw new Error(id);
+      return Array.from({ length: 8 }, (_, k) => JSON.stringify(orient(shapeOf(def), k as 0)))
+        .sort()[0] ?? '';
+    };
+    const clashes: string[] = [];
+    for (const [i, a] of WARDROBE.entries()) {
+      for (const b of WARDROBE.slice(i + 1)) {
+        if (pieceMarker(a.kind, a.number, 'en') === pieceMarker(b.kind, b.number, 'en') && anyWay(a.id) === anyWay(b.id)) clashes.push(`${a.id}/${b.id}`);
+      }
+    }
+    expect(clashes).toEqual(['leftSock/rightSock']);
   });
 });
 

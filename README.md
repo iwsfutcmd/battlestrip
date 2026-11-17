@@ -10,32 +10,32 @@ The full design is in [`docs/SPEC.md`](docs/SPEC.md); *Indra's Net* was its work
 
 Battlestrip is played like Battleship, but every piece is a piece of clothing, and a piece can be any shape at all, not just a line.
 
-- **The wardrobe** (`src/engine/wardrobe.ts`) has 50 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
-  - Each piece has a fixed number (1 T-shirt … 50 cape) and a shape. **Its size in squares follows how big it is in real life**, so more cloth means more squares, and so more hits before it's off:
+- **The wardrobe** (`src/engine/wardrobe.ts`) has 63 pieces in 9 categories (tops, bottoms, one-pieces, swimwear, underwear, footwear, outerwear, headwear, accessories).
+  - Each piece has a fixed number (1 T-shirt … 63 sari) and a shape. **Its size in squares follows how big it is in real life**, so more cloth means more squares, and so more hits before it's off:
     - **1 square:** underwear, each sock, watch, ring, sunglasses
-    - **2:** bra, boxers, crop top, cap, beanie, bow tie, earrings, and pairs of shoes, sandals, slippers, heels and gloves
-    - **3:** tank top, undershirt, bikini, necklace, tie, belt, sash
-    - **4:** T-shirt, blouse, vest, skirt, shorts, leggings, swimsuit, tights, boots, leg warmers, hat, scarf, suspenders
-    - **5:** shirt
+    - **2:** bra, boxers, crop top, cap, beanie, bow tie, earrings, glasses, mask, and pairs of shoes, dress shoes, sandals, slippers, heels and gloves
+    - **3:** tank top, undershirt, bikini, necklace, tie, belt, sash, crown
+    - **4:** T-shirt, blouse, vest, skirt, shorts, leggings, swimsuit, tights, boots, leg warmers, roller skates, hat, scarf, suspenders, feather boa
+    - **5:** shirt, apron, sun hat
     - **6:** sweater, hoodie, jacket, blazer
     - **7:** pants, dress
-    - **8:** robe, jumpsuit, cape
-    - **9:** coat, raincoat
+    - **8:** robe, jumpsuit, cape, overalls, lab coat
+    - **9:** coat, raincoat, pajamas (top and bottoms, two parts), wetsuit, sari
 
-    A test locks in this ladder. The shapes themselves are whimsical: a T-shirt is a T, pants (jeans included) are an upside-down U with legs, a blazer is a deep V between the lapels, slippers lie a knight's move apart where they were kicked off, leg warmers have one leg up (it's the 80s), and things that come in pairs are two separate parts. No two pieces with the same emoji have the same shape, except the left and right sock.
+    A test locks in this ladder. The shapes themselves are whimsical: a T-shirt is a T, pants (jeans included) are an upside-down U with legs, a blazer is a deep V between the lapels, slippers lie a knight's move apart where they were kicked off, leg warmers have one leg up (it's the 80s), a wetsuit is a little person, a sari drapes over one shoulder, glasses are two lenses joined over the nose, and things that come in pairs are two separate parts. No two pieces with the same emoji have the same shape, except the left and right sock.
   - **Shapes can be anything.** A shape is any set of squares, so a piece can be edge-connected, joined only at corners, or in separate parts. The sash is a diagonal line, the bow tie an X and the necklace a V; earrings are two squares apart, and a bikini comes in three parts.
-  - **Pieces are marked with their emoji** (👕 T-shirt, 👖 pants, 🩲 underwear, 🧦 socks, …) on phone boards, saved images, pickers, the roster and the shape key. Every piece has one: ➰ belt, ⛓️ suspenders, and people tell the outerwear apart (🕵️ coat, 🕴️ blazer, 🥷 hoodie, 🧥 jacket). A piece without an emoji would show its number, in the table's digits. Some pieces still share an emoji (the socks, tights and leg warmers; sandals and slippers), but the shape and the name tell them apart.
+  - **Pieces are marked with their emoji** (👕 T-shirt, 👖 pants, 🩲 underwear, 🧦 socks, …) on phone boards, saved images, pickers, the roster and the shape key. Every piece has one: ➰ belt, ⛓️ suspenders, 🩰 tights, 🦵 leg warmers, and people stand in where clothes emoji run out (🕵️ coat, 🕴️ blazer, 🥷 hoodie, 🧑‍🚀 jumpsuit, 🧑‍🔧 overalls, 🧑‍🍳 apron, 🛌 pajamas). A piece without an emoji would show its number, in the table's digits. Some pieces still share an emoji (the two socks; sandals and slippers; sweater and beanie, …), but then the shape differs, and a test keeps it that way: the left and right sock are the only same-emoji, same-shape pair.
   - On boards and in saved images, squares that touch only at a corner get a small diamond "bridge" on that corner, and separate parts are joined by a line (`partLinks` in `src/ui/table/links.ts`: the fewest, shortest lines that connect every part, drawn only in the space between them). The pickers' shape icons draw the same lines. Each separate part also shows the piece's emoji, so a scattered piece still reads as one.
   - Shapes may be turned and mirrored: up to 8 orientations each.
   - New pieces are appended at the end of the list. Numbers and list positions travel in QR codes and outfit codes, so existing pieces are never reordered.
-- **Outfits.** Each player wears any non-empty set of pieces, and starts with none: everyone chooses what they put in the game. Ready-made outfits fill a seat in one click: Everyday (T-shirt, pants, underwear, left sock, right sock: 14 squares, no shoes; what bots wear unless told otherwise), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie and suspenders) and Night in.
-- **Search.** Each seat's picker has a search box and a category filter. It matches the piece's name in the game language, its English name, its category and its number, ignoring case and accents. Search keys are lower-cased in the game's locale before accents are dropped, so Turkish İ still finds i.
+- **Outfits.** Each player wears any non-empty set of pieces, and starts with none: everyone chooses what they put in the game. Ready-made outfits fill a seat in one click: Everyday (T-shirt, pants, underwear, left sock, right sock: 14 squares, no shoes; what bots wear unless told otherwise), Bundled up, Beach day (bikini, sunglasses, sandals, cap, necklace), Dressed up (with a bow tie, suspenders and dress shoes) and Night in.
+- **Search.** Each seat's picker has a search box and a category filter. It matches the piece's name in the game language, its English name, its category and its number, ignoring case and accents. The best matches come first: the whole name, then names that start with the query, then names with a word that does ("glasses" finds glasses before sunglasses). Search keys are lower-cased in the game's locale before accents are dropped, so Turkish İ still finds i.
 - **Pickers show each piece's shape**, as a small icon next to its emoji and name.
 
 - **Wording on screen.** A hit item is still "hit". A fully hit item is "off" ("Off: Bo, shirt"). A player with nothing left on goes nuclear. The last player still dressed is announced, and by default the table plays on until they're down to nothing too.
 - **Clothes are optional.** The app only tracks the game. Whether anyone actually takes anything off is up to the table.
 - **Fleets are still "fleets" in the code.** The engine keeps Battleship's vocabulary: a piece of clothing is a `ship`, an outfit is a `fleet`, a wardrobe is a `shipyard`. Only the wardrobe and presets (`src/engine/wardrobe.ts`, `presets.ts`), the catalogs (`ship.name`, `category.name`, `outfit.name`) and the decorative icons (`src/ui/common/clothing.tsx`) know about clothes. The spec's worked examples (§2.4) keep their naval shipyard as a test fixture (`NAVAL_SHIPYARD` in `src/engine/test-utils.ts`).
-- **The QR payload is at version 8** (and the placement invite at version 9), bumped whenever the wardrobe is renumbered or reshaped. Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
+- **The QR payload is at version 9** (and the placement invite at version 10), bumped whenever the wardrobe is renumbered or reshaped. Each piece is sent as its wardrobe index, orientation and origin, and the phone works out the squares from the same wardrobe. Codes from older versions are refused with a clear message.
 - **Pacing.** The simulation below still uses the original straight-line presets (classic sizes, 17 squares). The default Everyday outfit has only 14 squares, so games should run a little shorter. The simulation hasn't been rerun with shapes.
 
 ## Status

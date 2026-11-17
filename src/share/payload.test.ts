@@ -2,7 +2,7 @@ import fc from 'fast-check';
 import { describe, expect, it } from 'vitest';
 import { fleetCheck, gameCode } from './codes.ts';
 import { WARDROBE, placementsFor } from '../engine/index.ts';
-import { LABEL_SYSTEM_IDS, base64url, decodeFleetImage, encodeFleetImage, fitName, fromBase64url, wardrobePiece, type FleetImage, type FleetImageShip } from './payload.ts';
+import { LABEL_SYSTEM_IDS, PAYLOAD_VERSION, base64url, decodeFleetImage, encodeFleetImage, fitName, fromBase64url, wardrobePiece, type FleetImage, type FleetImageShip } from './payload.ts';
 
 const shipArb: fc.Arbitrary<FleetImageShip> = fc
   .record({ item: fc.integer({ min: 0, max: WARDROBE.length - 1 }), pick: fc.nat() })
@@ -93,7 +93,7 @@ describe('fleet-image payload', () => {
   it('rejects garbage and unknown versions', () => {
     expect(decodeFleetImage('').ok).toBe(false);
     expect(decodeFleetImage('not base64!')).toEqual({ ok: false, error: 'payload.corrupt' });
-    expect(decodeFleetImage(base64url(Uint8Array.from([9, ...new Array<number>(20).fill(0)])))).toEqual({ ok: false, error: 'payload.version' });
+    expect(decodeFleetImage(base64url(Uint8Array.from([PAYLOAD_VERSION + 1, ...new Array<number>(20).fill(0)])))).toEqual({ ok: false, error: 'payload.version' });
   });
 
   it('fleet checks change with the layout version', () => {

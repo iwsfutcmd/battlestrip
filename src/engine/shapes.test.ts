@@ -133,6 +133,8 @@ describe('the wardrobe', () => {
     expect(groups('earrings')).toBe(2);
     expect(groups('shoes')).toBe(2);
     expect(groups('bikini')).toBe(3);
+    expect(groups('pajamas')).toBe(2);
+    expect(groups('glasses')).toBe(2);
     for (const outfit of Object.values(OUTFITS)) for (const id of outfit) expect(ids).toContain(id);
   });
 
@@ -144,14 +146,14 @@ describe('the wardrobe', () => {
     // Each step of this ladder is no smaller than the one before it.
     const ladder = [
       ['ring', 'underwear', 'leftSock'],
-      ['bra', 'boxers', 'shoes', 'gloves', 'cap'],
-      ['tankTop', 'necklace', 'belt', 'undershirt'],
-      ['tShirt', 'skirt', 'shorts', 'swimsuit', 'scarf'],
-      ['shirt'],
+      ['bra', 'boxers', 'shoes', 'gloves', 'cap', 'glasses', 'mask', 'dressShoes'],
+      ['tankTop', 'necklace', 'belt', 'undershirt', 'crown'],
+      ['tShirt', 'skirt', 'shorts', 'swimsuit', 'scarf', 'featherBoa', 'rollerSkates'],
+      ['shirt', 'apron', 'sunHat'],
       ['sweater', 'jacket', 'hoodie'],
       ['pants', 'dress'],
-      ['robe', 'jumpsuit', 'cape'],
-      ['coat', 'raincoat'],
+      ['robe', 'jumpsuit', 'cape', 'overalls', 'labCoat'],
+      ['coat', 'raincoat', 'pajamas', 'wetsuit', 'sari'],
     ];
     for (let i = 1; i < ladder.length; i++) {
       const smaller = Math.max(...(ladder[i - 1] ?? []).map(size));

@@ -30,8 +30,8 @@ export interface PlacementInvite {
   readonly seats: readonly InviteSeat[];
 }
 
-/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. 3: wardrobe renumbered (socks). 4: pieces re-sized. 6: up to 16 seats (outfit codes changed). 7: each seat's chosen colour and shape. 8: blazer, leg warmers and slippers reshaped. 9: jeans removed, wardrobe renumbered. */
-const VERSION = 9;
+/** 2: dresses from the whole wardrobe; outfits as lists of wardrobe indices. 3: wardrobe renumbered (socks). 4: pieces re-sized. 6: up to 16 seats (outfit codes changed). 7: each seat's chosen colour and shape. 8: blazer, leg warmers and slippers reshaped. 9: jeans removed, wardrobe renumbered. 10: thirteen new pieces. */
+const VERSION = 10;
 const NAME_BYTES = 48;
 const MODES: readonly WritingMode[] = ['horizontal-tb', 'vertical-rl', 'vertical-lr'];
 
