@@ -34,7 +34,6 @@ const ITEMS: readonly (readonly [id: string, category: WardrobeCategory, shape: 
   ['blouse', 'tops', '.##/##.'], // 4
   ['vest', 'tops', '#.#/#.#'], // 4: two open panels
   ['pants', 'bottoms', '###/#.#/#.#'], // 7
-  ['jeans', 'bottoms', '###/#.#/#.#'], // 7: the same shape as pants
   ['shorts', 'bottoms', '##/##'], // 4
   ['skirt', 'bottoms', '.#./###'], // 4
   ['leggings', 'bottoms', '####'], // 4
@@ -85,7 +84,7 @@ export const WARDROBE: readonly ShipyardShip[] = ITEMS.map(([id, category, art],
 
 /** Ready-made outfits for the lobby. */
 export const OUTFITS = {
-  everyday: ['tShirt', 'jeans', 'underwear', 'leftSock', 'rightSock'],
+  everyday: ['tShirt', 'pants', 'underwear', 'leftSock', 'rightSock'],
   bundledUp: ['coat', 'sweater', 'pants', 'scarf', 'gloves', 'beanie', 'boots'],
   beachDay: ['bikini', 'sunglasses', 'sandals', 'cap', 'necklace'],
   dressedUp: ['shirt', 'blazer', 'pants', 'bowTie', 'suspenders', 'shoes', 'watch'],

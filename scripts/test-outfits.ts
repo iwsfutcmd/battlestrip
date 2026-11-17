@@ -34,16 +34,16 @@ interface Base {
 const REALISTIC: readonly Base[] = [
   { id: 'office', name: 'Office day', blurb: 'Business casual: a button-up, trousers and a belt, an undershirt beneath.', pieces: ['shirt', 'pants', 'belt', 'undershirt', 'boxers', 'leftSock', 'rightSock', 'shoes', 'watch'] },
   { id: 'interview', name: 'Job interview', blurb: 'The full suit, tie and all.', pieces: ['shirt', 'blazer', 'pants', 'tie', 'belt', 'boxers', 'leftSock', 'rightSock', 'shoes', 'watch'] },
-  { id: 'errands', name: 'Weekend errands', blurb: 'T-shirt, jeans, trainers and a cap.', pieces: ['tShirt', 'jeans', 'underwear', 'bra', 'leftSock', 'rightSock', 'shoes', 'cap'] },
+  { id: 'errands', name: 'Weekend errands', blurb: 'T-shirt, jeans, trainers and a cap.', pieces: ['tShirt', 'pants', 'underwear', 'bra', 'leftSock', 'rightSock', 'shoes', 'cap'] },
   { id: 'heatwave', name: 'Heatwave', blurb: 'As little as decency allows: a tank top and shorts.', pieces: ['tankTop', 'shorts', 'underwear', 'bra', 'sandals', 'sunglasses'] },
-  { id: 'winter', name: 'Winter commute', blurb: 'Coat, sweater, scarf, gloves, hat and boots.', pieces: ['coat', 'sweater', 'jeans', 'underwear', 'bra', 'leftSock', 'rightSock', 'boots', 'scarf', 'gloves', 'beanie'] },
+  { id: 'winter', name: 'Winter commute', blurb: 'Coat, sweater, scarf, gloves, hat and boots.', pieces: ['coat', 'sweater', 'pants', 'underwear', 'bra', 'leftSock', 'rightSock', 'boots', 'scarf', 'gloves', 'beanie'] },
   { id: 'gym', name: 'Gym session', blurb: 'Leggings, a tank top and a sports bra.', pieces: ['tankTop', 'leggings', 'underwear', 'bra', 'leftSock', 'rightSock', 'shoes', 'watch'] },
   { id: 'dateNight', name: 'Date night', blurb: 'A dress, heels and jewelry.', pieces: ['dress', 'underwear', 'bra', 'heels', 'ring', 'necklace', 'earrings'] },
   { id: 'wedding', name: 'Wedding guest', blurb: 'Blazer, bow tie and suspenders.', pieces: ['shirt', 'blazer', 'pants', 'boxers', 'leftSock', 'rightSock', 'shoes', 'watch', 'bowTie', 'suspenders'] },
   { id: 'beach', name: 'At the beach', blurb: 'A bikini, a sun hat and sandals. Swimwear isn’t underwear, so nothing is kept out.', pieces: ['sandals', 'hat', 'sunglasses', 'bikini'] },
   { id: 'pajamas', name: 'Pajama night', blurb: 'A robe over a T-shirt and boxers, and slippers.', pieces: ['tShirt', 'robe', 'boxers', 'slippers'] },
   { id: 'lazySunday', name: 'Lazy Sunday', blurb: 'Hoodie and leggings, never left the couch.', pieces: ['hoodie', 'leggings', 'underwear', 'leftSock', 'rightSock'] },
-  { id: 'rainy', name: 'Rainy walk', blurb: 'Raincoat over a sweater, and boots.', pieces: ['sweater', 'jeans', 'underwear', 'bra', 'leftSock', 'rightSock', 'boots', 'raincoat'] },
+  { id: 'rainy', name: 'Rainy walk', blurb: 'Raincoat over a sweater, and boots.', pieces: ['sweater', 'pants', 'underwear', 'bra', 'leftSock', 'rightSock', 'boots', 'raincoat'] },
   { id: 'festival', name: 'Music festival', blurb: 'Crop top, shorts, boots, a hat and sunglasses.', pieces: ['cropTop', 'shorts', 'underwear', 'bra', 'boots', 'hat', 'sunglasses', 'earrings'] },
   { id: 'hike', name: 'Day hike', blurb: 'T-shirt and shorts, a light jacket, boots and a cap.', pieces: ['tShirt', 'shorts', 'underwear', 'leftSock', 'rightSock', 'boots', 'jacket', 'cap', 'watch', 'sunglasses'] },
   { id: 'superhero', name: 'Superhero costume', blurb: 'Jumpsuit and cape, with the underwear on the outside, of course.', pieces: ['jumpsuit', 'underwear', 'boots', 'cape', 'gloves', 'belt'] },
@@ -51,7 +51,7 @@ const REALISTIC: readonly Base[] = [
 ];
 
 const EXPERIMENTS: readonly Base[] = [
-  { id: 'accessorized', name: 'Everyday, accessorized', blurb: 'The default outfit plus every small accessory: lots of one- and two-square pieces.', pieces: ['tShirt', 'jeans', 'underwear', 'leftSock', 'rightSock', 'watch', 'sunglasses', 'ring', 'necklace', 'earrings'] },
+  { id: 'accessorized', name: 'Everyday, accessorized', blurb: 'The default outfit plus every small accessory: lots of one- and two-square pieces.', pieces: ['tShirt', 'pants', 'underwear', 'leftSock', 'rightSock', 'watch', 'sunglasses', 'ring', 'necklace', 'earrings'] },
   { id: 'jewelryBox', name: 'Jewelry box', blurb: 'No clothes at all, only accessories.', pieces: ['watch', 'sunglasses', 'ring', 'necklace', 'earrings', 'belt'] },
   { id: 'underwearOnly', name: 'Underwear only', blurb: 'The opposite choice: only the intimate pieces.', pieces: ['underwear', 'bra', 'leftSock', 'rightSock'] },
   { id: 'layers', name: 'Every layer', blurb: 'Everything for the cold, at once.', pieces: ['shirt', 'sweater', 'pants', 'undershirt', 'boxers', 'tights', 'leftSock', 'rightSock', 'boots', 'coat', 'beanie', 'scarf', 'gloves'] },

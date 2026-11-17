@@ -149,7 +149,7 @@ describe('the wardrobe', () => {
       ['tShirt', 'skirt', 'shorts', 'swimsuit', 'scarf'],
       ['shirt'],
       ['sweater', 'jacket', 'hoodie'],
-      ['pants', 'jeans', 'dress'],
+      ['pants', 'dress'],
       ['robe', 'jumpsuit', 'cape'],
       ['coat', 'raincoat'],
     ];

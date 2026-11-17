@@ -48,9 +48,9 @@ export interface FleetImage {
  * 2: clothing kinds replaced ship kinds. 3: wardrobe pieces with shapes and orientations.
  * 4: one-square underwear, two-square bra, left and right socks (wardrobe renumbered).
  * 5: every piece sized by how big it really is.
- * 7: blazer, leg warmers and slippers reshaped.
+ * 7: blazer, leg warmers and slippers reshaped. 8: jeans removed (pants cover them), wardrobe renumbered.
  */
-export const PAYLOAD_VERSION = 7;
+export const PAYLOAD_VERSION = 8;
 /** Keeps the worst-case URL under ~400 characters (24 emoji ZWJ sequences would be ~600 bytes). */
 export const MAX_NAME_BYTES = 160;
 

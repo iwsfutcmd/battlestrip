@@ -3,7 +3,7 @@ import { deal, handOut } from './table.ts';
 
 test.use({ reducedMotion: 'reduce' });
 
-const PIECES = /T-shirt|jeans|underwear|left sock|right sock/u;
+const PIECES = /T-shirt|pants|underwear|left sock|right sock/u;
 
 test('a highlighted hit square says whose clothes are there, and which piece', async ({ page, browser }) => {
   await deal(page, { lang: 'en', names: ['Amani', 'Bo'], autoSize: true });

@@ -101,7 +101,7 @@ test('a Chinese table: 天干 rows on the TV and the phone', async ({ page, brow
   await phone.goto(urls[0] ?? '');
   await phone.getByRole('checkbox').check();
   await expect(phone.locator('.fleet-board .board-row-label').nth(18)).toContainText('癸');
-  await expect(phone.locator('.phone-legend')).toContainText('牛仔褲');
+  await expect(phone.locator('.phone-legend')).toContainText('長褲');
   await phone.close();
   // Typed calls in the table's own labels.
   await page.locator('.call-input').fill('甲７');

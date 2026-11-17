@@ -8,7 +8,7 @@ const TIEBREAK = 1e-3;
 
 /**
  * FinisherBot plays like a person chasing a hit: "let's finish Amani's
- * jeans." While any opponent has a piece with a named hit that is still on,
+ * pants." While any opponent has a piece with a named hit that is still on,
  * it picks one such piece, the one with the fewest squares left to hit (ties:
  * the one whose next square is likeliest), and calls where that piece can
  * still be, by the same placement density as DensityBot, until it comes off.

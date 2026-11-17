@@ -8,12 +8,11 @@ const ICONS: Readonly<Record<string, string>> = {
   shirt: '👔',
   tankTop: '🎽',
   sweater: '🧶',
-  hoodie: '🧥',
+  hoodie: '🥷',
   cropTop: '👚',
   blouse: '👚',
   vest: '🦺',
   pants: '👖',
-  jeans: '👖',
   shorts: '🩳',
   skirt: '👗',
   leggings: '👖',
@@ -34,9 +33,9 @@ const ICONS: Readonly<Record<string, string>> = {
   sandals: '🩴',
   slippers: '🩴',
   heels: '👠',
-  coat: '🧥',
+  coat: '🕵️',
   jacket: '🧥',
-  blazer: '🧥',
+  blazer: '🕴️',
   raincoat: '☔',
   cape: '🦸',
   hat: '🎩',
@@ -45,6 +44,8 @@ const ICONS: Readonly<Record<string, string>> = {
   scarf: '🧣',
   gloves: '🧤',
   tie: '👔',
+  belt: '➰',
+  suspenders: '⛓️',
   watch: '⌚',
   sunglasses: '🕶️',
   ring: '💍',
@@ -72,7 +73,8 @@ export function ClothingIcon({ kind }: { readonly kind: string }) {
 
 /**
  * What marks a piece, on a board and beside its name: its emoji, or its
- * number for the few pieces without one (belt, suspenders).
+ * number for a piece without one (every piece has one today; the number is
+ * there so a new piece can't end up unmarked).
  */
 export function pieceMarker(kind: string, number: number, locale: string): string {
   return ICONS[kind] ?? new Intl.NumberFormat(locale).format(number);

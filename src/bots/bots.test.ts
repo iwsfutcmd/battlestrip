@@ -105,11 +105,11 @@ describe('RandomBot', () => {
 
 describe('DensityBot with shaped pieces', () => {
   it('places a hit piece by its real shape, not as a line of its length', () => {
-    // Jeans are an upside-down U (###/#.#/#.#). Hit both ends of the waistband and the foot of a leg:
-    // no straight line covers those three squares, but the jeans still fit, so the density must stay on them.
+    // Pants are an upside-down U (###/#.#/#.#). Hit both ends of the waistband and the foot of a leg:
+    // no straight line covers those three squares, but the pants still fit, so the density must stay on them.
     const rules = wardrobeRules({ rows: 9, cols: 9 });
-    const seats = [seat('me', ['underwear'], 'bot'), seat('you', ['jeans'], 'bot')];
-    const s0 = startedGame(seats, { me: [{ ship: sid('underwear'), origin: at('I9'), orientation: 0 }], you: [{ ship: sid('jeans'), origin: at('A1'), orientation: 0 }] }, 'me', rules);
+    const seats = [seat('me', ['underwear'], 'bot'), seat('you', ['pants'], 'bot')];
+    const s0 = startedGame(seats, { me: [{ ship: sid('underwear'), origin: at('I9'), orientation: 0 }], you: [{ ship: sid('pants'), origin: at('A1'), orientation: 0 }] }, 'me', rules);
     let s = call(s0, 'me', 'A1').state;
     s = call(s, 'you', 'I1').state;
     s = call(s, 'me', 'A3').state;

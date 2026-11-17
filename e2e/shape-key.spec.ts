@@ -11,7 +11,7 @@ test('the shape key lists each piece in play once, under the players', async ({ 
   const items = page.locator('.tv .tv-side .shape-key-item');
   await expect(items).toHaveCount(5);
   await expect(items.first()).toContainText('T-shirt');
-  await expect(items.nth(1)).toContainText('jeans');
+  await expect(items.nth(1)).toContainText('pants');
   await expect(page.locator('.tv .shape-key-item svg.shape-icon')).toHaveCount(5);
 });
 
