@@ -309,7 +309,7 @@ npm run sim -- --players 2..8 --games 5000 --bots density --fleets full,random -
   - *Game spent without a fleet*: the mean over players of the share of the game's turns after their last ship sank, spent nuclear (or knocked out, without bombs).
   - *Self-hit turns*: turns on which the caller hit their own board.
 
-### Pacing table
+### Pacing table (the original straight-line ships)
 
 DensityBot in every seat, classic shipyard, 10×10, self-fire on, named hits on, **2,000 games per row** (`--players 2..8 --games 2000 --fleets full,random --nuclear both --seed 1`, about 4 minutes). "Random" fleets are uniform over non-empty subsets of the five classic ships.
 
@@ -364,6 +364,55 @@ Named hits and self-fire, with bombs on, 1,000 games per cell (`--players 3,4,6,
 - **Two players is a different game.** Each player avoids their own ship squares, so the last squares left are the ones that hold ships on *both* boards. One call then sinks both fleets: 88% of 2-player full-fleet games (39% with random fleets) end with no last fleet. That supports the spec's 3–8 target; a 2-player variant would need a rule of its own.
 - **Turn order doesn't matter.** The last-fleet rate by position in turn order is flat within noise at every player count.
 - **Self-hits** are rare with DensityBot (0.1–3.4% of turns), because it only hits itself when that sinks someone. Humans will do it more.
+
+### Balance: the game as it is now
+
+`npm run balance` plays the game as it's played today: wardrobe outfits, the board sized to the outfits, play on after one player is left dressed, DensityBot in every seat. Unlike `npm run sim`, every game draws its own table, so a few hundred games cover the space: 2–8 players, dressed *matched* (everyone in the same ready-made outfit), *mixed* (a ready-made outfit each) or *random* (1–12 pieces each from the whole wardrobe). Options: `--games`, `--players`, `--dress`, `--maxPieces`, `--target` (the first-shot hit chance the board is sized for; the game uses 0.5), `--seed`, `--locale`, `--out`. It writes `balance.md`, `balance.json` (every game) and `balance-players.csv` (one row per player) to `sim-out/`.
+
+500 games (`npm run balance -- --games 500 --seed 1`, about 40 s):
+
+| | Games | Board squares: mean · median · p95 | Squares covered | Turns: mean · median · p95 | Calls each | First piece off | Pieces off by ¼ · ½ · ¾ of the game | First naked | Time spent naked | Last one dressed holds out (turns): mean · median · p95 | Everyone stripped on one call | Self-hit turns |
+|---|---:|---|---:|---|---:|---:|---|---:|---:|---|---:|---:|
+| 2 | 76 | 73.6 · 72 · 121 | 50% | 73.6 · 72 · 121 | 36.8 | 34% | 4% · 11% · 24% | 100% | 0% | 2.3 · 1 · 6 | 88% | 10% |
+| 3 | 71 | 108.4 · 110 · 169 | 49% | 106.6 · 100 · 169 | 35.5 | 19% | 8% · 21% · 40% | 92% | 3% | 3.3 · 2 · 10 | 62% | 1% |
+| 4 | 64 | 133.0 · 121 · 210 | 49% | 131.9 · 121 · 210 | 33.0 | 15% | 9% · 22% · 40% | 93% | 2% | 2.0 · 1 · 5 | 66% | 1% |
+| 5 | 77 | 167.5 · 156 · 256 | 49% | 165.2 · 155 · 256 | 33.0 | 10% | 10% · 26% · 43% | 88% | 4% | 2.3 · 2 · 6 | 48% | 0% |
+| 6 | 69 | 193.7 · 182 · 306 | 50% | 189.8 · 180 · 306 | 31.6 | 10% | 10% · 25% · 44% | 87% | 4% | 2.1 · 2 · 5 | 43% | 0% |
+| 7 | 70 | 236.6 · 225 · 361 | 49% | 230.1 · 224 · 360 | 32.9 | 8% | 11% · 26% · 44% | 81% | 5% | 1.6 · 1 · 3 | 36% | 0% |
+| 8 | 73 | 256.3 · 256 · 400 | 49% | 252.6 · 240 · 398 | 31.6 | 7% | 12% · 25% · 43% | 84% | 4% | 1.6 · 1 · 5 | 49% | 0% |
+
+| | Games | Board squares: mean · median · p95 | Squares covered | Turns: mean · median · p95 | Calls each | First piece off | Pieces off by ¼ · ½ · ¾ of the game | First naked | Time spent naked | Last one dressed holds out (turns): mean · median · p95 | Everyone stripped on one call | Self-hit turns |
+|---|---:|---|---:|---|---:|---:|---|---:|---:|---|---:|---:|
+| matched | 167 | 160.5 · 132 · 361 | 49% | 159.5 · 132 · 360 | 31.9 | 15% | 10% · 23% · 41% | 93% | 3% | 1.9 · 1 · 4 | 61% | 1% |
+| mixed | 180 | 158.2 · 156 · 272 | 50% | 156.9 · 155 · 270 | 31.8 | 15% | 10% · 23% · 41% | 93% | 3% | 1.8 · 1 · 4 | 55% | 1% |
+| random | 153 | 183.4 · 169 · 324 | 49% | 177.0 · 169 · 320 | 37.3 | 15% | 11% · 25% · 43% | 82% | 6% | 2.7 · 2 · 7 | 52% | 1% |
+
+Wearing more or less than the rest of the table, on mixed and random tables. 1.00× means a group is the last one dressed exactly as often as its share of seats:
+
+| Squares worn, over the table mean | Players | Last one dressed, against a fair share | Time spent naked |
+|---|---:|---:|---:|
+| under ½ | 101 | 0.10× | 19% |
+| ½–⅘ | 259 | 0.67× | 5% |
+| ⅘–1¼ | 222 | 0.71× | 4% |
+| 1¼–2 | 241 | 1.86× | 2% |
+| over 2 | 21 | 2.74× | 1% |
+
+| At the table | Players | Last one dressed, against a fair share | Time spent naked |
+|---|---:|---:|---:|
+| most clothes at the table | 199 | 2.01× | 2% |
+| in between | 437 | 0.77× | 4% |
+| least clothes at the table | 202 | 0.43× | 12% |
+
+#### What it says
+
+- **The board sizing hits its target.** On the actual layouts, 49–50% of squares are under someone's clothes at every table size, so the estimate the lobby uses is accurate.
+- **Game length is the board size.** Bots end up calling almost every square: turns ≈ board squares, about 32–37 calls each at any table size. At 50% that's about 130 calls at 4 players and 250 at 8. Single-square pieces (underwear, socks, rings) are needles in a haystack: nothing narrows them down, so the last ones are only found by sweeping.
+- **Clothes come off late.** The first piece is off 7–34% of the way through, but only about 40% of all clothes are off by three-quarters of the way; the rest come off in the last quarter. The first player is naked 81–100% of the way through, and players spend at most 6% of the game naked.
+- **Most games end with the last players stripping together** (36–66% at 3–8 players; 88% at 2). Everyone protects their own squares, so the last squares left tend to be shared, and one call strips several people. When someone is left dressed, they last only 1–3 turns, so play-on rarely matters.
+- **More clothes, more staying power.** Whoever wears the most at the table is the last one dressed about twice as often as a fair share; whoever wears the least, under half as often, and someone wearing under half the table's average spends about a fifth of the game naked. Matched outfits (the default: Everyday for everyone) are fair.
+- **Turn order shows no clear effect** on matched tables; the per-position samples are small.
+- **The target is the length dial.** At 65% (`--target 0.65`) boards shrink by about a third and so do games (23.5 calls each instead of 33.5), with the same late pacing, but more games end with everyone stripping on one call (70% instead of 56%).
+- Bots are not people: DensityBot searches far better than a table of friends, so real games will run longer, and people will hit themselves more often.
 
 ## License
 

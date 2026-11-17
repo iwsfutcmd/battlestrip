@@ -25,7 +25,8 @@
     "test:watch": "vitest",
     "e2e": "playwright test --trace off",
     "check": "npm run typecheck && npm run lint && npm run test",
-    "sim": "tsx scripts/simulate.ts"
+    "sim": "tsx scripts/simulate.ts",
+    "balance": "tsx scripts/balance.ts"
   },
   "dependencies": {
     "@preact/signals": "^2.11.4",
