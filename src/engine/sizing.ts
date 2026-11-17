@@ -85,6 +85,18 @@ export interface AutoSize extends BoardSize {
   readonly fits: boolean;
 }
 
+/** The first size in `candidates` on which every fleet can be laid out, or the last one if none passes. */
+function firstThatFits(rules: Rules, fleets: readonly (readonly ShipId[])[], candidates: readonly BoardSize[]): { size: BoardSize; fits: boolean } {
+  // Identical fleets need probing once.
+  const keys = fleets.map((f) => [...f].sort().join(','));
+  const distinct = fleets.filter((_, i) => keys.indexOf(keys[i] ?? '') === i);
+  for (const size of candidates) {
+    const sized: Rules = { ...rules, rows: size.rows, cols: size.cols };
+    if (distinct.every((f) => fleetFits(sized, f))) return { size, fits: true };
+  }
+  return { size: candidates[candidates.length - 1] ?? { rows: MAX_SIDE, cols: MAX_SIDE }, fits: false };
+}
+
 /**
  * The board for these fleets: the size whose first-shot hit chance is closest
  * to `target`, or the next size up on which every fleet can be laid out.
@@ -92,16 +104,54 @@ export interface AutoSize extends BoardSize {
  */
 export function autoBoardSize(rules: Rules, fleets: readonly (readonly ShipId[])[], target = TARGET_HIT_CHANCE): AutoSize {
   const squares = fleets.map((f) => fleetSquares(rules, f));
-  // Identical fleets need probing once.
-  const keys = fleets.map((f) => [...f].sort().join(','));
-  const distinct = fleets.filter((_, i) => keys.indexOf(keys[i] ?? '') === i);
-  const candidates = boardSizesFor(squares, target);
-  for (const size of candidates) {
-    const sized: Rules = { ...rules, rows: size.rows, cols: size.cols };
-    if (distinct.every((f) => fleetFits(sized, f))) {
-      return { ...size, chance: hitChance(squares, size.rows * size.cols), fits: true };
+  const { size, fits } = firstThatFits(rules, fleets, boardSizesFor(squares, target));
+  return { ...size, chance: hitChance(squares, size.rows * size.cols), fits };
+}
+
+// ---- Sizing for game length -------------------------------------------------------------
+
+/**
+ * How many calls a whole game takes, from bot games: each square under
+ * someone's clothes costs about 0.85 calls to clear (less than one, since
+ * naked players' bombs clear four at once) and each empty square about 0.58.
+ * Two-player games run about a third longer, because each player avoids their
+ * own squares and the last squares left hold both outfits. Fitted to 1,500
+ * DensityBot games, 2–8 players, on boards sized for 25–85% first-shot hit
+ * chances; for 3–8 players it is within about 6% on average and 11% for a
+ * typical single game. People search less well than the bot, so real games run longer.
+ */
+export const LENGTH_MODEL = { covered: 0.848, empty: 0.579, twoPlayers: 1.34 } as const;
+
+/** Predicted calls in a whole game (every player's turns together), played on until everyone is naked. */
+export function predictTurns(squares: readonly number[], area: number): number {
+  const covered = hitChance(squares, area);
+  const turns = area * (LENGTH_MODEL.covered * covered + LENGTH_MODEL.empty * (1 - covered));
+  return squares.length === 2 ? turns * LENGTH_MODEL.twoPlayers : turns;
+}
+
+/** Candidate sizes for a game of about `turns` calls: the closest first, then every larger size. */
+export function boardSizesForLength(squares: readonly number[], turns: number): readonly BoardSize[] {
+  let best = 0;
+  let bestGap = Infinity;
+  BOARD_SIZES.forEach((size, i) => {
+    const gap = Math.abs(predictTurns(squares, size.rows * size.cols) - turns);
+    if (gap < bestGap) {
+      best = i;
+      bestGap = gap;
     }
-  }
-  const largest = candidates[candidates.length - 1] ?? { rows: MAX_SIDE, cols: MAX_SIDE };
-  return { ...largest, chance: hitChance(squares, largest.rows * largest.cols), fits: false };
+  });
+  return BOARD_SIZES.slice(best);
+}
+
+export interface LengthSize extends AutoSize {
+  /** Predicted calls in the whole game on this board. */
+  readonly turns: number;
+}
+
+/** The board for a game of about `turns` calls, or the next size up on which every fleet can be laid out. */
+export function autoBoardSizeForLength(rules: Rules, fleets: readonly (readonly ShipId[])[], turns: number): LengthSize {
+  const squares = fleets.map((f) => fleetSquares(rules, f));
+  const { size, fits } = firstThatFits(rules, fleets, boardSizesForLength(squares, turns));
+  const area = size.rows * size.cols;
+  return { ...size, chance: hitChance(squares, area), fits, turns: predictTurns(squares, area) };
 }

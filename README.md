@@ -486,6 +486,47 @@ At 300 games each (`npm run outfit-lineup -- --games 300 --seed 1`, about 2 minu
 - **Size alone doesn't decide it.** Only underwear and socks (5 squares) is last dressed 0.84×; every winter layer at once (50 squares) 1.09×.
 - With 300 games, a "last one dressed" figure is good to about ±0.2×.
 
+### Sizing the board for game length
+
+The lobby sizes the board for a 50% chance that a random first shot hits someone. That says nothing about how long a game runs, and game length grows with the table and the clothes. `predictTurns` and `autoBoardSizeForLength` in `src/engine/sizing.ts` size it for a number of calls instead (every player's turns together). The model behind them was fitted to 1,500 bot games on boards from 25% to 85% coverage: each square under someone's clothes costs about 0.85 calls and each empty square about 0.58, and 2-player games run about a third longer. It is within about 6% on average for 3–8 players.
+
+`npm run sizing-compare` plays the same tables under each sizing and judges two failure modes: **downtime** (how long games run, time spent naked, the longest stretch a dressed player goes without being hit) and **the most-dressed player winning**. Tables are 2–8 players in realistic, mixed and random outfits, 400 games per sizing (`--sizings hit:0.5,length:60,length:80,length:100,length:120`):
+
+| Board sized for | Board squares (mean) | Calls: mean · median · p95 | Time spent naked: turns (share) | Longest wait without a hit: mean · p90 turns | Most dressed at the table is last dressed | Least dressed | Joint strip |
+|---|---:|---|---|---|---:|---:|---:|
+| first shot hits 50% | 167 | 121.8 · 117 · 213 | 21.6 (15%) | 35.4 · 66 | 1.27× | 0.70× | 13% |
+| about 60 calls | 79 | 65.2 · 63 · 88 | 6.7 (10%) | 12.2 · 21 | 1.43× | 0.73× | 18% |
+| about 80 calls | 104 | 81.8 · 81 · 98 | 9.6 (12%) | 16.9 · 30 | 1.29× | 0.85× | 13% |
+| about 100 calls | 133 | 101.4 · 102 · 124 | 12.8 (13%) | 23.4 · 41 | 1.17× | 0.87× | 13% |
+| about 120 calls | 163 | 120.3 · 122 · 149 | 16.7 (14%) | 29.6 · 52 | 1.12× | 0.91× | 8% |
+
+Mean calls by number of players:
+
+| Board sized for | 2p | 3p | 4p | 5p | 6p | 7p | 8p |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| first shot hits 50% | 72 | 81 | 93 | 118 | 146 | 159 | 180 |
+| about 60 calls | 62 | 67 | 62 | 64 | 66 | 67 | 68 |
+| about 80 calls | 80 | 83 | 79 | 81 | 82 | 82 | 85 |
+| about 100 calls | 102 | 103 | 101 | 101 | 102 | 99 | 102 |
+| about 120 calls | 120 | 124 | 120 | 120 | 120 | 117 | 121 |
+
+How often the most-dressed player is the last one dressed (each cell is about 50 games, so ±10–13 points):
+
+| Board sized for | 2p (fair 50%) | 3p (fair 33%) | 4p (fair 25%) | 5p (fair 20%) | 6p (fair 17%) | 7p (fair 14%) | 8p (fair 13%) |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| first shot hits 50% | 26% | 49% | 33% | 27% | 24% | 18% | 13% |
+| about 60 calls | 39% | 43% | 26% | 20% | 26% | 29% | 28% |
+| about 80 calls | 28% | 51% | 30% | 23% | 26% | 22% | 15% |
+| about 100 calls | 28% | 33% | 42% | 23% | 21% | 20% | 15% |
+| about 120 calls | 35% | 49% | 30% | 20% | 26% | 4% | 18% |
+
+#### What it says
+
+- **Sizing for length holds the target at every table size** (about 100 calls gives 99–103 from 2 to 8 players), where the 50% sizing runs from 72 calls at 2 players to 180 at 8, with a long tail (95th percentile 213).
+- **At the same average length, it beats the 50% sizing on every measure.** About 120 calls averages what the 50% sizing does (120 against 122), but with a 95th percentile of 149 instead of 213, less time naked (16.7 turns against 21.6), shorter waits without a hit (30 against 35), a smaller edge for the most dressed (1.12× against 1.27×) and fewer joint strips (8% against 13%).
+- **Shorter games are denser, and density helps the most dressed.** Their edge goes from 1.12× at about 120 calls to 1.43× at about 60. In no setting is the most-dressed player more likely than not to be the last one dressed.
+- These are bot calls. People search less well, so a board sized for 100 bot calls will take more calls at a real table.
+
 ## License
 
 [MIT](LICENSE).

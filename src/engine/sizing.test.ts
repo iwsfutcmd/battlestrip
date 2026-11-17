@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { newGame } from './game.ts';
-import { autoBoardSize, BOARD_SIZES, boardSizesFor, fleetFits, fleetSquares, hitChance, TARGET_HIT_CHANCE } from './sizing.ts';
+import { autoBoardSize, autoBoardSizeForLength, BOARD_SIZES, boardSizesFor, fleetFits, fleetSquares, hitChance, predictTurns, TARGET_HIT_CHANCE } from './sizing.ts';
 import { outfit, WARDROBE, wardrobeRules } from './wardrobe.ts';
 import type { PlayerId, ShipId } from './types.ts';
 
@@ -88,5 +88,35 @@ describe('autoBoardSize', () => {
     const size = autoBoardSize(rules, fleets);
     const g = newGame({ ...rules, ...size }, fleets.map((fleet, i) => ({ id: `p${i}` as PlayerId, kind: 'human', fleet })), 7);
     expect(g.ok).toBe(true);
+  });
+});
+
+describe('sizing for game length', () => {
+  it('predicts longer games on bigger boards, and longer two-player games', () => {
+    const squares = [14, 14, 14];
+    let last = 0;
+    for (const s of BOARD_SIZES) {
+      const t = predictTurns(squares, s.rows * s.cols);
+      expect(t).toBeGreaterThan(last);
+      last = t;
+    }
+    expect(predictTurns([14, 14], 100)).toBeGreaterThan(predictTurns([14, 14, 14], 100));
+  });
+
+  it('picks the board whose predicted length is closest to the target, at any table size', () => {
+    for (const n of [3, 5, 8]) {
+      const fleets = Array.from({ length: n }, () => everyday);
+      const size = autoBoardSizeForLength(rules, fleets, 100);
+      expect(size.fits).toBe(true);
+      const gap = (s: { rows: number; cols: number }): number => Math.abs(predictTurns(fleets.map(() => 14), s.rows * s.cols) - 100);
+      for (const s of BOARD_SIZES) expect(gap(size)).toBeLessThanOrEqual(gap(s) + 1e-9);
+      expect(Math.abs(size.turns - 100)).toBeLessThan(15);
+    }
+  });
+
+  it('sizes a more dressed table more densely for the same length', () => {
+    const light = autoBoardSizeForLength(rules, [everyday, everyday, everyday, everyday], 100);
+    const heavy = autoBoardSizeForLength(rules, [outfit('bundledUp'), outfit('bundledUp'), outfit('bundledUp'), outfit('bundledUp')], 100);
+    expect(heavy.chance).toBeGreaterThan(light.chance);
   });
 });

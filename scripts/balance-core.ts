@@ -11,6 +11,7 @@
 import { playBotGame, type BotKind } from '../src/bots/index.ts';
 import {
   autoBoardSize,
+  autoBoardSizeForLength,
   cellsOf,
   fleetSquares,
   gameStats,
@@ -21,6 +22,7 @@ import {
   TARGET_HIT_CHANCE,
   WARDROBE,
   wardrobeRules,
+  type GameEvent,
   type PlayerId,
   type RngState,
   type Rules,
@@ -53,6 +55,8 @@ export interface BalanceOptions {
   readonly target?: number | undefined;
   /** The bot in every seat (default DensityBot). Seeds don't depend on it, so runs with different bots are paired. */
   readonly bots?: BotKind | undefined;
+  /** Size the board for a game of about this many calls instead of for `target`'s first-shot hit chance. */
+  readonly length?: number | undefined;
 }
 
 export interface PlayerRecord {
@@ -69,6 +73,10 @@ export interface PlayerRecord {
   /** The last one still dressed (shares no title with anyone if everyone stripped on the same call). */
   readonly lastDressed: boolean;
   readonly selfHits: number;
+  /** Turns spent naked. */
+  readonly nakedTurns: number;
+  /** The longest run of turns, while still dressed, with no hit on their clothes. */
+  readonly longestQuiet: number;
 }
 
 export interface GameRecord {
@@ -138,8 +146,17 @@ export function drawTable(options: BalanceOptions, g: number): { dress: Dress; f
     return draw(ids, 1 + int(options.maxPieces), int);
   });
   const base = wardrobeRules({ playOut: true });
-  const size = autoBoardSize(base, fleets, options.target ?? TARGET_HIT_CHANCE);
+  const size = options.length !== undefined ? autoBoardSizeForLength(base, fleets, options.length) : autoBoardSize(base, fleets, options.target ?? TARGET_HIT_CHANCE);
   return { dress, fleets, rules: { ...base, rows: size.rows, cols: size.cols } };
+}
+
+/** The longest run of turns from the start until `until` with no hit on `board`'s clothes. */
+function longestQuiet(events: readonly GameEvent[], board: PlayerId | undefined, until: number): number {
+  const hits = events.flatMap((e) => (e.kind === 'shotResolved' && e.board === board && e.outcome !== 'miss' && e.turn <= until ? [e.turn] : []));
+  const marks = [0, ...new Set(hits), until].sort((x, y) => x - y);
+  let longest = 0;
+  for (let i = 1; i < marks.length; i++) longest = Math.max(longest, (marks[i] ?? 0) - (marks[i - 1] ?? 0));
+  return longest;
 }
 
 export function playBalanceGame(options: BalanceOptions, g: number): GameRecord {
@@ -186,6 +203,8 @@ export function playBalanceGame(options: BalanceOptions, g: number): GameRecord 
       nakedShare: p.sunkOnTurn === null || stats.turns === 0 ? 0 : (stats.turns - p.sunkOnTurn) / stats.turns,
       lastDressed: seats[i]?.id === lastId,
       selfHits: p.selfHits,
+      nakedTurns: p.sunkOnTurn === null ? 0 : stats.turns - p.sunkOnTurn,
+      longestQuiet: longestQuiet(s.events, seats[i]?.id, p.sunkOnTurn ?? stats.turns),
     })),
   };
 }

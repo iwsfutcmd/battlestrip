@@ -28,7 +28,8 @@
     "sim": "tsx scripts/simulate.ts",
     "balance": "tsx scripts/balance.ts",
     "outfit-experiment": "tsx scripts/outfit-experiment.ts",
-    "outfit-lineup": "tsx scripts/outfit-lineup.ts"
+    "outfit-lineup": "tsx scripts/outfit-lineup.ts",
+    "sizing-compare": "tsx scripts/sizing-compare.ts"
   },
   "dependencies": {
     "@preact/signals": "^2.11.4",
